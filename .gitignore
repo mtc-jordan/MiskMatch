@@ -1,0 +1,65 @@
+# ── OS ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── IDE ──────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ── Secrets (NEVER commit) ──────────────────
+.env
+.env.*
+!.env.example
+google-services.json
+GoogleService-Info.plist
+
+# ── Python / Backend ────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+venv/
+.venv/
+*.egg-info/
+htmlcov/
+.coverage
+
+# ── Flutter / Dart ──────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+**/doc/api/
+
+# ── Android ─────────────────────────────────
+**/android/**/debug/
+**/android/**/profile/
+**/android/**/release/
+**/android/.gradle/
+**/android/local.properties
+*.apk
+*.aab
+
+# ── iOS ─────────────────────────────────────
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+
+# ── Claude Code ─────────────────────────────
+.claude/
+
+# ── Misc ────────────────────────────────────
+*.log
+*.class
+*.swp
+.history
+.buildlog/
+app.*.symbols
+app.*.map.json

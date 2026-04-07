@@ -1,0 +1,33 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Style
+    prefer_single_quotes:           true
+    prefer_const_constructors:      true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals:            true
+    prefer_final_in_for_each:       true
+    avoid_print:                    true
+    use_super_parameters:           true
+    use_colored_box:                true
+    use_decorated_box:              true
+    sized_box_for_whitespace:       true
+
+    # Safety
+    avoid_dynamic_calls:            true
+    avoid_catches_without_on_clauses: false
+    cancel_subscriptions:           true
+    close_sinks:                    true
+
+    # Riverpod
+    avoid_manual_providers_as_generated_provider_dependency: false
+
+analyzer:
+  errors:
+    missing_required_param:   error
+    missing_return:           error
+    dead_code:                warning
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'

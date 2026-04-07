@@ -1,0 +1,113 @@
+# MiskMatch — Docker Compose (Development)
+# Run: docker compose up -d
+
+version: "3.9"
+
+services:
+
+  # ── FastAPI Backend ────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miskmatch_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app          # hot reload in dev
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://miskmatch:miskmatch@db:5432/miskmatch
+      - DATABASE_URL_SYNC=postgresql://miskmatch:miskmatch@db:5432/miskmatch
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - SECRET_KEY=dev-secret-key-change-in-production-32chars
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # ── PostgreSQL ─────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: miskmatch_db
+    environment:
+      POSTGRES_USER: miskmatch
+      POSTGRES_PASSWORD: miskmatch
+      POSTGRES_DB: miskmatch
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miskmatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Redis ──────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: miskmatch_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Celery Worker ──────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miskmatch_worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://miskmatch:miskmatch@db:5432/miskmatch
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=true
+    depends_on:
+      - db
+      - redis
+    command: celery -A app.core.celery worker --loglevel=info
+    restart: unless-stopped
+
+  # ── Flower (Celery monitor) ─────────────────
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miskmatch_flower
+    ports:
+      - "5555:5555"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    command: celery -A app.core.celery flower --port=5555
+    restart: unless-stopped
+
+  # ── PgAdmin (DB GUI) ───────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: miskmatch_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@miskmatch.app
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

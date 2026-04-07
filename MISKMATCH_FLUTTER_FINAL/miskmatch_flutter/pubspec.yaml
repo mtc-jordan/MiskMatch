@@ -1,0 +1,109 @@
+name: miskmatch
+description: MiskMatch — Islamic Matrimony Platform. "Sealed with musk." — Quran 83:26
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^13.2.1
+
+  # HTTP & API
+  dio: ^5.4.3
+
+  # Secure Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.3
+
+  # UI & Theming
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+  flutter_svg: ^2.0.10+1
+
+  # Forms & Input
+  pin_code_fields: ^8.0.1
+
+  # Media
+  image_picker: ^1.1.2
+  image_cropper: ^8.0.0
+  record: ^6.0.0
+  audioplayers: ^6.0.0
+
+  # Auth
+  local_auth: ^2.2.0
+  crypto: ^3.0.3
+
+  # Firebase
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.4
+
+  # Real-time
+  web_socket_channel: ^3.0.3
+
+  # Voice & Video Calls
+  agora_rtc_engine: ^6.3.0
+
+  # Utilities
+  intl: ^0.20.2
+  timeago: ^3.6.1
+  url_launcher: ^6.3.0
+  package_info_plus: ^8.0.0
+  connectivity_plus: ^6.0.3
+  permission_handler: ^11.3.1
+  uuid: ^4.4.0
+  equatable: ^2.0.5
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+  build_runner: ^2.4.9
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.4.0
+  mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icons/app_icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#8B1A4A"
+  adaptive_icon_foreground: "assets/icons/app_icon.png"
+  web:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Scheherazade
+      fonts:
+        - asset: assets/fonts/ScheherazadeNew-Regular.ttf
+        - asset: assets/fonts/ScheherazadeNew-Bold.ttf
+          weight: 700

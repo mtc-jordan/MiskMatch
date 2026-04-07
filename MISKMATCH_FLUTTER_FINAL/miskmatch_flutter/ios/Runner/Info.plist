@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <!-- ── App Identity ──────────────────────────────────────── -->
+  <key>CFBundleDisplayName</key>
+  <string>MiskMatch</string>
+
+  <key>CFBundleIdentifier</key>
+  <string>app.miskmatch.ios</string>
+
+  <key>CFBundleShortVersionString</key>
+  <string>$(FLUTTER_BUILD_NAME)</string>
+
+  <key>CFBundleVersion</key>
+  <string>$(FLUTTER_BUILD_NUMBER)</string>
+
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+
+  <key>CFBundleExecutable</key>
+  <string>$(EXECUTABLE_NAME)</string>
+
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+
+  <!-- ── Minimum OS ──────────────────────────────────────────── -->
+  <key>MinimumOSVersion</key>
+  <string>14.0</string>
+
+  <!-- ── Orientations ────────────────────────────────────────── -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+  </array>
+
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+  </array>
+
+  <!-- ── Status Bar ──────────────────────────────────────────── -->
+  <key>UIStatusBarStyle</key>
+  <string>UIStatusBarStyleDefault</string>
+
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <false/>
+
+  <!-- ── Privacy Descriptions (App Store required) ──────────── -->
+  <key>NSCameraUsageDescription</key>
+  <string>MiskMatch uses your camera to upload a profile photo.</string>
+
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>MiskMatch accesses your photo library to upload a profile photo.</string>
+
+  <key>NSMicrophoneUsageDescription</key>
+  <string>MiskMatch uses the microphone for your voice introduction and voice messages.</string>
+
+  <key>NSFaceIDUsageDescription</key>
+  <string>Use Face ID to quickly and securely unlock MiskMatch.</string>
+
+  <key>NSContactsUsageDescription</key>
+  <string>MiskMatch does not access your contacts.</string>
+
+  <!-- ── ATS (allow localhost in dev) ───────────────────────── -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <false/>
+    <key>NSExceptionDomains</key>
+    <dict>
+      <!-- Allow localhost for development -->
+      <key>localhost</key>
+      <dict>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <true/>
+      </dict>
+    </dict>
+  </dict>
+
+  <!-- ── URL Schemes ─────────────────────────────────────────── -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>miskmatch</string>
+      </array>
+    </dict>
+  </dict>
+
+  <!-- ── Background modes ────────────────────────────────────── -->
+  <key>UIBackgroundModes</key>
+  <array>
+    <!-- Push notifications -->
+    <string>remote-notification</string>
+    <!-- Audio for voice messages -->
+    <string>audio</string>
+  </array>
+
+  <!-- ── Flutter specific ────────────────────────────────────── -->
+  <key>CADisableMinimumFrameDurationOnPhone</key>
+  <true/>
+
+  <key>UIApplicationSupportsIndirectInputEvents</key>
+  <true/>
+
+</dict>
+</plist>
