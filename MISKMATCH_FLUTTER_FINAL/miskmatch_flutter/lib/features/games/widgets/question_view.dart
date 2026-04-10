@@ -235,7 +235,7 @@ class _TurnIndicator extends StatelessWidget {
           return Container(
             width:  curr ? 10 : 6,
             height: curr ? 10 : 6,
-            margin: const EdgeInsets.only(left: 4),
+            margin: const EdgeInsetsDirectional.only(start: 4),
             decoration: BoxDecoration(
               color: done
                   ? AppColors.roseDeep

@@ -78,10 +78,7 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
       themeMode:                  ThemeMode.system,
       scrollBehavior:             const _MiskScrollBehavior(),
       locale:                     const Locale('en', 'US'),
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.ltr,
-        child: child!,
-      ),
+      builder: (context, child) => child!,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

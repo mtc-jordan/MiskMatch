@@ -206,7 +206,6 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                     ),
                     child: TextField(
                       controller:    _customCtrl,
-                      textDirection: TextDirection.ltr,
                       maxLines:      2,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.goldLight),

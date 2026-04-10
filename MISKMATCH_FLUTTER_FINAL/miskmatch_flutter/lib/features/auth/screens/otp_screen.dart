@@ -331,7 +331,7 @@ class _OtpHeader extends StatelessWidget {
               const Spacer(),
 
               Padding(
-                padding: const EdgeInsets.only(left: 16),
+                padding: const EdgeInsetsDirectional.only(start: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -286,8 +286,8 @@ class _MatchTile extends StatelessWidget {
       key: ValueKey(match.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        alignment: Alignment.centerRight,
-        padding:   const EdgeInsets.only(right: 24),
+        alignment: AlignmentDirectional.centerEnd,
+        padding:   const EdgeInsetsDirectional.only(end: 24),
         color:     AppColors.error.withOpacity(0.9),
         child: const Icon(Icons.delete_outline_rounded,
             color: AppColors.white, size: 24),

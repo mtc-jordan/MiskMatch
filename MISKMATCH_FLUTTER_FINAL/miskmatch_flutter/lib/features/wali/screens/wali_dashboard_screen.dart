@@ -123,7 +123,7 @@ class _WaliDashboardScreenState
         // "N need attention" red chip
         if (attentionCount > 0)
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(

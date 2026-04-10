@@ -51,7 +51,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 6, top: 4),
+      padding: const EdgeInsetsDirectional.only(start: 16, bottom: 6, top: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -277,7 +277,6 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       enabled:         !widget.disabled,
                       maxLines:        5,
                       minLines:        1,
-                      textDirection:   TextDirection.ltr,
                       onChanged:       _onChanged,
                       textInputAction: TextInputAction.newline,
                       style: AppTypography.bodyMedium.copyWith(

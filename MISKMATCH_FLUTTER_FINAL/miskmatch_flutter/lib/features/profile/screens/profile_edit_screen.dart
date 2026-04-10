@@ -192,7 +192,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         surfaceTintColor: Colors.transparent,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsetsDirectional.only(end: 16),
             child: Center(
               child: Text(
                 'Step ${_step + 1}/5',
@@ -763,7 +763,6 @@ class _StepBioState extends State<_StepBio> {
               controller:    widget.bioCtrl,
               maxLines:      10,
               maxLength:     1000,
-              textDirection: TextDirection.ltr,
               style: AppTypography.bodyMedium.copyWith(
                 color:  context.onSurface,
                 height: 1.6,

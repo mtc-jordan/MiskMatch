@@ -260,7 +260,7 @@ class _WaliHeader extends StatelessWidget {
               icon: const Icon(Icons.arrow_back_rounded, color: AppColors.white),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 12),
+              padding: const EdgeInsetsDirectional.only(start: 12),
               child: Row(
                 children: [
                   // Shield icon
@@ -298,7 +298,7 @@ class _WaliHeader extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 68, top: 2),
+              padding: const EdgeInsetsDirectional.only(start: 68, top: 2),
               child: Text(
                 '"No marriage without a guardian"',
                 style: AppTypography.caption.copyWith(

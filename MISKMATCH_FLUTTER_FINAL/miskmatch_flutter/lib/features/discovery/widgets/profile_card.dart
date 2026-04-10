@@ -276,7 +276,7 @@ class _HeroSection extends StatelessWidget {
                         // Compatibility score ring
                         if (score > 0)
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsetsDirectional.only(start: 10),
                             child: CompatibilityRing(score: score, size: 52),
                           ),
                       ],
@@ -516,7 +516,7 @@ class _IslamicPracticeGrid extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 28,
-                    margin: const EdgeInsets.only(right: 10),
+                    margin: const EdgeInsetsDirectional.only(end: 10),
                     color: AppColors.roseDeep.withOpacity(0.08),
                   ),
                 Expanded(
@@ -604,7 +604,7 @@ class _LifeGoalsPills extends StatelessWidget {
       child: Row(
         children: chips.map((chip) {
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 6),

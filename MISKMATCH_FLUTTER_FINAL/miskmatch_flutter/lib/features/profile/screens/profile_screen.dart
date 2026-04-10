@@ -592,7 +592,7 @@ class _LifeGoalsChips extends StatelessWidget {
         child: Row(
           children: goals.map((g) {
             return Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsetsDirectional.only(end: 8),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 6),

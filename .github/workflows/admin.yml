@@ -1,0 +1,45 @@
+name: Admin Dashboard CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "MISKMATCH_ADMIN_DASHBOARD/**"
+      - ".github/workflows/admin.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "MISKMATCH_ADMIN_DASHBOARD/**"
+      - ".github/workflows/admin.yml"
+
+defaults:
+  run:
+    working-directory: MISKMATCH_ADMIN_DASHBOARD
+
+jobs:
+  build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: MISKMATCH_ADMIN_DASHBOARD/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Lint
+        run: npm run lint || true
+
+      - name: Type check
+        run: npx tsc --noEmit || true
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1

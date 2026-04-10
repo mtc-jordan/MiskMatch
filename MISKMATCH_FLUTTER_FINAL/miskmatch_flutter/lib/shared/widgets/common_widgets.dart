@@ -215,7 +215,6 @@ class MiskTextField extends StatelessWidget {
       textInputAction:  textInputAction,
       readOnly:         readOnly,
       onTap:            onTap,
-      textDirection:    TextDirection.ltr,
       style: AppTypography.bodyLarge.copyWith(
         color: context.onSurface,
       ),
@@ -224,7 +223,7 @@ class MiskTextField extends StatelessWidget {
         hintText:    hint,
         prefixIcon:  prefixIcon != null
             ? Padding(
-                padding: const EdgeInsets.only(left: 12, right: 8),
+                padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
                 child: Container(
                   width: 32, height: 32,
                   decoration: BoxDecoration(

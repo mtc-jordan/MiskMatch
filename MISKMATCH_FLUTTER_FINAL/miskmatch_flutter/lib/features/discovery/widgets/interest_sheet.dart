@@ -259,7 +259,6 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
                 controller:    _msgCtrl,
                 maxLines:      4,
                 maxLength:     500,
-                textDirection: TextDirection.ltr,
                 onChanged: (_) => setState(() => _selected = -1),
                 style: AppTypography.bodyMedium.copyWith(
                   color: context.onSurface),
