@@ -8,3 +8,4 @@ from app.routers import wali          # noqa
 from app.routers import compatibility  # noqa
 from app.routers import calls          # noqa
 from app.routers import webhooks       # noqa
+from app.routers import admin          # noqa

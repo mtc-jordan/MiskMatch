@@ -16,7 +16,7 @@ from fastapi.exceptions import RequestValidationError
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.routers import auth, profiles, matches, games, messages, wali, compatibility, calls, webhooks
+from app.routers import auth, profiles, matches, games, messages, wali, compatibility, calls, webhooks, admin
 
 logger = logging.getLogger("miskmatch")
 
@@ -328,6 +328,7 @@ app.include_router(wali.router,          prefix=PREFIX)
 app.include_router(compatibility.router, prefix=PREFIX)
 app.include_router(calls.router,         prefix=PREFIX)
 app.include_router(webhooks.router,      prefix=PREFIX)
+app.include_router(admin.router,         prefix=PREFIX)
 
 
 # ─────────────────────────────────────────────

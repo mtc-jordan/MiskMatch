@@ -155,43 +155,38 @@ async def end(
 
 
 # ─────────────────────────────────────────────
-# GET /calls/{call_id}
+# GET /calls/active  (before /{call_id} to avoid route shadowing)
 # ─────────────────────────────────────────────
 
 @router.get(
-    "/{call_id}",
-    response_model=CallResponse,
-    summary="Get call details",
-    description="Returns call status and a fresh token if the call is still active.",
+    "/active",
+    response_model=Optional[CallResponse],
+    summary="Get my currently active call",
+    description="Returns the active call if one exists, or null. Used on app open to reconnect.",
 )
-async def get_call(
-    call_id:      uuid.UUID,
+async def get_active_call(
     current_user: CurrentUser,
     db:           DB,
 ):
-    call_result = await db.execute(
-        select(Call).where(Call.id == call_id)
-    )
-    call = call_result.scalar_one_or_none()
-    if not call:
-        raise HTTPException(status_code=404, detail="Call not found.")
-
-    # Verify user is a participant
-    match_result = await db.execute(
-        select(Match).where(
+    result = await db.execute(
+        select(Call)
+        .join(Match, Call.match_id == Match.id)
+        .where(
             and_(
-                Match.id == call.match_id,
                 or_(
                     Match.sender_id   == current_user.id,
                     Match.receiver_id == current_user.id,
                 ),
+                Call.started_at != None,
+                Call.ended_at   == None,
             )
         )
+        .order_by(Call.started_at.desc())
+        .limit(1)
     )
-    if not match_result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=403, detail="You are not a participant in this call.")
-
+    call = result.scalar_one_or_none()
+    if not call:
+        return None
     return serialise_call(call)
 
 
@@ -247,38 +242,43 @@ async def match_call_history(
 
 
 # ─────────────────────────────────────────────
-# GET /calls/active
+# GET /calls/{call_id}
 # ─────────────────────────────────────────────
 
 @router.get(
-    "/active",
-    response_model=Optional[CallResponse],
-    summary="Get my currently active call",
-    description="Returns the active call if one exists, or null. Used on app open to reconnect.",
+    "/{call_id}",
+    response_model=CallResponse,
+    summary="Get call details",
+    description="Returns call status and a fresh token if the call is still active.",
 )
-async def get_active_call(
+async def get_call(
+    call_id:      uuid.UUID,
     current_user: CurrentUser,
     db:           DB,
 ):
-    result = await db.execute(
-        select(Call)
-        .join(Match, Call.match_id == Match.id)
-        .where(
+    call_result = await db.execute(
+        select(Call).where(Call.id == call_id)
+    )
+    call = call_result.scalar_one_or_none()
+    if not call:
+        raise HTTPException(status_code=404, detail="Call not found.")
+
+    # Verify user is a participant
+    match_result = await db.execute(
+        select(Match).where(
             and_(
+                Match.id == call.match_id,
                 or_(
                     Match.sender_id   == current_user.id,
                     Match.receiver_id == current_user.id,
                 ),
-                Call.started_at != None,
-                Call.ended_at   == None,
             )
         )
-        .order_by(Call.started_at.desc())
-        .limit(1)
     )
-    call = result.scalar_one_or_none()
-    if not call:
-        return None
+    if not match_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=403, detail="You are not a participant in this call.")
+
     return serialise_call(call)
 
 
