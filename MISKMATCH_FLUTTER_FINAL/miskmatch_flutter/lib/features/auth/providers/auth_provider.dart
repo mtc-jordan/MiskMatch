@@ -26,9 +26,10 @@ class AuthOtpSent extends AuthState {
 }
 
 class AuthAuthenticated extends AuthState {
-  const AuthAuthenticated({required this.userId, required this.needsOnboarding});
-  final String userId;
-  final bool   needsOnboarding;
+  const AuthAuthenticated({required this.userId, required this.needsOnboarding, this.gender});
+  final String  userId;
+  final bool    needsOnboarding;
+  final String? gender;
 }
 
 class AuthError extends AuthState {
@@ -86,8 +87,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = switch (result) {
       ApiSuccess(data: final tokens) => AuthAuthenticated(
-          userId:         tokens.userId,
-          needsOnboarding: false,
+          userId:          tokens.userId,
+          needsOnboarding: !tokens.onboardingCompleted,
+          gender:          tokens.gender,
         ),
       ApiError(error: final e) => AuthError(error: e),
     };
@@ -109,6 +111,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       ApiSuccess(data: final tokens) => AuthAuthenticated(
           userId:          tokens.userId,
           needsOnboarding: isNewUser,
+          gender:          tokens.gender,
         ),
       ApiError(error: final e) => AuthError(error: e),
     };
@@ -123,9 +126,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final hasSession = await _repo.hasActiveSession();
     if (hasSession) {
       final userId = await _repo.storage.getUserId();
+      final gender = await _repo.storage.getGender();
       state = AuthAuthenticated(
         userId:          userId ?? '',
         needsOnboarding: false,
+        gender:          gender,
       );
     } else {
       state = const AuthUnauthenticated();
@@ -137,6 +142,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthLoading();
     await _repo.logout();
     state = const AuthUnauthenticated();
+  }
+
+  // ── Complete onboarding ────────────────────────────────────────────────────
+  void completeOnboarding() {
+    final current = state;
+    if (current is AuthAuthenticated) {
+      state = AuthAuthenticated(
+        userId: current.userId,
+        needsOnboarding: false,
+        gender: current.gender,
+      );
+    }
   }
 
   // ── Clear error ───────────────────────────────────────────────────────────
@@ -157,6 +174,13 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 final currentUserIdProvider = Provider<String?>((ref) {
   final auth = ref.watch(authProvider);
   if (auth is AuthAuthenticated) return auth.userId;
+  return null;
+});
+
+/// Currently authenticated user's gender
+final currentUserGenderProvider = Provider<String?>((ref) {
+  final auth = ref.watch(authProvider);
+  if (auth is AuthAuthenticated) return auth.gender;
   return null;
 });
 

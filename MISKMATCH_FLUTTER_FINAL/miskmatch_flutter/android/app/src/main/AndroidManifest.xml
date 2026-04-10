@@ -48,7 +48,7 @@
         android:enableOnBackInvokedCallback="true"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="${usesCleartextTraffic}">
 
         <!-- ── Main Activity ────────────────────────────────── -->
         <activity

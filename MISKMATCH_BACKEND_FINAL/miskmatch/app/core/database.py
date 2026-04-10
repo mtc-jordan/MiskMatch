@@ -33,8 +33,11 @@ engine = create_async_engine(
     pool_size=settings.DB_POOL_SIZE,
     max_overflow=settings.DB_MAX_OVERFLOW,
     pool_pre_ping=True,       # test connections before use
-    pool_recycle=3600,         # recycle connections every hour
+    pool_recycle=1800,         # recycle connections every 30 min (avoid stale)
+    pool_timeout=30,           # wait max 30s for a connection from pool
     echo=settings.DEBUG,       # log SQL in dev only
+    # Statement cache for asyncpg — reduces parse overhead on repeated queries
+    connect_args={"statement_cache_size": 100},
 )
 
 # ─────────────────────────────────────────────

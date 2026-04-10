@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'core/api/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/notifications/notification_service.dart';
@@ -11,7 +12,11 @@ import 'features/auth/providers/auth_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase init failed (missing google-services.json?): $e');
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -48,7 +53,10 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authProvider.notifier).checkSession();
-      NotificationService.init(ref.read(routerProvider));
+      NotificationService.init(
+        ref.read(routerProvider),
+        dio: ref.read(dioProvider),
+      );
     });
   }
 
@@ -69,6 +77,11 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
       darkTheme:                  AppTheme.muskNightTheme,
       themeMode:                  ThemeMode.system,
       scrollBehavior:             const _MiskScrollBehavior(),
+      locale:                     const Locale('en', 'US'),
+      builder: (context, child) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: child!,
+      ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

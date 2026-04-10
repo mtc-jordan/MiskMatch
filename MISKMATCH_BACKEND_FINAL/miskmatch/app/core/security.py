@@ -5,7 +5,7 @@ JWT tokens, password hashing, and auth helpers.
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -70,6 +70,7 @@ def create_access_token(
         "exp": expire,
         "iat": datetime.now(timezone.utc),
         "type": "access",
+        "jti": str(uuid4()),
     }
     if extra_claims:
         payload.update(extra_claims)
@@ -80,7 +81,7 @@ def create_access_token(
 def create_refresh_token(subject: str | UUID) -> str:
     """
     Create a long-lived JWT refresh token.
-    Stored in HTTP-only cookie, not in response body.
+    Each token has a unique JTI for revocation support.
     """
     expire = datetime.now(timezone.utc) + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
@@ -90,6 +91,7 @@ def create_refresh_token(subject: str | UUID) -> str:
         "exp": expire,
         "iat": datetime.now(timezone.utc),
         "type": "refresh",
+        "jti": str(uuid4()),
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 

@@ -82,28 +82,29 @@ async def _embed_and_store(user_id: UUID) -> bool:
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
     Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-    async with Session() as db:
-        result = await db.execute(
-            select(Profile).where(Profile.user_id == user_id)
-        )
-        profile = result.scalar_one_or_none()
+    try:
+        async with Session() as db:
+            result = await db.execute(
+                select(Profile).where(Profile.user_id == user_id)
+            )
+            profile = result.scalar_one_or_none()
 
-        if not profile:
-            logger.warning(f"embed_profile: profile not found for user {user_id}")
-            return False
+            if not profile:
+                logger.warning(f"embed_profile: profile not found for user {user_id}")
+                return False
 
-        vector = await embed_profile(profile)
-        if not vector:
-            logger.info(f"embed_profile: no vector returned for user {user_id} (no API key?)")
-            return False
+            vector = await embed_profile(profile)
+            if not vector:
+                logger.info(f"embed_profile: no vector returned for user {user_id} (no API key?)")
+                return False
 
-        profile.compatibility_embedding = vector
-        await db.commit()
+            profile.compatibility_embedding = vector
+            await db.commit()
 
-        logger.info(f"embed_profile: embedded user={user_id} ({len(vector)} dims)")
-        return True
-
-    await engine.dispose()
+            logger.info(f"embed_profile: embedded user={user_id} ({len(vector)} dims)")
+            return True
+    finally:
+        await engine.dispose()
 
 
 # ─────────────────────────────────────────────
@@ -145,7 +146,7 @@ def reembed_stale_profiles_task(self) -> dict:
         from sqlalchemy.orm import sessionmaker
         from sqlalchemy import select
         from app.models.models import Profile
-        from app.services.embeddings import embed_profile, EMBEDDING_DIMS
+        from app.services.embeddings import embed_profile
 
         engine = create_async_engine(settings.DATABASE_URL, echo=False)
         Session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -154,30 +155,33 @@ def reembed_stale_profiles_task(self) -> dict:
         failed   = 0
         BATCH    = 50
 
-        async with Session() as db:
-            # Find profiles missing or empty embedding
-            result = await db.execute(
-                select(Profile).where(
-                    Profile.compatibility_embedding.is_(None)
-                ).limit(BATCH)
-            )
-            profiles = result.scalars().all()
+        try:
+            async with Session() as db:
+                # Find profiles missing or empty embedding
+                result = await db.execute(
+                    select(Profile).where(
+                        Profile.compatibility_embedding.is_(None)
+                    ).limit(BATCH)
+                )
+                profiles = result.scalars().all()
 
-            for profile in profiles:
-                try:
-                    vector = await embed_profile(profile)
-                    if vector:
-                        profile.compatibility_embedding = vector
-                        embedded += 1
-                    else:
+                for profile in profiles:
+                    try:
+                        vector = await embed_profile(profile)
+                        if vector:
+                            profile.compatibility_embedding = vector
+                            embedded += 1
+                        else:
+                            failed += 1
+                    except Exception as e:
+                        logger.error(f"Failed to embed {profile.user_id}: {e}")
                         failed += 1
-                except Exception as e:
-                    logger.error(f"Failed to embed {profile.user_id}: {e}")
-                    failed += 1
+                    # Respect API rate limits between individual embeds
+                    await asyncio.sleep(0.5)
 
-            await db.commit()
-
-        await engine.dispose()
+                await db.commit()
+        finally:
+            await engine.dispose()
 
         logger.info(
             f"reembed_stale: embedded={embedded} failed={failed}"
@@ -217,56 +221,57 @@ def reembed_all_profiles_task(self, batch_size: int = 100) -> dict:
         total_failed   = 0
         offset         = 0
 
-        # Get total count
-        async with Session() as db:
-            count_result = await db.execute(
-                select(func.count(Profile.id))
-            )
-            total = count_result.scalar() or 0
-
-        logger.info(f"reembed_all: starting — {total} profiles to embed")
-
-        while True:
+        try:
+            # Get total count
             async with Session() as db:
-                result = await db.execute(
-                    select(Profile).offset(offset).limit(batch_size)
+                count_result = await db.execute(
+                    select(func.count(Profile.id))
                 )
-                batch = result.scalars().all()
-                if not batch:
-                    break
+                total = count_result.scalar() or 0
 
-                for profile in batch:
-                    try:
-                        vector = await embed_profile(profile)
-                        if vector:
-                            profile.compatibility_embedding = vector
-                            total_embedded += 1
-                        else:
+            logger.info(f"reembed_all: starting — {total} profiles to embed")
+
+            while True:
+                async with Session() as db:
+                    result = await db.execute(
+                        select(Profile).offset(offset).limit(batch_size)
+                    )
+                    batch = result.scalars().all()
+                    if not batch:
+                        break
+
+                    for profile in batch:
+                        try:
+                            vector = await embed_profile(profile)
+                            if vector:
+                                profile.compatibility_embedding = vector
+                                total_embedded += 1
+                            else:
+                                total_failed += 1
+                        except Exception as e:
+                            logger.error(f"Failed to embed {profile.user_id}: {e}")
                             total_failed += 1
-                    except Exception as e:
-                        logger.error(f"Failed to embed {profile.user_id}: {e}")
-                        total_failed += 1
 
-                await db.commit()
-                offset += batch_size
+                    await db.commit()
+                    offset += batch_size
 
-                # Report progress
-                progress = round(offset / total * 100, 1) if total else 100
-                self.update_state(
-                    state="PROGRESS",
-                    meta={
-                        "current":  offset,
-                        "total":    total,
-                        "percent":  progress,
-                        "embedded": total_embedded,
-                        "failed":   total_failed,
-                    },
-                )
+                    # Report progress
+                    progress = round(offset / total * 100, 1) if total else 100
+                    self.update_state(
+                        state="PROGRESS",
+                        meta={
+                            "current":  offset,
+                            "total":    total,
+                            "percent":  progress,
+                            "embedded": total_embedded,
+                            "failed":   total_failed,
+                        },
+                    )
 
-            # Respect OpenAI rate limits
-            time.sleep(1)
-
-        await engine.dispose()
+                # Respect OpenAI rate limits
+                time.sleep(1)
+        finally:
+            await engine.dispose()
         return {
             "total":    total,
             "embedded": total_embedded,

@@ -235,7 +235,8 @@ class UserProfile {
     'first_name':   firstName,
     'last_name':    lastName,
     if (displayName != null)   'display_name':   displayName,
-    if (city != null)          'city':           city,
+    if (dateOfBirth != null)   'date_of_birth':  dateOfBirth!.toUtc().toIso8601String(),
+    if (city != null && city!.isNotEmpty) 'city': city,
     if (country != null)       'country':        country,
     if (bio != null)           'bio':            bio,
     if (madhab != null)        'madhab':         madhab!.value,
@@ -249,6 +250,8 @@ class UserProfile {
     'wants_hijra':  wantsHijra,
     if (islamicFinanceStance != null) 'islamic_finance_stance': islamicFinanceStance,
     if (wifeWorkingStance != null) 'wife_working_stance': wifeWorkingStance,
+    if (educationLevel != null) 'education_level': educationLevel,
+    if (occupation != null && occupation!.isNotEmpty) 'occupation': occupation,
     'min_age':      minAge,
     'max_age':      maxAge,
   };

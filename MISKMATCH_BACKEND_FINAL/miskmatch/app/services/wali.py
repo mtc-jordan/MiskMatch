@@ -18,6 +18,8 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import select, and_, or_, func, update
+
+from app.core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import (
@@ -198,30 +200,39 @@ async def send_wali_invitation(
     # Generate a fresh token each send
     invite_token = secrets.token_urlsafe(32)
 
-    # In production: send SMS via Twilio
-    # sms_body = (
-    #     f"Assalamu Alaikum {wali_rel.wali_name},\n"
-    #     f"You have been registered as a guardian on MiskMatch.\n"
-    #     f"Accept here: https://miskmatch.app/wali/accept/{invite_token}\n"
-    #     f"This link expires in {INVITE_TOKEN_TTL_HOURS} hours.\n"
-    #     f"— MiskMatch Team"
-    # )
-
     # Load ward profile for personalised SMS
     ward_profile = await _get_profile(db, ward_id)
     ward_name = ward_profile.first_name if ward_profile else "your ward"
+
+    # Send SMS invitation via Twilio
+    sms_body = (
+        f"Assalamu Alaikum {wali_rel.wali_name},\n\n"
+        f"{ward_name} has registered you as their guardian on MiskMatch — "
+        f"an Islamic matrimony platform.\n\n"
+        f"Accept the guardianship here:\n"
+        f"https://miskmatch.app/wali/accept/{invite_token}\n\n"
+        f"This link expires in {INVITE_TOKEN_TTL_HOURS} hours.\n\n"
+        f"— MiskMatch Team\n"
+        f"ختامه مسك 🌹"
+    )
+
+    from app.services.notifications import send_sms
+    sms_sent = await send_sms(wali_rel.wali_phone, sms_body)
 
     wali_rel.invitation_sent  = True
     wali_rel.invited_at       = datetime.now(timezone.utc)
     await db.flush()
 
-    logger.info(f"Wali invitation sent: ward={ward_id} wali_phone={wali_rel.wali_phone}")
+    logger.info(
+        f"Wali invitation sent: ward={ward_id} wali_phone={wali_rel.wali_phone} "
+        f"sms_delivered={sms_sent}"
+    )
 
     return {
         "invitation_sent":  True,
         "wali_name":        wali_rel.wali_name,
         "wali_phone":       wali_rel.wali_phone,
-        "invite_token":     invite_token,   # returned for dev/testing
+        **({"invite_token": invite_token} if settings.is_development else {}),
         "message": (
             f"Invitation sent to {wali_rel.wali_name} at {wali_rel.wali_phone}. "
             f"They have {INVITE_TOKEN_TTL_HOURS} hours to accept."

@@ -13,7 +13,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.redis import is_token_blacklisted, blacklist_token, blacklist_all_user_tokens
 from app.core.security import (
     hash_password, verify_password, is_password_strong,
     create_access_token, create_refresh_token,
@@ -22,7 +24,7 @@ from app.core.security import (
 from app.models.models import User, UserRole, UserStatus, Gender
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
-    OTPVerifyRequest, RefreshTokenRequest,
+    OTPVerifyRequest, RefreshTokenRequest, DeviceTokenRequest,
 )
 from app.services.notifications import send_otp_sms
 
@@ -56,8 +58,17 @@ async def get_current_user(
         payload = decode_token(token)
         user_id: str = payload.get("sub")
         token_type: str = payload.get("type")
+        jti: str = payload.get("jti", "")
         if user_id is None or token_type != "access":
             raise credentials_exception
+        # Check if this specific token has been revoked
+        # Tokens without JTI cannot be individually revoked — reject them
+        if not jti:
+            raise credentials_exception
+        if await is_token_blacklisted(jti):
+            raise credentials_exception
+    except HTTPException:
+        raise
     except Exception:
         raise credentials_exception
 
@@ -75,6 +86,11 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is temporarily suspended",
+        )
+    if user.status == UserStatus.DEACTIVATED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account has been deleted",
         )
     return user
 
@@ -213,6 +229,7 @@ async def verify_otp(
         token_type="bearer",
         user_id=str(user.id),
         role=user.role,
+        gender=user.gender,
         onboarding_completed=user.onboarding_completed,
     )
 
@@ -268,6 +285,7 @@ async def login(
         token_type="bearer",
         user_id=str(user.id),
         role=user.role,
+        gender=user.gender,
         onboarding_completed=user.onboarding_completed,
     )
 
@@ -296,10 +314,18 @@ async def refresh_token(
         if payload.get("type") != "refresh":
             raise HTTPException(status_code=400, detail="Invalid token type")
         user_id = payload.get("sub")
+        old_jti = payload.get("jti", "")
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token expired. Please login again.",
+        )
+
+    # Prevent refresh token replay — reject if already used
+    if old_jti and await is_token_blacklisted(old_jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token has already been used. Please login again.",
         )
 
     result = await db.execute(select(User).where(User.id == user_id))
@@ -307,6 +333,11 @@ async def refresh_token(
 
     if not user or user.status in [UserStatus.BANNED, UserStatus.DEACTIVATED]:
         raise HTTPException(status_code=401, detail="User not found or inactive")
+
+    # Blacklist the old refresh token so it can't be replayed
+    if old_jti:
+        ttl = settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400
+        await blacklist_token(old_jti, ttl)
 
     new_access = create_access_token(
         subject=user.id,
@@ -320,6 +351,7 @@ async def refresh_token(
         token_type="bearer",
         user_id=str(user.id),
         role=user.role,
+        gender=user.gender,
         onboarding_completed=user.onboarding_completed,
     )
 
@@ -358,13 +390,95 @@ async def resend_otp(
 
 @router.post("/logout", summary="Logout current user")
 async def logout(
+    token: Annotated[str, Depends(oauth2_scheme)],
     current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Logout — client deletes tokens from secure storage.
-    Server-side: clear FCM token so no more push notifications.
+    Logout — revoke the current access token and clear FCM token.
+    Client also deletes tokens from secure storage.
     """
+    # Blacklist the current access token
+    try:
+        payload = decode_token(token)
+        jti = payload.get("jti")
+        if jti:
+            ttl = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            await blacklist_token(jti, ttl)
+    except Exception:
+        pass  # token already validated by get_current_user
+
     current_user.fcm_token = None
     await db.commit()
     return {"message": "Logged out successfully"}
+
+
+# ─────────────────────────────────────────────
+# DEVICE TOKEN (FCM)
+# ─────────────────────────────────────────────
+
+@router.post("/device-token", summary="Register FCM device token")
+async def register_device_token(
+    body: DeviceTokenRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Register or update the FCM device token for push notifications.
+    Called by the Flutter app on every launch and on token refresh.
+    """
+    current_user.fcm_token = body.token
+    await db.commit()
+    return {"message": "Device token registered"}
+
+
+# ─────────────────────────────────────────────
+# DELETE ACCOUNT
+# ─────────────────────────────────────────────
+
+@router.delete("/account", summary="Delete user account")
+async def delete_account(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Soft-delete the user account.
+    - Sets status to DEACTIVATED
+    - Sets deleted_at timestamp
+    - Clears FCM token
+    - Closes all active matches
+    Required by App Store / Play Store policies.
+    """
+    from app.models.models import Match, MatchStatus
+
+    current_user.status = UserStatus.DEACTIVATED
+    current_user.deleted_at = datetime.now(timezone.utc)
+    current_user.fcm_token = None
+
+    # Close all active/pending matches
+    result = await db.execute(
+        select(Match).where(
+            (
+                (Match.sender_id == current_user.id) |
+                (Match.receiver_id == current_user.id)
+            ) &
+            Match.status.in_([
+                MatchStatus.PENDING, MatchStatus.MUTUAL,
+                MatchStatus.APPROVED, MatchStatus.ACTIVE,
+            ])
+        )
+    )
+    active_matches = result.scalars().all()
+    for match in active_matches:
+        match.status = MatchStatus.CLOSED
+        match.closed_reason = "account_deleted"
+
+    await db.commit()
+
+    # Invalidate all outstanding tokens for this user
+    await blacklist_all_user_tokens(str(current_user.id))
+
+    return {
+        "message": "Your account has been deactivated. All matches have been closed.",
+        "matches_closed": len(active_matches),
+    }

@@ -147,7 +147,9 @@ async def ai_moderate(content: str) -> ModerationResult:
     Called only when fast filter doesn't hard-block.
     """
     if not settings.OPENAI_API_KEY:
-        # No AI key configured — pass through in dev
+        if settings.is_production:
+            logger.error("AI moderation unavailable in production — OPENAI_API_KEY not set")
+            return ModerationResult(passed=False, layer="bypass", reason="Moderation service unavailable")
         logger.debug("AI moderation skipped (no API key)")
         return ModerationResult(passed=True, layer="bypass", reason="AI moderation not configured")
 

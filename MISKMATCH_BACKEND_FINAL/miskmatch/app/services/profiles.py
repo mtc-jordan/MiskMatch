@@ -17,6 +17,8 @@ from app.schemas.profiles import (
     ProfileCreateRequest, ProfileUpdateRequest,
     FamilyUpsertRequest, SifrAssessmentRequest,
 )
+import json
+from app.core.redis import cache_get, cache_set, cache_delete, cache_delete_pattern
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +74,10 @@ async def create_profile(
     )
 
     logger.info(f"Profile created for user {user_id}")
+
+    # Invalidate discovery cache
+    await cache_delete_pattern(f"discovery:*")
+
     return profile
 
 
@@ -93,6 +99,11 @@ async def update_profile(
     profile.trust_score = compute_trust_score(profile)
 
     await db.flush()
+
+    # Invalidate caches on profile update
+    await cache_delete(f"profile:{profile.user_id}")
+    await cache_delete_pattern(f"discovery:*")
+
     return profile
 
 

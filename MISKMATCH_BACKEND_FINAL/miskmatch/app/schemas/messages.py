@@ -9,6 +9,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.core.sanitize import sanitize_text
 from app.models.models import MessageStatus
 
 
@@ -35,7 +36,8 @@ class SendMessageRequest(BaseModel):
 
     @field_validator("content")
     @classmethod
-    def no_whitespace_only(cls, v: str) -> str:
+    def clean_content(cls, v: str) -> str:
+        v = sanitize_text(v)
         if not v.strip():
             raise ValueError("Message cannot be empty or whitespace only")
         return v.strip()

@@ -463,12 +463,10 @@ async def record_wali_decision(
         match.receiver_wali_approved = True
         match.receiver_wali_approved_at = now
 
-    # Check if both walis have now approved
+    # Check if both walis have now approved → activate immediately
     if match.sender_wali_approved and match.receiver_wali_approved:
-        match.status = MatchStatus.APPROVED
-        logger.info(f"Match {match.id} APPROVED by both walis → ACTIVE")
-        # Auto-activate to ACTIVE (games and messaging begin)
         match.status = MatchStatus.ACTIVE
+        logger.info(f"Match {match.id} APPROVED by both walis → ACTIVE")
 
     await db.flush()
     return match

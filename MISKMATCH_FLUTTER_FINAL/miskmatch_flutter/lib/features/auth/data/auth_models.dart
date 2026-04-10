@@ -6,18 +6,24 @@ class AuthTokens {
     required this.refreshToken,
     required this.userId,
     required this.tokenType,
+    required this.gender,
+    required this.onboardingCompleted,
   });
 
   final String accessToken;
   final String refreshToken;
   final String userId;
   final String tokenType;
+  final String gender;
+  final bool   onboardingCompleted;
 
   factory AuthTokens.fromJson(Map<String, dynamic> json) => AuthTokens(
-    accessToken:  json['access_token']  as String,
-    refreshToken: json['refresh_token'] as String,
-    userId:       json['user_id']       as String,
-    tokenType:    json['token_type']    as String? ?? 'bearer',
+    accessToken:        json['access_token']        as String,
+    refreshToken:       json['refresh_token']       as String,
+    userId:             json['user_id']             as String,
+    tokenType:          json['token_type']           as String? ?? 'bearer',
+    gender:             json['gender']               as String? ?? 'male',
+    onboardingCompleted: json['onboarding_completed'] as bool?   ?? false,
   );
 }
 

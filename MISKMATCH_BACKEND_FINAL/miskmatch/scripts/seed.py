@@ -145,10 +145,10 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "email": "yusuf@dev.miskmatch.app",
             "phone": "+962791000001",
             "password_hash": password_hash,
-            "role": "user", "status": "active", "gender": "male",
+            "role": "USER", "status": "ACTIVE", "gender": "MALE",
             "email_verified": True, "phone_verified": True,
-            "id_verified": "verified",
-            "subscription_tier": "noor",
+            "id_verified": "VERIFIED",
+            "subscription_tier": "NOOR",
             "onboarding_completed": True,
             "niyyah": "I seek a spouse who will be my partner in this deen and the next.",
             "created_at": _ago(days=30), "updated_at": _ago(days=1),
@@ -158,10 +158,10 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "email": "fatima@dev.miskmatch.app",
             "phone": "+962791000002",
             "password_hash": password_hash,
-            "role": "user", "status": "active", "gender": "female",
+            "role": "USER", "status": "ACTIVE", "gender": "FEMALE",
             "email_verified": True, "phone_verified": True,
-            "id_verified": "verified",
-            "subscription_tier": "noor",
+            "id_verified": "VERIFIED",
+            "subscription_tier": "NOOR",
             "onboarding_completed": True,
             "niyyah": "Looking for a righteous partner to build a home filled with barakah.",
             "created_at": _ago(days=25), "updated_at": _ago(days=1),
@@ -171,9 +171,9 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "email": "omar.wali@dev.miskmatch.app",
             "phone": "+962791000003",
             "password_hash": password_hash,
-            "role": "wali", "status": "active", "gender": "male",
+            "role": "WALI", "status": "ACTIVE", "gender": "MALE",
             "email_verified": True, "phone_verified": True,
-            "id_verified": "none", "subscription_tier": "barakah",
+            "id_verified": "NONE", "subscription_tier": "BARAKAH",
             "onboarding_completed": True,
             "created_at": _ago(days=30), "updated_at": _ago(days=5),
         },
@@ -182,9 +182,9 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "email": "ibrahim.wali@dev.miskmatch.app",
             "phone": "+962791000004",
             "password_hash": password_hash,
-            "role": "wali", "status": "active", "gender": "male",
+            "role": "WALI", "status": "ACTIVE", "gender": "MALE",
             "email_verified": True, "phone_verified": True,
-            "id_verified": "none", "subscription_tier": "barakah",
+            "id_verified": "NONE", "subscription_tier": "BARAKAH",
             "onboarding_completed": True,
             "created_at": _ago(days=25), "updated_at": _ago(days=5),
         },
@@ -201,8 +201,8 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "languages": ["Arabic", "English"],
             "bio": "Software engineer by day, seeker of knowledge by night. Love hiking the Dead Sea trail.",
             "bio_ar": "مهندس برمجيات في النهار، طالب علم في الليل.",
-            "madhab": "hanbali", "prayer_frequency": "all_five",
-            "hijab_stance": "na",
+            "madhab": "HANBALI", "prayer_frequency": "ALL_FIVE",
+            "hijab_stance": "NA",
             "quran_level": "hafiz_partial",
             "is_revert": False,
             "education_level": "bachelors", "field_of_study": "Computer Science",
@@ -227,8 +227,8 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "languages": ["Arabic", "English", "French"],
             "bio": "Medical student and Quran teacher. Passionate about Islamic psychology and family wellbeing.",
             "bio_ar": "طالبة طب ومعلمة قرآن. شغوفة بعلم النفس الإسلامي.",
-            "madhab": "shafii", "prayer_frequency": "all_five",
-            "hijab_stance": "wears",
+            "madhab": "SHAFII", "prayer_frequency": "ALL_FIVE",
+            "hijab_stance": "WEARS",
             "quran_level": "recites_tajweed",
             "is_revert": False,
             "education_level": "masters", "field_of_study": "Medicine",
@@ -309,7 +309,7 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
             "id": match_id,
             "sender_id": yusuf_id,
             "receiver_id": fatima_id,
-            "status": "active",
+            "status": "ACTIVE",
             "sender_message": "Assalamu Alaikum. I was moved by your profile and your commitment to your deen. I would be honoured to get to know you with good intentions.",
             "receiver_response": "Wa Alaikum Assalam. JazakAllah Khair for your kind words. I am open to proceeding with the blessing of my wali.",
             "sender_wali_approved": True,
@@ -347,21 +347,21 @@ def build_users_and_match(mosque_id: uuid.UUID) -> dict:
         {
             "id": _id(), "match_id": match_id, "sender_id": yusuf_id,
             "content": "Assalamu Alaikum! Alhamdulillah that our families have given their blessing. I look forward to getting to know you through this platform with the proper boundaries in sha Allah.",
-            "content_type": "text", "status": "read",
+            "content_type": "text", "status": "READ",
             "moderation_passed": True,
             "created_at": _ago(days=8, hours=2), "updated_at": _ago(days=8, hours=2),
         },
         {
             "id": _id(), "match_id": match_id, "sender_id": fatima_id,
             "content": "Wa Alaikum Assalam! JazakAllah Khair, and Alhamdulillah. May Allah put barakah in this process for both of us. I'm happy to start with the games - I've heard the Qalb Quiz is quite insightful!",
-            "content_type": "text", "status": "read",
+            "content_type": "text", "status": "READ",
             "moderation_passed": True,
             "created_at": _ago(days=8, hours=1), "updated_at": _ago(days=8, hours=1),
         },
         {
             "id": _id(), "match_id": match_id, "sender_id": yusuf_id,
             "content": "Yes! I thought it would be a wonderful way to understand each other's values deeply. Shall we start with the Qalb Quiz today?",
-            "content_type": "text", "status": "delivered",
+            "content_type": "text", "status": "DELIVERED",
             "moderation_passed": True,
             "created_at": _ago(hours=3), "updated_at": _ago(hours=3),
         },
@@ -487,12 +487,12 @@ async def seed(reset: bool = False) -> None:
                     id, email, phone, password_hash, role, status, gender,
                     email_verified, phone_verified, id_verified,
                     subscription_tier, onboarding_completed,
-                    niyyah, created_at, updated_at
+                    ramadan_mode, niyyah, created_at, updated_at
                 ) VALUES (
-                    :id, :email, :phone, :password_hash, :role::userrole, :status::userstatus,
-                    :gender::gender, :email_verified, :phone_verified, :id_verified::verificationstatus,
-                    :subscription_tier::subscriptiontier, :onboarding_completed,
-                    :niyyah, :created_at, :updated_at
+                    :id, :email, :phone, :password_hash, CAST(:role AS userrole), CAST(:status AS userstatus),
+                    CAST(:gender AS gender), :email_verified, :phone_verified, CAST(:id_verified AS verificationstatus),
+                    CAST(:subscription_tier AS subscriptiontier), :onboarding_completed,
+                    :ramadan_mode, :niyyah, :created_at, :updated_at
                 ) ON CONFLICT DO NOTHING
             """), {
                 "id": str(u["id"]), "email": u["email"], "phone": u["phone"],
@@ -502,6 +502,7 @@ async def seed(reset: bool = False) -> None:
                 "id_verified": u["id_verified"],
                 "subscription_tier": u["subscription_tier"],
                 "onboarding_completed": u["onboarding_completed"],
+                "ramadan_mode": False,
                 "niyyah": u.get("niyyah"), "created_at": u["created_at"],
                 "updated_at": u["updated_at"],
             })
@@ -519,17 +520,17 @@ async def seed(reset: bool = False) -> None:
                     is_revert, education_level, field_of_study, occupation,
                     wants_children, num_children_desired, hajj_timeline,
                     islamic_finance_stance, wife_working_stance,
-                    mosque_verified, mosque_id, trust_score,
+                    mosque_verified, mosque_id, scholar_endorsed, trust_score,
                     min_age, max_age, preferred_countries, photo_visible,
                     created_at, updated_at
                 ) VALUES (
                     :id, :user_id, :first_name, :last_name, :display_name, :date_of_birth,
                     :city, :country, :nationality, :languages, :bio, :bio_ar,
-                    :madhab::madhabchoice, :prayer_frequency::prayerfrequency, :hijab_stance::hijabstance,
+                    CAST(:madhab AS madhabchoice), CAST(:prayer_frequency AS prayerfrequency), CAST(:hijab_stance AS hijabstance),
                     :quran_level, :is_revert, :education_level, :field_of_study, :occupation,
                     :wants_children, :num_children_desired, :hajj_timeline,
                     :islamic_finance_stance, :wife_working_stance,
-                    :mosque_verified, :mosque_id, :trust_score,
+                    :mosque_verified, :mosque_id, :scholar_endorsed, :trust_score,
                     :min_age, :max_age, :preferred_countries, :photo_visible,
                     :created_at, :updated_at
                 ) ON CONFLICT DO NOTHING
@@ -555,6 +556,7 @@ async def seed(reset: bool = False) -> None:
                 "wife_working_stance": p.get("wife_working_stance"),
                 "mosque_verified": p.get("mosque_verified", False),
                 "mosque_id": str(p["mosque_id"]) if p.get("mosque_id") else None,
+                "scholar_endorsed": False,
                 "trust_score": p.get("trust_score", 0),
                 "min_age": p.get("min_age", 22), "max_age": p.get("max_age", 40),
                 "preferred_countries": p.get("preferred_countries"),
@@ -637,12 +639,12 @@ async def seed(reset: bool = False) -> None:
                 became_mutual_at, game_states, memory_timeline,
                 created_at, updated_at
             ) VALUES (
-                :id, :sender_id, :receiver_id, :status::matchstatus,
+                :id, :sender_id, :receiver_id, CAST(:status AS matchstatus),
                 :sender_message, :receiver_response,
                 :sender_wali_approved, :receiver_wali_approved,
                 :sender_wali_approved_at, :receiver_wali_approved_at,
-                :compatibility_score, :compatibility_breakdown::json,
-                :became_mutual_at, :game_states::json, :memory_timeline::json,
+                :compatibility_score, CAST(:compatibility_breakdown AS json),
+                :became_mutual_at, CAST(:game_states AS json), CAST(:memory_timeline AS json),
                 :created_at, :updated_at
             ) ON CONFLICT DO NOTHING
         """), {
@@ -672,7 +674,7 @@ async def seed(reset: bool = False) -> None:
                     id, match_id, sender_id, content, content_type, status,
                     moderation_passed, created_at, updated_at
                 ) VALUES (
-                    :id, :match_id, :sender_id, :content, :content_type, :status::messagestatus,
+                    :id, :match_id, :sender_id, :content, :content_type, CAST(:status AS messagestatus),
                     :moderation_passed, :created_at, :updated_at
                 ) ON CONFLICT DO NOTHING
             """), {
@@ -692,11 +694,11 @@ async def seed(reset: bool = False) -> None:
                 INSERT INTO notifications (
                     id, user_id, title, title_ar, body, body_ar,
                     notification_type, reference_id, reference_type,
-                    is_read, created_at, updated_at
+                    is_read, push_sent, created_at, updated_at
                 ) VALUES (
                     :id, :user_id, :title, :title_ar, :body, :body_ar,
                     :notification_type, :reference_id, :reference_type,
-                    :is_read, :created_at, :updated_at
+                    :is_read, :push_sent, :created_at, :updated_at
                 ) ON CONFLICT DO NOTHING
             """), {
                 "id": str(n["id"]), "user_id": str(n["user_id"]),
@@ -706,6 +708,7 @@ async def seed(reset: bool = False) -> None:
                 "reference_id": str(n["reference_id"]) if n.get("reference_id") else None,
                 "reference_type": n.get("reference_type"),
                 "is_read": n.get("is_read", False),
+                "push_sent": False,
                 "created_at": n["created_at"], "updated_at": n["updated_at"],
             })
         await db.commit()

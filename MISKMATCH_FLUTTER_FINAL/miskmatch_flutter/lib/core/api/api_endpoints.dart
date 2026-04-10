@@ -9,6 +9,8 @@ abstract class ApiEndpoints {
   static const authRefresh    = '/auth/refresh';
   static const authResendOtp  = '/auth/resend-otp';
   static const authLogout     = '/auth/logout';
+  static const authDeviceToken = '/auth/device-token';
+  static const authDeleteAccount = '/auth/account';
 
   // ── Profiles ──────────────────────────────────────────────────────────────
   static const profileMe          = '/profiles/me';

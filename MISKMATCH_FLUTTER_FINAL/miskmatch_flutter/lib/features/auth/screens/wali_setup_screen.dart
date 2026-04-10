@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,10 +8,11 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/features/auth/providers/auth_provider.dart';
+import 'package:miskmatch/features/wali/data/wali_repository.dart';
+import 'package:miskmatch/features/wali/data/wali_models.dart';
 
-/// Wali (guardian) setup screen — step 2 of onboarding.
-/// Collects guardian's name, phone, and relationship.
-/// Optional: user can skip and add wali later from settings.
+/// Wali (guardian) setup — 3-step onboarding wizard.
 
 class WaliSetupScreen extends ConsumerStatefulWidget {
   const WaliSetupScreen({super.key});
@@ -20,172 +22,468 @@ class WaliSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
-  final _formKey      = GlobalKey<FormState>();
-  final _nameCtrl     = TextEditingController();
-  final _phoneCtrl    = TextEditingController();
-  String _relationship= 'father';
-  bool   _loading     = false;
+  final _pageCtrl  = PageController();
+  int   _step      = 0;
+
+  // Step 1 — relationship
+  String? _relationship;
+
+  // Step 2 — details
+  final _nameCtrl  = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  String _dialCode = '+962';
+  String _flag     = '🇯🇴';
+
+  // Step 3 — permissions
+  bool _approveMatches = true;
+  bool _readConvos     = false;
+  bool _notifications  = true;
+  bool _joinCalls      = true;
+
+  bool _loading = false;
 
   static const _relationships = [
-    ('father',              'Father',               'والد',   Icons.man_rounded),
-    ('brother',             'Brother',              'أخ',     Icons.person_rounded),
-    ('uncle',               'Uncle',                'عم',     Icons.elderly_rounded),
-    ('grandfather',         'Grandfather',          'جد',     Icons.elderly_rounded),
-    ('male_relative',       'Male Relative',        'قريب',   Icons.group_rounded),
-    ('imam',                'Imam',                 'إمام',   Icons.mosque_rounded),
-    ('trusted_male_guardian','Trusted Guardian',    'وليّ',   Icons.shield_rounded),
+    ('father',      'Father',      Icons.man_rounded),
+    ('brother',     'Brother',     Icons.person_rounded),
+    ('uncle',       'Uncle',       Icons.elderly_rounded),
+    ('grandfather', 'Grandfather', Icons.elderly_rounded),
+    ('imam',        'Imam',        Icons.mosque_rounded),
+    ('other',       'Other',       Icons.group_rounded),
   ];
 
   @override
   void dispose() {
+    _pageCtrl.dispose();
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
   }
 
+  void _next() {
+    if (_step < 2) {
+      setState(() => _step++);
+      _pageCtrl.nextPage(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic);
+    } else {
+      _submit();
+    }
+  }
+
+  void _back() {
+    if (_step > 0) {
+      setState(() => _step--);
+      _pageCtrl.previousPage(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic);
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
+  bool get _canProceed {
+    if (_step == 0) return _relationship != null;
+    if (_step == 1) {
+      return _nameCtrl.text.trim().length >= 2 &&
+             _phoneCtrl.text.replaceAll(' ', '').trim().length >= 7;
+    }
+    return true;
+  }
+
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
-    // TODO: call wali service API
-    await Future.delayed(const Duration(seconds: 1)); // simulate API
+    final fullPhone = '$_dialCode${_phoneCtrl.text.replaceAll(' ', '').trim()}';
+    final request = WaliSetupRequest(
+      waliName:     _nameCtrl.text.trim(),
+      waliPhone:    fullPhone,
+      relationship: WaliRelationship.values.firstWhere(
+        (r) => r.name == _relationship,
+        orElse: () => WaliRelationship.father,
+      ),
+      permissions: WaliPermissions(
+        mustApproveMatches:    _approveMatches,
+        canReadMessages:       _readConvos,
+        receivesNotifications: _notifications,
+        canJoinCalls:          _joinCalls,
+      ),
+    );
+
+    final repo   = ref.read(waliRepositoryProvider);
+    final result = await repo.setup(request);
 
     setState(() => _loading = false);
-    if (mounted) context.go(AppRoutes.discovery);
+
+    result.when(
+      success: (_) {
+        // Also send the SMS invitation
+        repo.resendInvite();
+        if (mounted) {
+          ref.read(authProvider.notifier).completeOnboarding();
+          context.go(AppRoutes.discovery);
+        }
+      },
+      error: (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.message)),
+          );
+          // Still allow proceeding even if wali setup fails on backend
+          ref.read(authProvider.notifier).completeOnboarding();
+          context.go(AppRoutes.discovery);
+        }
+      },
+    );
+  }
+
+  void _skip() {
+    ref.read(authProvider.notifier).completeOnboarding();
+    context.go(AppRoutes.discovery);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return LoadingOverlay(
       isLoading: _loading,
       child: Scaffold(
-        appBar: AppBar(
-          leading: const BackButton(),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.screenPadding),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: context.scaffoldColor,
+        body: Column(
+          children: [
+            // ── Gradient header ──────────────────────────────────────────
+            _WaliHeader(step: _step, onBack: _back),
+
+            // ── Step dots ────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: _StepDots(current: _step, total: 3),
+            ),
+
+            // ── Page content ─────────────────────────────────────────────
+            Expanded(
+              child: PageView(
+                controller: _pageCtrl,
+                physics:    const NeverScrollableScrollPhysics(),
                 children: [
-                  const SizedBox(height: 8),
-
-                  // ── Header ───────────────────────────────────────────
-                  _WaliHeader()
-                      .animate()
-                      .fadeIn(duration: 500.ms)
-                      .slideY(begin: -0.05, end: 0),
-
-                  const SizedBox(height: 28),
-
-                  // ── Guardian name ─────────────────────────────────────
-                  Text('Guardian\'s full name',
-                      style: AppTypography.titleSmall)
-                      .animate(delay: 100.ms).fadeIn(),
-
-                  const SizedBox(height: 10),
-                  MiskTextField(
-                    label:      'Guardian name',
-                    hint:       'e.g. Ahmad Al-Rashidi',
-                    controller: _nameCtrl,
-                    prefixIcon: const Icon(Icons.person_outline_rounded),
-                    textInputAction: TextInputAction.next,
-                    validator: (v) {
-                      if (v == null || v.trim().length < 2) {
-                        return 'Please enter the guardian\'s full name';
-                      }
-                      return null;
+                  _Step1Relationship(
+                    selected: _relationship,
+                    onSelect: (r) {
+                      HapticFeedback.selectionClick();
+                      setState(() => _relationship = r);
                     },
-                  )
-                      .animate(delay: 150.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideX(begin: -0.05, end: 0),
-
-                  const SizedBox(height: 16),
-
-                  // ── Guardian phone ────────────────────────────────────
-                  Text('Guardian\'s phone number',
-                      style: AppTypography.titleSmall)
-                      .animate(delay: 200.ms).fadeIn(),
-
-                  const SizedBox(height: 10),
-                  MiskTextField(
-                    label:        'Phone with country code',
-                    hint:         '+962 7X XXX XXXX',
-                    controller:   _phoneCtrl,
-                    keyboardType: TextInputType.phone,
-                    prefixIcon:   const Icon(Icons.phone_outlined),
-                    textInputAction: TextInputAction.done,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Please enter the guardian\'s phone number';
-                      }
-                      if (!RegExp(r'^\+\d{7,15}$').hasMatch(v.trim())) {
-                        return 'Enter number with country code, e.g. +962791234567';
-                      }
-                      return null;
-                    },
-                  )
-                      .animate(delay: 250.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideX(begin: -0.05, end: 0),
-
-                  const SizedBox(height: 24),
-
-                  // ── Relationship picker ───────────────────────────────
-                  Text('Relationship', style: AppTypography.titleSmall)
-                      .animate(delay: 300.ms).fadeIn(),
-
-                  const SizedBox(height: 12),
-                  _RelationshipPicker(
-                    relationships:    _relationships,
-                    selected:         _relationship,
-                    onSelect:         (r) => setState(() => _relationship = r),
-                  )
-                      .animate(delay: 350.ms)
-                      .fadeIn(duration: 400.ms),
-
-                  const SizedBox(height: 28),
-
-                  // ── What happens next ────────────────────────────────
-                  _WaliInfoCard()
-                      .animate(delay: 400.ms)
-                      .fadeIn(duration: 400.ms),
-
-                  const SizedBox(height: 28),
-
-                  // ── Submit ────────────────────────────────────────────
-                  MiskButton(
-                    label:     'Set up guardian & continue',
-                    onPressed: _submit,
-                    loading:   _loading,
-                    icon:      Icons.shield_rounded,
-                  )
-                      .animate(delay: 500.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
-
-                  const SizedBox(height: 12),
-
-                  MiskButton(
-                    label:     'Skip — set up guardian later',
-                    onPressed: () => context.go(AppRoutes.discovery),
-                    variant:   MiskButtonVariant.ghost,
-                  )
-                      .animate(delay: 550.ms)
-                      .fadeIn(),
-
-                  const SizedBox(height: 40),
+                  ),
+                  _Step2Details(
+                    nameCtrl:  _nameCtrl,
+                    phoneCtrl: _phoneCtrl,
+                    dialCode:  _dialCode,
+                    flag:      _flag,
+                    onCountry: (code, flag) =>
+                        setState(() { _dialCode = code; _flag = flag; }),
+                    onChanged: () => setState(() {}),
+                  ),
+                  _Step3Permissions(
+                    approveMatches: _approveMatches,
+                    readConvos:     _readConvos,
+                    notifications:  _notifications,
+                    joinCalls:      _joinCalls,
+                    onApprove:      (v) => setState(() => _approveMatches = v),
+                    onRead:         (v) => setState(() => _readConvos = v),
+                    onNotify:       (v) => setState(() => _notifications = v),
+                    onCall:         (v) => setState(() => _joinCalls = v),
+                  ),
                 ],
               ),
             ),
+
+            // ── Bottom buttons ───────────────────────────────────────────
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: Column(
+                  children: [
+                    MiskButton(
+                      label:     _step < 2 ? 'Next' : 'Complete Setup',
+                      onPressed: _canProceed ? _next : null,
+                      loading:   _loading,
+                      icon:      _step < 2
+                          ? Icons.arrow_forward_rounded
+                          : Icons.shield_rounded,
+                    ),
+                    const SizedBox(height: 8),
+                    MiskButton(
+                      label:     'Skip — set up guardian later',
+                      onPressed: _skip,
+                      variant:   MiskButtonVariant.ghost,
+                      small:     true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// GRADIENT HEADER
+// ─────────────────────────────────────────────
+
+class _WaliHeader extends StatelessWidget {
+  const _WaliHeader({required this.step, required this.onBack});
+  final int step;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(top: top),
+      decoration: const BoxDecoration(
+        gradient: AppColors.roseGradient,
+        borderRadius: BorderRadius.only(
+          bottomLeft:  Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Back button
+            IconButton(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_rounded, color: AppColors.white),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Row(
+                children: [
+                  // Shield icon
+                  Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.goldPrimary.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.shield_rounded,
+                        color: AppColors.goldPrimary, size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Your Guardian',
+                        style: TextStyle(
+                          fontFamily: 'Georgia', fontSize: 22,
+                          fontWeight: FontWeight.w700, color: AppColors.white),
+                      ),
+                      const SizedBox(height: 2),
+                      const Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Text(
+                          'لَا نِكَاحَ إِلَّا بِوَلِيٍّ',
+                          style: TextStyle(
+                            fontFamily: 'Scheherazade', fontSize: 16,
+                            color: AppColors.goldLight, height: 2.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 68, top: 2),
+              child: Text(
+                '"No marriage without a guardian"',
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.white.withOpacity(0.7),
+                  fontStyle: FontStyle.italic, fontSize: 11),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// STEP DOTS
+// ─────────────────────────────────────────────
+
+class _StepDots extends StatelessWidget {
+  const _StepDots({required this.current, required this.total});
+  final int current, total;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(total, (i) {
+        final active = i <= current;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width:  active ? 24 : 8,
+          height: 8,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: active
+                ? AppColors.roseDeep
+                : context.isDark ? AppColors.neutral700 : AppColors.neutral300,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// STEP 1 — RELATIONSHIP
+// ─────────────────────────────────────────────
+
+class _Step1Relationship extends StatelessWidget {
+  const _Step1Relationship({
+    required this.selected,
+    required this.onSelect,
+  });
+  final String? selected;
+  final void Function(String) onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Who is your guardian?',
+            style: AppTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.w700, color: context.onSurface)),
+          const SizedBox(height: 4),
+          Text('Select the relationship type',
+            style: AppTypography.bodySmall.copyWith(
+              color: context.mutedText, fontSize: 13)),
+          const SizedBox(height: 24),
+
+          GridView.count(
+            crossAxisCount:  2,
+            shrinkWrap:      true,
+            physics:         const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.4,
+            children: _WaliSetupScreenState._relationships.map((r) {
+              final (key, label, icon) = r;
+              final sel = selected == key;
+              return _RelationshipCard(
+                label: label, icon: icon, selected: sel,
+                onTap: () => onSelect(key),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RelationshipCard extends StatefulWidget {
+  const _RelationshipCard({
+    required this.label, required this.icon,
+    required this.selected, required this.onTap,
+  });
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_RelationshipCard> createState() => _RelationshipCardState();
+}
+
+class _RelationshipCardState extends State<_RelationshipCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _bounceCtrl;
+  late final Animation<double>   _bounceAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _bounceCtrl = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 300));
+    _bounceAnim = Tween(begin: 1.0, end: 1.06).animate(
+      CurvedAnimation(parent: _bounceCtrl, curve: Curves.elasticOut));
+  }
+
+  @override
+  void didUpdateWidget(_RelationshipCard old) {
+    super.didUpdateWidget(old);
+    if (widget.selected && !old.selected) {
+      _bounceCtrl.forward().then((_) => _bounceCtrl.reverse());
+    }
+  }
+
+  @override
+  void dispose() { _bounceCtrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _bounceAnim,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            gradient: widget.selected ? AppColors.roseGradient : null,
+            color:    widget.selected ? null : context.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: widget.selected
+                  ? AppColors.roseDeep
+                  : context.subtleBg,
+              width: widget.selected ? 2 : 1,
+            ),
+            boxShadow: widget.selected ? [
+              BoxShadow(
+                color: AppColors.roseDeep.withOpacity(0.2),
+                blurRadius: 16, offset: const Offset(0, 4)),
+            ] : context.cardShadow,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: widget.selected
+                      ? AppColors.white.withOpacity(0.2)
+                      : AppColors.roseDeep.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(widget.icon, size: 22,
+                  color: widget.selected
+                      ? AppColors.white
+                      : AppColors.roseDeep),
+              ),
+              const SizedBox(height: 10),
+              Text(widget.label,
+                style: AppTypography.labelMedium.copyWith(
+                  color:      widget.selected
+                      ? AppColors.white
+                      : context.onSurface,
+                  fontWeight: FontWeight.w600,
+                  fontSize:   13,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -194,155 +492,364 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
 }
 
 // ─────────────────────────────────────────────
-// SUB-WIDGETS
+// STEP 2 — DETAILS
 // ─────────────────────────────────────────────
 
-class _WaliHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 52, height: 52,
-          decoration: BoxDecoration(
-            color:        AppColors.goldPrimary.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(Icons.shield_rounded,
-              color: AppColors.goldPrimary, size: 28),
-        ),
-        const SizedBox(height: 16),
-        Text('Set up your Wali',
-            style: AppTypography.headlineSmall.copyWith(
-              color: AppColors.neutral900,
-            )),
-        const SizedBox(height: 8),
-        Text(
-          'Islam requires a guardian (wali) for a woman\'s marriage. '
-          'Your wali will be notified of matches and can approve or '
-          'decline them. Their involvement is a barakah, not a barrier.',
-          style: AppTypography.bodyMedium.copyWith(
-            color:  AppColors.neutral500,
-            height: 1.6,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _RelationshipPicker extends StatelessWidget {
-  const _RelationshipPicker({
-    required this.relationships,
-    required this.selected,
-    required this.onSelect,
+class _Step2Details extends StatelessWidget {
+  const _Step2Details({
+    required this.nameCtrl, required this.phoneCtrl,
+    required this.dialCode, required this.flag,
+    required this.onCountry, required this.onChanged,
   });
 
-  final List<(String, String, String, IconData)> relationships;
-  final String                                    selected;
-  final void Function(String)                     onSelect;
+  final TextEditingController nameCtrl, phoneCtrl;
+  final String dialCode, flag;
+  final void Function(String, String) onCountry;
+  final VoidCallback onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: relationships.map((r) {
-        final (key, label, labelAr, icon) = r;
-        final isSelected = selected == key;
-        return GestureDetector(
-          onTap: () => onSelect(key),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color:        isSelected
-                  ? theme.colorScheme.primaryContainer
-                  : theme.colorScheme.surface,
-              borderRadius: AppRadius.chipRadius,
-              border: Border.all(
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon,
-                    size:  16,
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : AppColors.neutral500),
-                const SizedBox(width: 7),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label,
-                        style: AppTypography.labelMedium.copyWith(
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : AppColors.neutral700,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                        )),
-                    Text(labelAr,
-                        style: TextStyle(
-                          fontFamily: 'Scheherazade',
-                          fontSize:   11,
-                          color: isSelected
-                              ? theme.colorScheme.primary.withOpacity(0.7)
-                              : AppColors.neutral500,
-                        )),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _WaliInfoCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MiskCard(
-      color: AppColors.goldPrimary.withOpacity(0.06),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text('Enter their details',
+            style: AppTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.w700, color: context.onSurface)),
+          const SizedBox(height: 4),
+          Text('We\'ll send them an SMS invitation',
+            style: AppTypography.bodySmall.copyWith(
+              color: context.mutedText, fontSize: 13)),
+          const SizedBox(height: 24),
+
+          MiskTextField(
+            label:      'Guardian\'s full name',
+            hint:       'e.g. Ahmad Al-Rashidi',
+            controller: nameCtrl,
+            prefixIcon: const Icon(Icons.person_outline_rounded),
+            textInputAction: TextInputAction.next,
+            onChanged:  (_) => onChanged(),
+            validator: (v) {
+              if (v == null || v.trim().length < 2) {
+                return 'Please enter the guardian\'s name';
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 16),
+
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline_rounded,
-                  color: AppColors.goldPrimary, size: 18),
-              const SizedBox(width: 8),
-              Text('What happens next?',
-                  style: AppTypography.titleSmall.copyWith(
-                    color: AppColors.goldDark,
-                  )),
+              GestureDetector(
+                onTap: () => _showCountryPicker(context),
+                child: Container(
+                  height: 56,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.roseLight.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(AppRadius.input),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(flag, style: const TextStyle(fontSize: 20)),
+                      const SizedBox(width: 6),
+                      Text(dialCode,
+                        style: AppTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: context.onSurface)),
+                      const SizedBox(width: 4),
+                      Icon(Icons.keyboard_arrow_down_rounded,
+                          size: 18, color: context.mutedText),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: MiskTextField(
+                  label:        'Phone number',
+                  hint:         '79 123 4567',
+                  controller:   phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                  onChanged:    (_) => onChanged(),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          ...[
-            '📱 Your guardian receives an SMS invitation',
-            '✅ They accept — you\'re ready to receive matches',
-            '🤲 They approve or decline each match you receive',
-            '💬 They can optionally view your chaperoned conversations',
-          ].map((s) => Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(s,
-                style: AppTypography.bodySmall.copyWith(
-                  color:  AppColors.neutral700,
-                  height: 1.5,
-                )),
-          )),
+
+          const SizedBox(height: 24),
+
+          // Info box
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.goldLight.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppColors.goldPrimary.withOpacity(0.3)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('🤲', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'They will receive an SMS invitation to '
+                    'join MiskMatch as your guardian. They must '
+                    'accept before your matches are approved.',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.goldDark, height: 1.6),
+                  ),
+                ),
+              ],
+            ),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms, delay: 200.ms),
+        ],
+      ),
+    );
+  }
+
+  void _showCountryPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.surfaceColor,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.bottomSheet),
+      builder: (_) => _WaliCountrySheet(
+        onSelect: (code, flag) {
+          onCountry(code, flag);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+}
+
+class _WaliCountrySheet extends StatefulWidget {
+  const _WaliCountrySheet({required this.onSelect});
+  final void Function(String, String) onSelect;
+
+  @override
+  State<_WaliCountrySheet> createState() => _WaliCountrySheetState();
+}
+
+class _WaliCountrySheetState extends State<_WaliCountrySheet> {
+  String _q = '';
+  static const _countries = [
+    ('🇯🇴', 'Jordan', '+962'),       ('🇸🇦', 'Saudi Arabia', '+966'),
+    ('🇦🇪', 'UAE', '+971'),          ('🇪🇬', 'Egypt', '+20'),
+    ('🇬🇧', 'United Kingdom', '+44'),('🇺🇸', 'United States', '+1'),
+    ('🇨🇦', 'Canada', '+1'),         ('🇲🇾', 'Malaysia', '+60'),
+    ('🇹🇷', 'Turkey', '+90'),        ('🇩🇪', 'Germany', '+49'),
+    ('🇵🇰', 'Pakistan', '+92'),      ('🇮🇳', 'India', '+91'),
+    ('🇮🇩', 'Indonesia', '+62'),     ('🇰🇼', 'Kuwait', '+965'),
+    ('🇶🇦', 'Qatar', '+974'),        ('🇱🇧', 'Lebanon', '+961'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = _q.isEmpty
+        ? _countries
+        : _countries.where((c) =>
+            c.$2.toLowerCase().contains(_q.toLowerCase()) ||
+            c.$3.contains(_q)).toList();
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6, maxChildSize: 0.85, minChildSize: 0.4,
+      expand: false,
+      builder: (_, ctrl) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        child: Column(
+          children: [
+            Container(width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: context.handleColor,
+                borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Text('Select country',
+              style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            MiskTextField(
+              label: 'Search', hint: 'Country name or code',
+              prefixIcon: const Icon(Icons.search_rounded),
+              onChanged: (v) => setState(() => _q = v)),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.separated(
+                controller: ctrl,
+                itemCount: filtered.length,
+                separatorBuilder: (_, __) =>
+                    Divider(height: 1, color: context.subtleBg),
+                itemBuilder: (_, i) {
+                  final (flag, name, code) = filtered[i];
+                  return ListTile(
+                    leading: Text(flag, style: const TextStyle(fontSize: 24)),
+                    title: Text(name, style: AppTypography.bodyMedium),
+                    trailing: Text(code,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: context.mutedText)),
+                    onTap: () => widget.onSelect(code, flag),
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// STEP 3 — PERMISSIONS
+// ─────────────────────────────────────────────
+
+class _Step3Permissions extends StatelessWidget {
+  const _Step3Permissions({
+    required this.approveMatches, required this.readConvos,
+    required this.notifications, required this.joinCalls,
+    required this.onApprove, required this.onRead,
+    required this.onNotify, required this.onCall,
+  });
+
+  final bool approveMatches, readConvos, notifications, joinCalls;
+  final ValueChanged<bool> onApprove, onRead, onNotify, onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Choose their involvement',
+            style: AppTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.w700, color: context.onSurface)),
+          const SizedBox(height: 4),
+          Text('You can change these settings later',
+            style: AppTypography.bodySmall.copyWith(
+              color: context.mutedText, fontSize: 13)),
+          const SizedBox(height: 24),
+
+          _PermissionRow(
+            icon:     Icons.check_circle_rounded,
+            label:    'Must approve all matches',
+            subtitle: 'Required — your guardian approves each match',
+            value:    approveMatches,
+            onChanged: null, // can't turn off
+            isFirst:  true,
+          ),
+          _PermissionRow(
+            icon:     Icons.chat_bubble_outline_rounded,
+            label:    'Can read conversations',
+            subtitle: 'Your guardian can view chat messages',
+            value:    readConvos,
+            onChanged: onRead,
+          ),
+          _PermissionRow(
+            icon:     Icons.notifications_outlined,
+            label:    'Receives notifications',
+            subtitle: 'Gets notified about new matches and activity',
+            value:    notifications,
+            onChanged: onNotify,
+          ),
+          _PermissionRow(
+            icon:     Icons.call_outlined,
+            label:    'Can join chaperoned calls',
+            subtitle: 'Can listen in on voice/video calls',
+            value:    joinCalls,
+            onChanged: onCall,
+            isLast:   true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PermissionRow extends StatelessWidget {
+  const _PermissionRow({
+    required this.icon, required this.label, required this.subtitle,
+    required this.value, required this.onChanged,
+    this.isFirst = false, this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label, subtitle;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final bool isFirst, isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = onChanged == null;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: context.surfaceColor,
+        borderRadius: BorderRadius.vertical(
+          top:    isFirst ? const Radius.circular(16) : Radius.zero,
+          bottom: isLast  ? const Radius.circular(16) : Radius.zero,
+        ),
+        border: Border(
+          bottom: isLast
+              ? BorderSide.none
+              : BorderSide(color: context.subtleBg, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.roseLight.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 20, color: AppColors.roseDeep),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                  style: AppTypography.labelMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: context.onSurface, fontSize: 13)),
+                const SizedBox(height: 2),
+                Text(subtitle,
+                  style: AppTypography.caption.copyWith(
+                    color: context.mutedText)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          locked
+              ? Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.roseDeep.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text('Required',
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
+                )
+              : Switch(
+                  value:       value,
+                  onChanged:   onChanged,
+                  activeColor: AppColors.roseDeep,
+                  activeTrackColor: AppColors.roseLight,
+                ),
         ],
       ),
     );

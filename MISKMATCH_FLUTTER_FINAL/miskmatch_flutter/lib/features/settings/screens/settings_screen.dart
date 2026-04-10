@@ -2,23 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:miskmatch/features/auth/data/auth_repository.dart';
 import 'package:miskmatch/features/auth/providers/auth_provider.dart';
+import 'package:miskmatch/shared/models/api_response.dart';
 import 'package:miskmatch/features/wali/data/wali_repository.dart';
 import 'package:miskmatch/features/wali/providers/wali_provider.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
+import 'package:miskmatch/shared/extensions/app_extensions.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 
-/// App Settings screen — accessible from Profile tab → settings icon.
+/// Settings screen — rosePale bg, Georgia "Settings" roseDeep appbar.
 ///
-/// Sections:
-///   Account      — phone, notifications, biometric lock
-///   Guardian     — wali status quick view, invite resend
-///   Appearance   — theme toggle (Light / Dark / System)
-///   Privacy      — photo visibility, voice visibility
-///   About        — version, terms, privacy policy, contact
-///   Danger zone  — logout, delete account
+/// Sections: Account, Guardian, Appearance, Privacy, About,
+/// Quranic tagline, Danger zone.
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -48,38 +46,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _appVersion = 'v${info.version} (${info.buildNumber})');
       }
     } catch (_) {
-      setState(() => _appVersion = 'v1.0.0');
+      if (mounted) setState(() => _appVersion = 'v1.0.0');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final waliStatus = ref.watch(waliStatusProvider);
-    final auth       = ref.watch(authProvider);
-    final phone      = auth is AuthAuthenticated ? '' : '';
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.scaffoldColor,
       appBar: AppBar(
         leading: const BackButton(),
-        title: Text('Settings',
-            style: AppTypography.titleLarge.copyWith(
-              color: AppColors.roseDeep, fontWeight: FontWeight.w700)),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: const Text('Settings',
+          style: TextStyle(
+            fontFamily:  'Georgia',
+            fontSize:    20,
+            color:       AppColors.roseDeep,
+            fontWeight:  FontWeight.w700,
+          ),
+        ),
+        backgroundColor: context.scaffoldColor,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 60),
         children: [
-          // ── ACCOUNT ──────────────────────────────────────────────
-          _SectionHeader(title: 'Account', icon: '👤'),
+          // ═══════════════════════════════════════════
+          // ACCOUNT
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: '👤', label: 'Account'),
 
           _SettingsTile(
             icon:     Icons.phone_outlined,
             label:    'Phone number',
-            trailing: Text(phone.isNotEmpty ? phone : '+•••••••••••',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500)),
+            trailing: Text('+•••••••••••',
+              style: AppTypography.bodySmall.copyWith(
+                color: context.mutedText)),
           ),
 
           _SwitchTile(
@@ -98,122 +102,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChange: (v) => setState(() => _biometricEnabled = v),
           ),
 
-          const _Divider(),
+          const SizedBox(height: 12),
 
-          // ── GUARDIAN ─────────────────────────────────────────────
-          _SectionHeader(title: 'Guardian (Wali)', icon: '🛡️'),
+          // ═══════════════════════════════════════════
+          // GUARDIAN (WALI)
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: '🛡️', label: 'Guardian (Wali)'),
 
-          waliStatus.when(
-            loading: () => const _LoadingTile(),
-            error:   (_, __) => _SettingsTile(
-              icon:     Icons.shield_outlined,
-              label:    'Guardian status',
-              trailing: const Text('Not set up',
-                  style: TextStyle(color: AppColors.neutral500)),
-              onTap:    () {},
-            ),
-            data: (status) => Column(children: [
-              _SettingsTile(
-                icon:     status.accepted
-                    ? Icons.shield_rounded
-                    : Icons.shield_outlined,
-                label:    'Guardian',
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: status.accepted
-                          ? AppColors.success.withOpacity(0.1)
-                          : AppColors.goldPrimary.withOpacity(0.1),
-                      borderRadius: AppRadius.chipRadius,
-                    ),
-                    child: Text(
-                      !status.hasWali
-                          ? 'Not set up'
-                          : status.accepted
-                              ? 'Active'
-                              : 'Pending',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: !status.hasWali
-                            ? AppColors.neutral500
-                            : status.accepted
-                                ? AppColors.success
-                                : AppColors.goldDark,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ]),
-                subtitle: status.waliName,
-              ),
-              if (status.hasWali && !status.accepted)
-                _SettingsTile(
-                  icon:     Icons.send_rounded,
-                  label:    'Resend guardian invite',
-                  onTap:    () async {
-                    await ref.read(waliRepositoryProvider).resendInvite();
-                    if (context.mounted) {
-                      context.showSuccessSnack('Invitation resent.');
-                    }
-                  },
-                ),
-            ]),
+          _GuardianStatusTile(
+            waliStatus: waliStatus,
+            onResend: () async {
+              await ref.read(waliRepositoryProvider).resendInvite();
+              if (context.mounted) {
+                context.showSuccessSnack('Invitation resent.');
+              }
+            },
           ),
 
-          const _Divider(),
+          const SizedBox(height: 12),
 
-          // ── APPEARANCE ────────────────────────────────────────────
-          _SectionHeader(title: 'Appearance', icon: '🎨'),
+          // ═══════════════════════════════════════════
+          // APPEARANCE
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: '🎨', label: 'Appearance'),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
-            child: Row(children: [
-              const Icon(Icons.palette_outlined,
-                  color: AppColors.neutral500, size: 20),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Theme',
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.neutral900)),
-                    Text('Rose Garden / Musk Night',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.neutral500)),
-                  ],
-                ),
-              ),
-              SegmentedButton<ThemeMode>(
-                segments: const [
-                  ButtonSegment(
-                    value: ThemeMode.light,
-                    icon:  Icon(Icons.light_mode_rounded, size: 16),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.system,
-                    icon:  Icon(Icons.brightness_auto_rounded, size: 16),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.dark,
-                    icon:  Icon(Icons.dark_mode_rounded, size: 16),
-                  ),
-                ],
-                selected:      {_themeMode},
-                onSelectionChanged: (s) =>
-                    setState(() => _themeMode = s.first),
-                style: ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ]),
+          _ThemeSegmentTile(
+            themeMode: _themeMode,
+            onChanged: (m) => setState(() => _themeMode = m),
           ),
 
-          const _Divider(),
+          const SizedBox(height: 12),
 
-          // ── PRIVACY ───────────────────────────────────────────────
-          _SectionHeader(title: 'Privacy', icon: '🔒'),
+          // ═══════════════════════════════════════════
+          // PRIVACY
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: '🔒', label: 'Privacy'),
 
           _SwitchTile(
             icon:     Icons.photo_outlined,
@@ -223,23 +146,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChange: (v) => setState(() => _photoVisible = v),
           ),
 
-          const _Divider(),
+          const SizedBox(height: 12),
 
-          // ── ABOUT ─────────────────────────────────────────────────
-          _SectionHeader(title: 'About', icon: 'ℹ️'),
+          // ═══════════════════════════════════════════
+          // ABOUT
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: 'ℹ️', label: 'About'),
 
           _SettingsTile(
             icon:     Icons.info_outline_rounded,
             label:    'Version',
             trailing: Text(_appVersion,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500)),
+              style: AppTypography.bodySmall.copyWith(
+                color: context.mutedText)),
           ),
 
           _SettingsTile(
             icon:  Icons.description_outlined,
             label: 'Terms of service',
-            onTap: () {}, // URL launcher
+            onTap: () {},
           ),
 
           _SettingsTile(
@@ -260,9 +185,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () {},
           ),
 
-          // ── Quran reference ───────────────────────────────────────
+          // ═══════════════════════════════════════════
+          // QURANIC TAGLINE
+          // ═══════════════════════════════════════════
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
             child: Center(
               child: Column(children: [
                 const Text(
@@ -277,18 +204,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   '"Its seal is musk." — Quran 83:26',
                   style: AppTypography.bodySmall.copyWith(
-                    color:     AppColors.neutral500,
+                    color:     context.mutedText,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
               ]),
             ),
-          ).animate(delay: 200.ms).fadeIn(),
+          ).animate(delay: 200.ms).fadeIn(duration: 400.ms),
 
-          const _Divider(),
+          const SizedBox(height: 12),
 
-          // ── DANGER ZONE ───────────────────────────────────────────
-          _SectionHeader(title: 'Account actions', icon: '⚠️'),
+          // ═══════════════════════════════════════════
+          // DANGER ZONE
+          // ═══════════════════════════════════════════
+          const _SectionHeader(icon: '⚠️', label: 'Account actions'),
 
           _SettingsTile(
             icon:      Icons.logout_rounded,
@@ -310,39 +239,55 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  // ── Logout confirmation sheet ──────────────────
   void _showLogoutSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context:         context,
       backgroundColor: Colors.transparent,
       builder: (_) => _ConfirmSheet(
-        emoji:    '🚪',
-        title:    'Sign out?',
-        body:     'You can sign back in with your phone number at any time.',
-        confirm:  'Sign out',
+        emoji:     '🚪',
+        title:     'Sign out?',
+        body:      'You can sign back in with your phone number at any time.',
+        confirm:   'Sign out',
+        isDanger:  false,
         onConfirm: () async {
           Navigator.pop(context);
           await ref.read(authProvider.notifier).logout();
         },
-        isDanger: false,
       ),
     );
   }
 
+  // ── Delete account confirmation sheet ──────────
   void _showDeleteSheet(BuildContext context) {
     showModalBottomSheet(
       context:         context,
       backgroundColor: Colors.transparent,
       builder: (_) => _ConfirmSheet(
-        emoji:    '⚠️',
-        title:    'Delete account?',
-        body:     'This permanently deletes your profile, matches, and all '
-                  'conversation history. This cannot be undone.',
-        confirm:  'Delete my account',
-        onConfirm: () {
+        emoji:     '⚠️',
+        title:     'Delete account?',
+        body:      'This permanently deletes your profile, matches, and all '
+                   'conversation history. This cannot be undone.',
+        confirm:   'Delete my account',
+        isDanger:  true,
+        onConfirm: () async {
           Navigator.pop(context);
-          // TODO: implement delete account API call
+          final result = await ref.read(authRepositoryProvider).deleteAccount();
+          if (!mounted) return;
+          result.when(
+            success: (_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Account deleted successfully.')),
+              );
+              ref.read(authProvider.notifier).logout();
+            },
+            error: (err) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(err.message)),
+              );
+            },
+          );
         },
-        isDanger: true,
       ),
     );
   }
@@ -350,12 +295,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
 // ─────────────────────────────────────────────
 // SECTION HEADER
+// emoji + label uppercase 11pt neutral500
+// letterSpacing 0.8, no dividers — spacing only
 // ─────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.icon});
-  final String title;
+  const _SectionHeader({required this.icon, required this.label});
   final String icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -364,19 +311,26 @@ class _SectionHeader extends StatelessWidget {
       child: Row(children: [
         Text(icon, style: const TextStyle(fontSize: 16)),
         const SizedBox(width: 8),
-        Text(title.toUpperCase(),
-            style: AppTypography.labelSmall.copyWith(
-              color:       AppColors.neutral500,
-              letterSpacing: 0.8,
-              fontWeight:  FontWeight.w600,
-            )),
+        Text(label.toUpperCase(),
+          style: TextStyle(
+            fontSize:       11,
+            color:          context.mutedText,
+            fontWeight:     FontWeight.w600,
+            letterSpacing:  0.8,
+          ),
+        ),
       ]),
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// SETTINGS TILE
+// SETTING TILE
+// 56px height, 20px icon neutral500
+// 15pt label neutral900
+// Optional subtitle 11pt neutral500
+// Trailing: chevron if tappable, or custom widget
+// Rose tint ripple on tap
 // ─────────────────────────────────────────────
 
 class _SettingsTile extends StatelessWidget {
@@ -389,46 +343,60 @@ class _SettingsTile extends StatelessWidget {
     this.textColor,
   });
 
-  final IconData icon;
-  final String   label;
-  final String?  subtitle;
-  final Widget?  trailing;
+  final IconData      icon;
+  final String        label;
+  final String?       subtitle;
+  final Widget?       trailing;
   final VoidCallback? onTap;
-  final Color?   textColor;
+  final Color?        textColor;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          child: Row(children: [
-            Icon(icon,
+        onTap:       onTap,
+        splashColor: AppColors.roseDeep.withOpacity(0.08),
+        highlightColor: AppColors.roseDeep.withOpacity(0.04),
+        child: SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(children: [
+              Icon(icon,
                 size:  20,
-                color: textColor ?? AppColors.neutral500),
-            const SizedBox(width: 14),
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: textColor ?? theme.colorScheme.onSurface)),
-                if (subtitle != null)
-                  Text(subtitle!,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.neutral500)),
-              ],
-            )),
-            if (trailing != null) ...[
-              const SizedBox(width: 8),
-              trailing!,
-            ] else if (onTap != null)
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.neutral300, size: 18),
-          ]),
+                color: textColor ?? context.mutedText,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color:    textColor ?? context.onSurface,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(subtitle!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color:    context.mutedText,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (trailing != null) ...[
+                const SizedBox(width: 8),
+                trailing!,
+              ] else if (onTap != null)
+                Icon(Icons.chevron_right_rounded,
+                  color: context.handleColor, size: 18),
+            ]),
+          ),
         ),
       ),
     );
@@ -437,6 +405,9 @@ class _SettingsTile extends StatelessWidget {
 
 // ─────────────────────────────────────────────
 // SWITCH TILE
+// Same layout as SettingsTile but trailing is
+// custom Switch: thumb white, track filled roseDeep,
+// track empty neutral300, 300ms cubic transition
 // ─────────────────────────────────────────────
 
 class _SwitchTile extends StatelessWidget {
@@ -448,75 +419,245 @@ class _SwitchTile extends StatelessWidget {
     this.subtitle,
   });
 
-  final IconData icon;
-  final String   label;
-  final String?  subtitle;
-  final bool     value;
+  final IconData            icon;
+  final String              label;
+  final String?             subtitle;
+  final bool                value;
   final void Function(bool) onChange;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: Row(children: [
-        Icon(icon, size: 20, color: AppColors.neutral500),
-        const SizedBox(width: 14),
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: AppTypography.bodyMedium),
-            if (subtitle != null)
-              Text(subtitle!,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500)),
-          ],
-        )),
-        Switch(
-          value:       value,
-          onChanged:   onChange,
-          activeColor: AppColors.roseDeep,
-        ),
-      ]),
-    );
-  }
-}
-
-class _LoadingTile extends StatelessWidget {
-  const _LoadingTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: Row(children: [
-        SizedBox(
-          width: 16, height: 16,
-          child: CircularProgressIndicator(
-              color: AppColors.neutral500, strokeWidth: 2),
-        ),
-        SizedBox(width: 14),
-        Text('Loading guardian status...'),
-      ]),
-    );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  const _Divider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      indent: 20, endIndent: 20,
-      color: Theme.of(context).colorScheme.outline.withOpacity(0.15),
+    return SizedBox(
+      height: 56,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(children: [
+          Icon(icon, size: 20, color: context.mutedText),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color:    context.onSurface,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(subtitle!,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color:    context.mutedText,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value:            value,
+            onChanged:        onChange,
+            activeColor:      AppColors.roseDeep,
+            activeTrackColor: AppColors.roseDeep,
+            inactiveThumbColor: AppColors.white,
+            inactiveTrackColor: context.handleColor,
+            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+          ),
+        ]),
+      ),
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// CONFIRM SHEET
+// THEME SEGMENT BUTTON
+// SegmentedButton 3 options:
+//   ☀️ Light | Auto | 🌙 Dark
+// Selected: rose filled, white icon
+// Visual density compact
+// ─────────────────────────────────────────────
+
+class _ThemeSegmentTile extends StatelessWidget {
+  const _ThemeSegmentTile({
+    required this.themeMode,
+    required this.onChanged,
+  });
+  final ThemeMode                 themeMode;
+  final void Function(ThemeMode)  onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(children: [
+          Icon(Icons.palette_outlined,
+            color: context.mutedText, size: 20),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Theme',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color:    context.onSurface,
+                  ),
+                ),
+                Text('Rose Garden / Musk Night',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color:    context.mutedText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('☀️', style: TextStyle(fontSize: 14)),
+              ),
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('Auto', style: TextStyle(fontSize: 12)),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('🌙', style: TextStyle(fontSize: 14)),
+              ),
+            ],
+            selected:            {themeMode},
+            onSelectionChanged:  (s) => onChanged(s.first),
+            showSelectedIcon:    false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.roseDeep;
+                }
+                return Colors.transparent;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.white;
+                }
+                return context.mutedText;
+              }),
+              side: WidgetStateProperty.all(
+                BorderSide(color: AppColors.roseDeep.withOpacity(0.3)),
+              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              ),
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(horizontal: 10),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// GUARDIAN STATUS TILE
+// Live AsyncValue from provider
+// Status chip: "Active" green / "Pending" gold / "Not set up" neutral
+// Resend invite option when pending
+// ─────────────────────────────────────────────
+
+class _GuardianStatusTile extends StatelessWidget {
+  const _GuardianStatusTile({
+    required this.waliStatus,
+    required this.onResend,
+  });
+  final AsyncValue<dynamic> waliStatus;
+  final VoidCallback        onResend;
+
+  @override
+  Widget build(BuildContext context) {
+    return waliStatus.when(
+      loading: () => SizedBox(
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(children: [
+            SizedBox(
+              width: 16, height: 16,
+              child: CircularProgressIndicator(
+                color: context.mutedText, strokeWidth: 2),
+            ),
+            const SizedBox(width: 14),
+            Text('Loading guardian status...',
+              style: TextStyle(fontSize: 15, color: context.mutedText)),
+          ]),
+        ),
+      ),
+      error: (_, __) => _SettingsTile(
+        icon:     Icons.shield_outlined,
+        label:    'Guardian status',
+        trailing: _buildChip('Not set up', AppColors.neutral500),
+      ),
+      data: (status) => Column(children: [
+        _SettingsTile(
+          icon:     status.accepted
+              ? Icons.shield_rounded
+              : Icons.shield_outlined,
+          label:    'Guardian',
+          subtitle: status.waliName,
+          trailing: _buildChip(
+            !status.hasWali
+                ? 'Not set up'
+                : status.accepted
+                    ? 'Active'
+                    : 'Pending',
+            !status.hasWali
+                ? AppColors.neutral500
+                : status.accepted
+                    ? AppColors.success
+                    : AppColors.goldDark,
+          ),
+        ),
+        if (status.hasWali && !status.accepted)
+          _SettingsTile(
+            icon:  Icons.send_rounded,
+            label: 'Resend guardian invite',
+            onTap: onResend,
+          ),
+      ]),
+    );
+  }
+
+  Widget _buildChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color:        color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Text(text,
+        style: TextStyle(
+          fontSize:   11,
+          color:      color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// CONFIRM SHEET (logout / delete)
+// Handle, emoji 44pt spring scale, Georgia title,
+// body text, confirm button (error or neutral),
+// cancel ghost
 // ─────────────────────────────────────────────
 
 class _ConfirmSheet extends StatelessWidget {
@@ -529,77 +670,100 @@ class _ConfirmSheet extends StatelessWidget {
     required this.isDanger,
   });
 
-  final String   emoji;
-  final String   title;
-  final String   body;
-  final String   confirm;
+  final String       emoji;
+  final String       title;
+  final String       body;
+  final String       confirm;
   final VoidCallback onConfirm;
-  final bool     isDanger;
+  final bool         isDanger;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
+        color:        context.surfaceColor,
         borderRadius: AppRadius.bottomSheet,
       ),
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+      padding: EdgeInsets.only(
+        left:   24, right: 24, top: 0,
+        bottom: MediaQuery.of(context).padding.bottom + 24,
+      ),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
+        // Handle
         Container(
-          margin:  const EdgeInsets.only(top: 12, bottom: 20),
-          width:   40, height: 4,
+          margin: const EdgeInsets.only(top: 12, bottom: 20),
+          width:  40, height: 4,
           decoration: BoxDecoration(
-            color:        theme.colorScheme.outline.withOpacity(0.4),
+            color:        context.handleColor,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        Text(emoji, style: const TextStyle(fontSize: 44)),
+
+        // Emoji — spring scale
+        Text(emoji, style: const TextStyle(fontSize: 44))
+            .animate()
+            .scaleXY(begin: 0.5, end: 1.0,
+                duration: 500.ms,
+                curve: Curves.easeOutBack),
+
         const SizedBox(height: 16),
+
+        // Title — Georgia
         Text(title,
-            style: AppTypography.headlineSmall,
-            textAlign: TextAlign.center),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily:  'Georgia',
+            fontSize:    22,
+            color:       context.onSurface,
+            fontWeight:  FontWeight.w700,
+          ),
+        ),
+
         const SizedBox(height: 8),
+
+        // Body
         Text(body,
-            textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.neutral500, height: 1.6)),
+          textAlign: TextAlign.center,
+          style: AppTypography.bodyMedium.copyWith(
+            color:  context.mutedText,
+            height: 1.6,
+          ),
+        ),
+
         const SizedBox(height: 28),
+
+        // Confirm button
         SizedBox(
-          width: double.infinity, height: 56,
+          width: double.infinity, height: 52,
           child: ElevatedButton(
             onPressed: onConfirm,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDanger ? AppColors.error : AppColors.roseDeep,
+              backgroundColor: isDanger
+                  ? AppColors.error
+                  : context.onSurface,
               foregroundColor: AppColors.white,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.buttonRadius),
+                borderRadius: BorderRadius.circular(14)),
             ),
             child: Text(confirm,
-                style: AppTypography.labelLarge.copyWith(
-                  color: AppColors.white, fontSize: 15)),
+              style: const TextStyle(
+                fontSize:   15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
+
         const SizedBox(height: 10),
-        TextButton(
+
+        // Cancel — ghost
+        MiskButton(
+          label:     'Cancel',
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          variant:   MiskButtonVariant.ghost,
         ),
       ]),
     );
-  }
-}
-
-// ─────────────────────────────────────────────
-// BuildContext extension (local import avoidance)
-// ─────────────────────────────────────────────
-
-extension _ContextX on BuildContext {
-  void showSuccessSnack(String msg) {
-    ScaffoldMessenger.of(this).showSnackBar(SnackBar(
-      content:         Text(msg),
-      backgroundColor: AppColors.success,
-      behavior:        SnackBarBehavior.floating,
-    ));
   }
 }

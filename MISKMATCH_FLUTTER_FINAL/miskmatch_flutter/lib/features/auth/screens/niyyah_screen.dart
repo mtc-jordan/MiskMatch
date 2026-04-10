@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +9,10 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/features/auth/providers/auth_provider.dart';
 
-/// Niyyah (intention) screen — the user states their sincere intention
-/// before proceeding. A beautiful, spiritually grounding onboarding step.
-///
-/// "إنما الأعمال بالنيات"
-/// Actions are judged by intentions. — Bukhari & Muslim
+/// Niyyah (intention) screen — the most spiritually important screen.
+/// Designed with reverence. No rush. No clutter.
 
 class NiyyahScreen extends ConsumerStatefulWidget {
   const NiyyahScreen({super.key});
@@ -22,306 +22,240 @@ class NiyyahScreen extends ConsumerStatefulWidget {
 }
 
 class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
-  final _niyyahCtrl = TextEditingController();
-  bool  _agreed     = false;
+  int?   _selected;
+  final  _customCtrl = TextEditingController();
 
-  static const _suggestions = [
-    'To find a righteous spouse and build a home filled with the remembrance of Allah.',
-    'To complete half my deen with someone who shares my values and love for Islam.',
-    'To find a partner who will be my companion in this life and the next, in sha Allah.',
-    'To marry with good intention, following the Sunnah of our Prophet (SAW).',
+  static const _intentions = [
+    'I intend to marry for the sake of Allah',
+    'I intend to find a righteous spouse',
+    'I intend to protect my deen through marriage',
   ];
 
-  @override
-  void dispose() {
-    _niyyahCtrl.dispose();
-    super.dispose();
+  String? get _niyyah {
+    if (_selected != null) return _intentions[_selected!];
+    if (_customCtrl.text.trim().isNotEmpty) return _customCtrl.text.trim();
+    return null;
   }
 
-  void _continue() {
-    if (!_agreed) return;
-    // TODO: save niyyah to profile via API
+  void _submit() {
     context.go(AppRoutes.waliSetup);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  void dispose() {
+    _customCtrl.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end:   Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.primary.withOpacity(0.05),
-              theme.scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.screenPadding),
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-
-                // ── Arabic hadith ─────────────────────────────────────────
-                _NiyyahHeader()
-                    .animate()
-                    .fadeIn(duration: 600.ms)
-                    .slideY(begin: -0.05, end: 0),
-
-                const SizedBox(height: 32),
-
-                // ── Intention text field ──────────────────────────────────
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('State your intention (niyyah)',
-                        style: AppTypography.titleMedium),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Write in your own words why you are seeking marriage.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.neutral500,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    MiskTextField(
-                      label:      'Your niyyah',
-                      hint:       'I seek marriage with the sincere intention of...',
-                      controller: _niyyahCtrl,
-                      maxLines:   4,
-                      maxLength:  300,
-                      onChanged:  (_) => setState(() {}),
-                    ),
-                  ],
-                )
-                    .animate(delay: 200.ms)
-                    .fadeIn(duration: 400.ms),
-
-                const SizedBox(height: 16),
-
-                // ── Suggestion chips ──────────────────────────────────────
-                _SuggestionChips(
-                  suggestions: _suggestions,
-                  onSelect: (s) {
-                    _niyyahCtrl.text = s;
-                    setState(() {});
-                  },
-                )
-                    .animate(delay: 300.ms)
-                    .fadeIn(duration: 400.ms),
-
-                const SizedBox(height: 28),
-
-                // ── Commitment checkbox ───────────────────────────────────
-                _CommitmentBox(
-                  agreed:    _agreed,
-                  onChanged: (v) => setState(() => _agreed = v),
-                )
-                    .animate(delay: 400.ms)
-                    .fadeIn(duration: 400.ms),
-
-                const SizedBox(height: 28),
-
-                // ── Continue button ───────────────────────────────────────
-                MiskButton(
-                  label:     'Bismillah — Begin',
-                  onPressed: _agreed ? _continue : null,
-                  icon:      Icons.arrow_forward_rounded,
-                )
-                    .animate(delay: 500.ms)
-                    .fadeIn(duration: 400.ms)
-                    .slideY(begin: 0.1, end: 0),
-
-                const SizedBox(height: 12),
-
-                MiskButton(
-                  label:     'Skip for now',
-                  onPressed: () => context.go(AppRoutes.waliSetup),
-                  variant:   MiskButtonVariant.ghost,
-                ),
-
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// SUB-WIDGETS
-// ─────────────────────────────────────────────
-
-class _NiyyahHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MiskCard(
-      color: AppColors.roseDeep.withOpacity(0.04),
-      child: Column(
+      body: Stack(
         children: [
-          const Text(
-            'إنما الأعمال بالنيات',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Scheherazade',
-              fontSize:   28,
-              color:      AppColors.roseDeep,
-              height:     1.8,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '"Actions are judged by intentions."',
-            textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium.copyWith(
-              color:      AppColors.neutral700,
-              fontStyle:  FontStyle.italic,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '— Bukhari & Muslim',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color:  AppColors.roseLight,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Before you begin, take a moment to set your sincere '
-            'intention. MiskMatch is a space of dignity, guided '
-            'by Islamic values.',
-            textAlign: TextAlign.center,
-            style: AppTypography.bodySmall.copyWith(
-              color:  AppColors.neutral600,
-              height: 1.6,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+          // ── Night gradient background ─────────────────────────────────
+          Container(decoration: const BoxDecoration(gradient: AppColors.nightGradient)),
 
-extension on AppColors {
-  static const neutral600 = Color(0xFF6B6B8B);
-}
+          // ── Geometric pattern overlay ──────────────────────────────────
+          const _GeometricPattern(),
 
-class _SuggestionChips extends StatelessWidget {
-  const _SuggestionChips({
-    required this.suggestions,
-    required this.onSelect,
-  });
-
-  final List<String>         suggestions;
-  final void Function(String) onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Or choose a suggestion:',
-            style: AppTypography.labelMedium.copyWith(
-              color: AppColors.neutral500,
-            )),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: suggestions.map((s) {
-            return GestureDetector(
-              onTap: () => onSelect(s),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer
-                      .withOpacity(0.5),
-                  borderRadius: AppRadius.chipRadius,
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary
-                        .withOpacity(0.3),
-                  ),
-                ),
-                child: Text(
-                  s.length > 40 ? '${s.substring(0, 40)}…' : s,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
+          // ── Soft rose glow top-right ──────────────────────────────────
+          Positioned(
+            top: -60, right: -60,
+            child: Container(
+              width: 220, height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.roseDeep.withOpacity(0.08),
               ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
-
-class _CommitmentBox extends StatelessWidget {
-  const _CommitmentBox({
-    required this.agreed,
-    required this.onChanged,
-  });
-
-  final bool                  agreed;
-  final void Function(bool)   onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return MiskCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Checkbox(
-            value:           agreed,
-            onChanged:       (v) => onChanged(v ?? false),
-            activeColor:     theme.colorScheme.primary,
-            shape:           RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: RichText(
-                text: TextSpan(
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral700,
-                    height: 1.6,
-                  ),
-                  children: [
-                    const TextSpan(
-                      text: 'I commit to using MiskMatch with sincere '
-                          'intention (niyyah) for marriage, treating all '
-                          'members with Islamic dignity and respect, and '
-                          'upholding the ',
-                    ),
-                    TextSpan(
-                      text: 'Islamic communication guidelines',
+
+          // ── Main content ──────────────────────────────────────────────
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPadding),
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+
+                  // 1. Gold ornament — draws in from centre
+                  const _GoldOrnament()
+                      .animate()
+                      .scaleX(begin: 0, end: 1, duration: 600.ms,
+                              curve: Curves.easeOutCubic)
+                      .fadeIn(duration: 300.ms),
+
+                  const SizedBox(height: 32),
+
+                  // 2. Arabic du'a
+                  const Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Text(
+                      'بِسْمِ اللَّهِ وَعَلَى سُنَّةِ رَسُولِ اللَّهِ',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color:      theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Scheherazade',
+                        fontSize:   22,
+                        color:      AppColors.goldLight,
+                        height:     2.2,
                       ),
                     ),
-                    const TextSpan(text: ' throughout my journey.'),
-                  ],
-                ),
+                  )
+                      .animate(delay: 600.ms)
+                      .fadeIn(duration: 800.ms),
+
+                  const SizedBox(height: 8),
+
+                  // 3. Translation
+                  Text(
+                    '"In the name of Allah, upon the Sunnah of His Messenger"',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodySmall.copyWith(
+                      color:     AppColors.neutral300,
+                      fontStyle: FontStyle.italic,
+                      fontSize:  12,
+                    ),
+                  )
+                      .animate(delay: 800.ms)
+                      .fadeIn(duration: 400.ms),
+
+                  const SizedBox(height: 28),
+
+                  // 4. Rose divider
+                  Container(
+                    width: 80, height: 1,
+                    color: AppColors.roseDeep.withOpacity(0.4),
+                  )
+                      .animate(delay: 1000.ms)
+                      .scaleX(begin: 0, end: 1, duration: 400.ms)
+                      .fadeIn(duration: 200.ms),
+
+                  const SizedBox(height: 28),
+
+                  // 5. Heading
+                  const Text(
+                    'Set your niyyah',
+                    style: TextStyle(
+                      fontFamily:  'Georgia',
+                      fontSize:    28,
+                      fontWeight:  FontWeight.w700,
+                      color:       AppColors.white,
+                    ),
+                  )
+                      .animate(delay: 1100.ms)
+                      .fadeIn(duration: 500.ms)
+                      .slideY(begin: 0.06, end: 0,
+                              duration: 500.ms, curve: Curves.easeOutCubic),
+
+                  const SizedBox(height: 14),
+
+                  // 6. Body text
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: Text(
+                      'Your intention matters more than anything else '
+                      'in this journey. State it clearly, sincerely, '
+                      'and with taqwa — for Allah sees what the eyes cannot.',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color:  AppColors.neutral300,
+                        height: 1.8,
+                      ),
+                    ),
+                  )
+                      .animate(delay: 1300.ms)
+                      .fadeIn(duration: 500.ms),
+
+                  const SizedBox(height: 32),
+
+                  // 7. Intention cards
+                  ...List.generate(3, (i) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _NiyyahCard(
+                        text:       _intentions[i],
+                        selected:   _selected == i,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            _selected = _selected == i ? null : i;
+                            if (_selected != null) _customCtrl.clear();
+                          });
+                        },
+                      ),
+                    )
+                        .animate(delay: (1500 + i * 100).ms)
+                        .fadeIn(duration: 400.ms)
+                        .slideY(begin: 0.06, end: 0,
+                                duration: 400.ms, curve: Curves.easeOutCubic);
+                  }),
+
+                  const SizedBox(height: 16),
+
+                  // 8. Custom intention field
+                  Container(
+                    decoration: BoxDecoration(
+                      color:        AppColors.midnightMid,
+                      borderRadius: BorderRadius.circular(AppRadius.input),
+                      border: Border.all(
+                        color: _customCtrl.text.isNotEmpty
+                            ? AppColors.goldPrimary.withOpacity(0.4)
+                            : AppColors.neutral700.withOpacity(0.5),
+                      ),
+                    ),
+                    child: TextField(
+                      controller:    _customCtrl,
+                      textDirection: TextDirection.ltr,
+                      maxLines:      2,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.goldLight),
+                      decoration: InputDecoration(
+                        hintText:  'Or write your own intention...',
+                        hintStyle: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.goldLight.withOpacity(0.4)),
+                        border:         InputBorder.none,
+                        contentPadding: const EdgeInsets.all(16),
+                      ),
+                      onChanged: (_) {
+                        if (_selected != null) {
+                          setState(() => _selected = null);
+                        } else {
+                          setState(() {});
+                        }
+                      },
+                    ),
+                  )
+                      .animate(delay: 1900.ms)
+                      .fadeIn(duration: 400.ms),
+
+                  const SizedBox(height: 32),
+
+                  // 9. Submit button — gold variant
+                  MiskButton(
+                    label:     'I declare my niyyah',
+                    onPressed: _niyyah != null ? _submit : null,
+                    variant:   MiskButtonVariant.gold,
+                    icon:      Icons.favorite_rounded,
+                  )
+                      .animate(delay: 2100.ms)
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: 0.06, end: 0,
+                              duration: 400.ms, curve: Curves.easeOutCubic),
+
+                  const SizedBox(height: 12),
+
+                  // 10. Skip
+                  MiskButton(
+                    label:     'I\'ll set this later',
+                    onPressed: _submit,
+                    variant:   MiskButtonVariant.ghost,
+                  )
+                      .animate(delay: 2200.ms)
+                      .fadeIn(duration: 300.ms),
+
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
           ),
@@ -329,4 +263,209 @@ class _CommitmentBox extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────
+// NIYYAH CARD
+// ─────────────────────────────────────────────
+
+class _NiyyahCard extends StatelessWidget {
+  const _NiyyahCard({
+    required this.text,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String   text;
+  final bool     selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        transform: selected
+            ? (Matrix4.identity()..scale(1.02))
+            : Matrix4.identity(),
+        transformAlignment: Alignment.center,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.midnightMid
+              : AppColors.midnightMid,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected
+                ? AppColors.goldPrimary
+                : AppColors.neutral700.withOpacity(0.5),
+            width: selected ? 2 : 1,
+          ),
+          gradient: selected
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end:   Alignment.bottomRight,
+                  colors: [
+                    AppColors.goldPrimary.withOpacity(0.08),
+                    AppColors.goldLight.withOpacity(0.04),
+                  ],
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Gold left accent bar
+            Container(
+              width: 3, height: 40,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.goldPrimary
+                    : AppColors.goldPrimary.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            // Text
+            Expanded(
+              child: Text(text,
+                style: AppTypography.bodyMedium.copyWith(
+                  color:  selected ? AppColors.goldLight : AppColors.neutral300,
+                  height: 1.5,
+                  fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                ),
+              ),
+            ),
+
+            // Checkmark
+            if (selected)
+              Container(
+                width: 24, height: 24,
+                decoration: const BoxDecoration(
+                  color: AppColors.goldPrimary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check_rounded,
+                    size: 14, color: AppColors.midnightDeep),
+              )
+                  .animate()
+                  .scale(begin: const Offset(0.5, 0.5),
+                         end: const Offset(1, 1),
+                         duration: 300.ms, curve: Curves.elasticOut),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// GOLD ORNAMENT — line with diamond centre
+// ─────────────────────────────────────────────
+
+class _GoldOrnament extends StatelessWidget {
+  const _GoldOrnament();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 200, height: 20,
+      child: CustomPaint(painter: _OrnamentPainter()),
+    );
+  }
+}
+
+class _OrnamentPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.goldPrimary
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    final fillPaint = Paint()
+      ..color = AppColors.goldPrimary
+      ..style = PaintingStyle.fill;
+
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+
+    // Left line
+    canvas.drawLine(
+      Offset(0, cy), Offset(cx - 14, cy), paint);
+    // Right line
+    canvas.drawLine(
+      Offset(cx + 14, cy), Offset(size.width, cy), paint);
+
+    // Diamond centre
+    final diamond = Path()
+      ..moveTo(cx, cy - 6)
+      ..lineTo(cx + 6, cy)
+      ..lineTo(cx, cy + 6)
+      ..lineTo(cx - 6, cy)
+      ..close();
+    canvas.drawPath(diamond, fillPaint);
+
+    // Small dots
+    canvas.drawCircle(Offset(cx - 24, cy), 2, fillPaint);
+    canvas.drawCircle(Offset(cx + 24, cy), 2, fillPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+// ─────────────────────────────────────────────
+// GEOMETRIC PATTERN — subtle octagonal grid
+// ─────────────────────────────────────────────
+
+class _GeometricPattern extends StatelessWidget {
+  const _GeometricPattern();
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.04,
+      child: SizedBox.expand(
+        child: CustomPaint(painter: _PatternPainter()),
+      ),
+    );
+  }
+}
+
+class _PatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.goldPrimary
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+
+    const spacing = 60.0;
+    const r = 20.0;
+
+    for (double x = 0; x < size.width + spacing; x += spacing) {
+      for (double y = 0; y < size.height + spacing; y += spacing) {
+        // Octagon
+        final path = Path();
+        for (int i = 0; i < 8; i++) {
+          final angle = (i * math.pi / 4) - math.pi / 8;
+          final px = x + r * math.cos(angle);
+          final py = y + r * math.sin(angle);
+          if (i == 0) {
+            path.moveTo(px, py);
+          } else {
+            path.lineTo(px, py);
+          }
+        }
+        path.close();
+        canvas.drawPath(path, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }

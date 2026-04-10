@@ -314,7 +314,7 @@ async def submit_realtime_answer(
     both = other_id in state[pkey]
     result: dict = {"question_id": question_id, "your_answer": answer.strip(), "waiting_for_partner": not both}
 
-    if both:
+    if both and other_id in state.get(pkey, {}) and "answer" in state[pkey].get(other_id, {}):
         partner = state[pkey][other_id]["answer"]
         result.update({"partner_answer": partner, "both_answered": True, "reveal": True})
 
@@ -330,7 +330,7 @@ async def submit_realtime_answer(
 
         state["turn_number"]   = state.get("turn_number", 0) + 1
         state["current_q_idx"] = state.get("current_q_idx", 0) + 1
-        del state[pkey]
+        state.pop(pkey, None)
 
         if is_game_complete(state, game_type):
             state["status"] = GameStatus.COMPLETED

@@ -77,6 +77,8 @@ def generate_agora_token(
     app_cert = getattr(settings, "AGORA_APP_CERT",  None) or ""
 
     if not app_id or not app_cert:
+        if settings.is_production:
+            raise RuntimeError("Agora credentials required in production (AGORA_APP_ID, AGORA_APP_CERT)")
         logger.debug("Agora: no credentials — using dev token")
         return _dev_token(channel_name, uid)
 

@@ -10,6 +10,8 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator, model_validator
 import phonenumbers
 
+from app.core.sanitize import sanitize_text
+
 from app.models.models import (
     Gender, MadhabChoice, PrayerFrequency, HijabStance,
     VerificationStatus, SubscriptionTier, UserRole,
@@ -68,6 +70,16 @@ class ProfileCreateRequest(BaseModel):
     max_age: int = Field(40, ge=18, le=80)
     preferred_countries: Optional[List[str]] = None
     max_distance_km:     Optional[int]       = Field(None, ge=1, le=20000)
+
+    @field_validator(
+        "first_name", "last_name", "display_name", "bio", "bio_ar",
+        "city", "occupation", "employer", "education_level", "field_of_study",
+        "quran_level", "hijra_country",
+        mode="before",
+    )
+    @classmethod
+    def sanitize_strings(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_text(v) if v else v
 
     @field_validator("country", "nationality")
     @classmethod
@@ -133,6 +145,16 @@ class ProfileUpdateRequest(BaseModel):
     preferred_countries: Optional[List[str]] = None
     max_distance_km:     Optional[int]       = Field(None, ge=1, le=20000)
 
+    @field_validator(
+        "first_name", "last_name", "display_name", "bio", "bio_ar",
+        "city", "occupation", "employer", "education_level", "field_of_study",
+        "quran_level", "hijra_country",
+        mode="before",
+    )
+    @classmethod
+    def sanitize_strings(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_text(v) if v else v
+
 
 # ─────────────────────────────────────────────
 # FAMILY — CREATE / UPDATE
@@ -157,6 +179,16 @@ class FamilyUpsertRequest(BaseModel):
 
     living_arrangement: Optional[str] = Field(None, max_length=50)
     family_involvement: Optional[str] = Field(None, max_length=50)
+
+    @field_validator(
+        "family_origin", "family_type", "family_religiosity",
+        "father_occupation", "mother_occupation",
+        "family_description", "family_description_ar", "family_values",
+        mode="before",
+    )
+    @classmethod
+    def sanitize_strings(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_text(v) if v else v
 
 
 # ─────────────────────────────────────────────

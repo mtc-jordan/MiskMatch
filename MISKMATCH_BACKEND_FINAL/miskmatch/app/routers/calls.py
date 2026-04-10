@@ -308,6 +308,33 @@ async def wali_approve(
     if not call:
         raise HTTPException(status_code=404, detail="Call not found.")
 
+    # Verify this user is actually a wali for one of the match participants
+    from app.models.models import WaliRelationship
+    match_result = await db.execute(
+        select(Match).where(Match.id == call.match_id)
+    )
+    match = match_result.scalar_one_or_none()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found.")
+
+    wali_check = await db.execute(
+        select(WaliRelationship).where(
+            and_(
+                WaliRelationship.wali_user_id == current_user.id,
+                WaliRelationship.is_active == True,
+                or_(
+                    WaliRelationship.user_id == match.sender_id,
+                    WaliRelationship.user_id == match.receiver_id,
+                ),
+            )
+        )
+    )
+    if not wali_check.scalar_one_or_none():
+        raise HTTPException(
+            status_code=403,
+            detail="Only a registered guardian can approve calls.",
+        )
+
     call.wali_approved = approved
     await db.commit()
 

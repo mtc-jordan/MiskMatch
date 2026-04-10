@@ -32,6 +32,19 @@ class LoginRequest(BaseModel):
     phone: str
     password: str
 
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        try:
+            parsed = phonenumbers.parse(v)
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValueError("Invalid phone number")
+            return phonenumbers.format_number(
+                parsed, phonenumbers.PhoneNumberFormat.E164
+            )
+        except Exception:
+            raise ValueError("Invalid phone number format. Use +962XXXXXXXXX")
+
 
 class OTPVerifyRequest(BaseModel):
     otp_token: str
@@ -42,10 +55,15 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+class DeviceTokenRequest(BaseModel):
+    token: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
     user_id: str
     role: UserRole
+    gender: str
     onboarding_completed: bool

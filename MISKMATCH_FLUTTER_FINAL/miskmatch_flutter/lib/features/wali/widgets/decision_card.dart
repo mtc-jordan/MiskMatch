@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/wali_models.dart';
@@ -8,14 +9,12 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 
-/// A pending match decision card for the Wali Portal.
+/// Decision card for pending match approvals in the Wali Portal.
 ///
-/// Shows:
-///   - Ward's name (whose match this is)
-///   - Candidate summary: name, age, city, Islamic practice signals
-///   - Compatibility score ring
-///   - The message the candidate sent
-///   - Approve / Decline buttons with du'a confirmation sheet
+/// Top banner: gold 8% bg, 🛡️ + "Decision required for [Name]"
+/// Content: avatar + name/age/city + trust badges + CompatibilityRing
+/// Islamic signals panel, message bubble, bio preview
+/// Approve/Decline buttons. Stagger 80ms, slideY + fadeIn.
 
 class DecisionCard extends ConsumerWidget {
   const DecisionCard({
@@ -29,14 +28,12 @@ class DecisionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
-        borderRadius: AppRadius.cardRadius,
-        boxShadow:    AppShadows.card,
+        color:        context.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow:    context.cardShadow,
         border: Border.all(
           color: AppColors.goldPrimary.withOpacity(0.2),
           width: 1.5,
@@ -45,24 +42,30 @@ class DecisionCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Ward label ────────────────────────────────────────────
+          // ── Gold top banner ─────────────────────────────
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.goldPrimary.withOpacity(0.08),
               borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppRadius.xl)),
+                top: Radius.circular(20)),
             ),
-            child: Row(children: [
-              const Icon(Icons.shield_rounded,
-                  color: AppColors.goldPrimary, size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'Decision required for ${decision.wardName}',
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.goldDark),
-              ),
-            ]),
+            child: Row(
+              children: [
+                const Text('🛡️', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Decision required for ${decision.wardName}',
+                    style: AppTypography.labelMedium.copyWith(
+                      color:      AppColors.goldDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           Padding(
@@ -70,14 +73,14 @@ class DecisionCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Candidate summary ─────────────────────────────
+                // ── Candidate row: avatar + info + ring ───
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar
+                    // 64px avatar
                     Container(
                       width: 64, height: 64,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: AppColors.roseGradient,
                         shape:    BoxShape.circle,
                       ),
@@ -94,41 +97,53 @@ class DecisionCard extends ConsumerWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 14),
+
+                    // Name + age + city + trust badges
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           RichText(
-                            text: TextSpan(children: [
-                              TextSpan(
-                                text: decision.candidateName,
-                                style: AppTypography.titleLarge.copyWith(
-                                  color:      AppColors.neutral900,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              if (decision.candidateAge != null)
+                            text: TextSpan(
+                              children: [
                                 TextSpan(
-                                  text: ', ${decision.candidateAge}',
-                                  style: AppTypography.titleLarge.copyWith(
-                                    color: AppColors.neutral500,
+                                  text: decision.candidateName,
+                                  style: TextStyle(
+                                    fontFamily:  'Georgia',
+                                    fontSize:    18,
+                                    fontWeight:  FontWeight.w700,
+                                    color:       context.onSurface,
                                   ),
                                 ),
-                            ]),
+                                if (decision.candidateAge != null)
+                                  TextSpan(
+                                    text: ', ${decision.candidateAge}',
+                                    style: TextStyle(
+                                      fontFamily: 'Georgia',
+                                      fontSize:   18,
+                                      color:      context.mutedText,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                           if (decision.candidateCity != null) ...[
-                            const SizedBox(height: 2),
-                            Row(children: [
-                              const Icon(Icons.location_on_outlined,
-                                  size: 13, color: AppColors.neutral500),
-                              const SizedBox(width: 3),
-                              Text(decision.candidateCity!,
+                            const SizedBox(height: 3),
+                            Row(
+                              children: [
+                                const Text('📍',
+                                  style: TextStyle(fontSize: 11)),
+                                const SizedBox(width: 3),
+                                Text(decision.candidateCity!,
                                   style: AppTypography.bodySmall.copyWith(
-                                    color: AppColors.neutral500)),
-                            ]),
+                                    color: context.mutedText),
+                                ),
+                              ],
+                            ),
                           ],
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Wrap(spacing: 6, runSpacing: 4, children: [
                             if (decision.candidateMosqueVerified)
                               const TrustBadge(type: TrustBadgeType.mosque),
@@ -138,6 +153,8 @@ class DecisionCard extends ConsumerWidget {
                         ],
                       ),
                     ),
+
+                    // 60px CompatibilityRing
                     if (decision.compatibilityScore > 0)
                       CompatibilityRing(
                         score: decision.compatibilityScore,
@@ -148,38 +165,42 @@ class DecisionCard extends ConsumerWidget {
 
                 const SizedBox(height: 14),
 
-                // ── Islamic signals ────────────────────────────────
+                // ── Islamic signals panel ─────────────────
                 _IslamicSignals(decision: decision),
 
                 const SizedBox(height: 14),
 
-                // ── Message from candidate ─────────────────────────
+                // ── Message bubble ────────────────────────
                 Container(
+                  width:   double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color:        AppColors.neutral100,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    color:        context.subtleBg,
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: AppColors.neutral300.withOpacity(0.5)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
-                        const Icon(Icons.chat_bubble_outline_rounded,
-                            size: 14, color: AppColors.neutral500),
-                        const SizedBox(width: 6),
-                        Text('Their message to ${decision.wardName}:',
+                      Row(
+                        children: [
+                          Icon(Icons.chat_bubble_outline_rounded,
+                            size: 14, color: context.mutedText),
+                          const SizedBox(width: 6),
+                          Text('Their message:',
                             style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.neutral500)),
-                      ]),
+                              color: context.mutedText),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         decision.senderMessage.isNotEmpty
                             ? decision.senderMessage
                             : 'No message provided.',
                         style: AppTypography.bodySmall.copyWith(
-                          color:  AppColors.neutral700,
+                          color:  context.subtleText,
                           height: 1.6,
                           fontStyle: decision.senderMessage.isEmpty
                               ? FontStyle.italic
@@ -190,7 +211,7 @@ class DecisionCard extends ConsumerWidget {
                   ),
                 ),
 
-                // ── Candidate bio ──────────────────────────────────
+                // ── Bio preview ──────────────────────────
                 if (decision.candidateBio != null &&
                     decision.candidateBio!.isNotEmpty) ...[
                   const SizedBox(height: 12),
@@ -199,69 +220,75 @@ class DecisionCard extends ConsumerWidget {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.bodySmall.copyWith(
-                      color:  AppColors.neutral600,
+                      color:  context.mutedText,
                       height: 1.6,
                     ),
                   ),
                 ],
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
 
-                // ── Action buttons ─────────────────────────────────
-                Row(children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () =>
-                          _showDecisionSheet(context, ref, approved: false),
-                      icon:  const Icon(Icons.close_rounded,
-                          color: AppColors.error),
-                      label: const Text('Decline'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: const BorderSide(color: AppColors.error),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.buttonRadius),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                // ── Action buttons ───────────────────────
+                Row(
+                  children: [
+                    // Decline — outline red
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showDecisionSheet(
+                            context, ref, approved: false),
+                        icon: const Icon(Icons.close_rounded,
+                          color: AppColors.error, size: 18),
+                        label: const Text('Decline'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                          side: const BorderSide(color: AppColors.error),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      onPressed: () =>
-                          _showDecisionSheet(context, ref, approved: true),
-                      icon:  const Icon(Icons.check_rounded,
-                          color: AppColors.white),
-                      label: const Text('Approve'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.success,
-                        foregroundColor: AppColors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.buttonRadius),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                    const SizedBox(width: 12),
+                    // Approve — green filled (flex 2)
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _showDecisionSheet(
+                            context, ref, approved: true),
+                        icon: const Icon(Icons.check_rounded,
+                          color: AppColors.white, size: 18),
+                        label: const Text('Approve'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          foregroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
                       ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ],
             ),
           ),
         ],
       ),
     )
-        .animate(delay: Duration(milliseconds: index * 80))
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.06, end: 0);
+        .animate(delay: Duration(milliseconds: index * 60))
+        .fadeIn(duration: 350.ms)
+        .slideY(begin: 0.05, end: 0, duration: 350.ms,
+            curve: Curves.easeOutCubic);
   }
 
   void _showDecisionSheet(BuildContext context, WidgetRef ref,
       {required bool approved}) {
+    HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context:            context,
       isScrollControlled: true,
       backgroundColor:    Colors.transparent,
-      builder:            (_) => ProviderScope(
+      builder: (_) => ProviderScope(
         parent: ProviderScope.containerOf(context),
         child:  _DecisionSheet(
           decision: decision,
@@ -273,7 +300,8 @@ class DecisionCard extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────
-// ISLAMIC SIGNALS ROW
+// ISLAMIC SIGNALS PANEL
+// rose 4% bg, rose 10% border
 // ─────────────────────────────────────────────
 
 class _IslamicSignals extends StatelessWidget {
@@ -302,18 +330,20 @@ class _IslamicSignals extends StatelessWidget {
         'hanafi': 'Hanafi', 'maliki': 'Maliki',
         'shafii': "Shafi'i", 'hanbali': 'Hanbali',
       };
-      items.add(('Madhab', '📚 ${ml[decision.candidateMadhab] ?? decision.candidateMadhab!}'));
+      items.add(('Madhab',
+          '📚 ${ml[decision.candidateMadhab] ?? decision.candidateMadhab!}'));
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
+      width:   double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color:        AppColors.roseDeep.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.roseDeep.withOpacity(0.1)),
+          color: AppColors.roseDeep.withOpacity(0.10)),
       ),
       child: Wrap(
         spacing: 16, runSpacing: 8,
@@ -324,13 +354,17 @@ class _IslamicSignals extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(label,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.neutral500, fontSize: 10)),
+                style: AppTypography.labelSmall.copyWith(
+                  color:    context.mutedText,
+                  fontSize: 10,
+                ),
+              ),
               Text(value,
-                  style: AppTypography.bodySmall.copyWith(
-                    color:      AppColors.neutral800,
-                    fontWeight: FontWeight.w500,
-                  )),
+                style: AppTypography.bodySmall.copyWith(
+                  color:      context.subtleText,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           );
         }).toList(),
@@ -339,13 +373,10 @@ class _IslamicSignals extends StatelessWidget {
   }
 }
 
-extension on AppColors {
-  static const neutral600 = Color(0xFF6B6B8B);
-  static const neutral800 = Color(0xFF2D2D4E);
-}
-
 // ─────────────────────────────────────────────
 // DECISION CONFIRMATION SHEET
+// Handle, emoji 44pt spring scale,
+// Islamic reference card, notes, confirm/cancel
 // ─────────────────────────────────────────────
 
 class _DecisionSheet extends ConsumerStatefulWidget {
@@ -367,7 +398,6 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
   }
 
   Future<void> _confirm() async {
-    final state    = ref.read(waliDashboardProvider);
     final notifier = ref.read(waliDashboardProvider.notifier);
 
     final success = await notifier.decide(
@@ -379,6 +409,7 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
     if (mounted) {
       Navigator.of(context).pop();
       if (success) {
+        HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -400,16 +431,14 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
   @override
   Widget build(BuildContext context) {
     final dashState = ref.watch(waliDashboardProvider);
-    final theme     = Theme.of(context);
     final isApprove = widget.approved;
 
     return Container(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+        bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
-        borderRadius: AppRadius.bottomSheet,
+        color:        context.surfaceColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
@@ -418,112 +447,128 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
           children: [
             // Handle
             Container(
-              margin:  const EdgeInsets.only(top: 12, bottom: 20),
-              width:   40, height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
+              width: 40, height: 4,
               decoration: BoxDecoration(
-                color:        theme.colorScheme.outline.withOpacity(0.4),
+                color:        AppColors.neutral300.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
 
-            // Islamic header
+            // Emoji 44pt, spring scale
             Text(
               isApprove ? '🤲' : '🙏',
-              style: const TextStyle(fontSize: 48),
+              style: const TextStyle(fontSize: 44),
             ).animate().scale(
-              begin:    const Offset(0.6, 0.6),
-              duration: 400.ms,
+              begin:    const Offset(0.5, 0.5),
+              end:      const Offset(1.0, 1.0),
+              duration: 500.ms,
               curve:    Curves.elasticOut,
             ),
 
             const SizedBox(height: 16),
 
+            // Title
             Text(
               isApprove
                   ? 'Approve this match?'
                   : 'Decline this match?',
-              style: AppTypography.headlineSmall.copyWith(
-                color: AppColors.neutral900),
+              style: TextStyle(
+                fontFamily:  'Georgia',
+                fontSize:    22,
+                fontWeight:  FontWeight.w700,
+                color:       context.onSurface,
+              ),
               textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 8),
 
+            // Description
             Text(
               isApprove
-                  ? '${widget.decision.wardName} and ${widget.decision.candidateName} '
-                    'will be notified and can begin communicating in sha Allah.'
+                  ? '${widget.decision.wardName} and '
+                    '${widget.decision.candidateName} will be notified '
+                    'and can begin communicating in sha Allah.'
                   : 'This candidate will be respectfully declined. '
                     '${widget.decision.wardName} will be informed.',
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium.copyWith(
-                color:  AppColors.neutral500,
+                color:  context.mutedText,
                 height: 1.6,
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Du'a / reminder
+            // Islamic reference card
             Container(
+              width:   double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: isApprove
                     ? AppColors.success.withOpacity(0.07)
-                    : AppColors.neutral100,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                    : context.subtleBg,
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: Row(children: [
-                Text(isApprove ? '🌿' : '🤲',
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(isApprove ? '🌿' : '🤲',
                     style: const TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    isApprove
-                        ? '"And of His signs is that He created for you '
-                          'from yourselves mates..." — 30:21'
-                        : 'Your decision is your amanah. May Allah guide '
-                          'you to what is best.',
-                    style: AppTypography.bodySmall.copyWith(
-                      color:     isApprove ? AppColors.success : AppColors.neutral600,
-                      fontStyle: FontStyle.italic,
-                      height:    1.5,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      isApprove
+                          ? '"And of His signs is that He created for you '
+                            'from yourselves mates..." — Quran 30:21'
+                          : 'Your decision is your amanah. May Allah guide '
+                            'you to what is best.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: isApprove
+                            ? AppColors.success
+                            : context.mutedText,
+                        fontStyle: FontStyle.italic,
+                        height:    1.5,
+                      ),
                     ),
                   ),
-                ),
-              ]),
+                ],
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            // Optional notes
+            // Optional notes textarea
             TextField(
               controller: _notesCtrl,
               maxLines:   3,
               decoration: InputDecoration(
                 labelText: 'Notes (optional)',
-                hintText:  isApprove
+                hintText: isApprove
                     ? 'Any conditions or guidance for this match...'
                     : 'Reason for declining (private — not shared)...',
+                filled:    true,
+                fillColor: context.surfaceColor,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.lg)),
+                  borderRadius: BorderRadius.circular(14)),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(
                     color: isApprove
                         ? AppColors.success
-                        : theme.colorScheme.outline,
+                        : context.mutedText,
                     width: 2,
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
-            // Confirm button
+            // Confirm button — full width, green/red
             SizedBox(
-              width: double.infinity,
+              width:  double.infinity,
               height: 56,
               child: ElevatedButton(
                 onPressed: dashState.isDeciding ? null : _confirm,
@@ -533,37 +578,40 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
                       : AppColors.error,
                   foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: AppRadius.buttonRadius),
+                    borderRadius: BorderRadius.circular(14)),
                 ),
                 child: dashState.isDeciding
                     ? const SizedBox(
-                        width:  22, height: 22,
-                        child:  CircularProgressIndicator(
+                        width: 22, height: 22,
+                        child: CircularProgressIndicator(
                           color: AppColors.white, strokeWidth: 2.5),
                       )
                     : Text(
                         isApprove
                             ? 'Yes — approve this match'
                             : 'Yes — decline this match',
-                        style: AppTypography.labelLarge.copyWith(
-                          color: AppColors.white, fontSize: 15),
+                        style: const TextStyle(
+                          fontSize:   15,
+                          fontWeight: FontWeight.w600,
+                          color:      AppColors.white,
+                        ),
                       ),
               ),
             ),
 
             const SizedBox(height: 12),
 
+            // Cancel — ghost button
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go back — not yet decided'),
+              child: Text('Go back — not yet decided',
+                style: AppTypography.bodySmall.copyWith(
+                  color: context.mutedText),
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-extension on AppColors {
-  static const neutral600 = Color(0xFF6B6B8B);
 }

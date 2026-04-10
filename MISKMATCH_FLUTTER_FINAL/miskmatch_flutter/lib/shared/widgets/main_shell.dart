@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miskmatch/core/router/app_router.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
+import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 
 /// Main app shell — wraps the bottom navigation bar around
@@ -54,14 +55,12 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
-    final theme = Theme.of(context);
-    final isLight = theme.brightness == Brightness.light;
 
     return Scaffold(
       body:  child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: isLight ? AppColors.white : AppColors.midnightSurface,
+          color: context.surfaceColor,
           boxShadow: [
             BoxShadow(
               color:      AppColors.roseDeep.withOpacity(0.08),

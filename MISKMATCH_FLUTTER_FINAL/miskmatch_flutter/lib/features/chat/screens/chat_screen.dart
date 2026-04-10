@@ -23,12 +23,12 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _scrollCtrl = ScrollController();
   bool  _atBottom   = true;
+  int   _newBelow   = 0;
 
   @override
   void initState() {
     super.initState();
     _scrollCtrl.addListener(_onScroll);
-    // Scroll to bottom after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
@@ -40,10 +40,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onScroll() {
     final pos = _scrollCtrl.position;
+    final wasAtBottom = _atBottom;
     setState(() {
       _atBottom = pos.pixels >= pos.maxScrollExtent - 120;
+      if (_atBottom) _newBelow = 0;
     });
-    // Load more when scrolled to top
     if (pos.pixels <= 100) {
       ref.read(chatProvider(widget.matchId).notifier).loadMore();
     }
@@ -54,12 +55,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (animate) {
       _scrollCtrl.animateTo(
         _scrollCtrl.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve:    Curves.easeOut,
+        duration: 300.ms, curve: Curves.easeOut,
       );
     } else {
       _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
     }
+    setState(() => _newBelow = 0);
   }
 
   String get _myUserId {
@@ -69,17 +70,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chat   = ref.watch(chatProvider(widget.matchId));
-    final match  = ref.watch(matchDetailProvider(widget.matchId));
-    final theme  = Theme.of(context);
+    final chat  = ref.watch(chatProvider(widget.matchId));
+    final match = ref.watch(matchDetailProvider(widget.matchId));
 
     // Auto-scroll on new messages
     ref.listen(chatProvider(widget.matchId), (prev, next) {
-      if (prev != null &&
-          next.messages.length > prev.messages.length &&
-          _atBottom) {
-        WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _scrollToBottom(animate: true));
+      if (prev != null && next.messages.length > prev.messages.length) {
+        if (_atBottom) {
+          WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _scrollToBottom(animate: true));
+        } else {
+          setState(() => _newBelow += next.messages.length - prev.messages.length);
+        }
       }
     });
 
@@ -88,66 +90,113 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final isActive     = match.valueOrNull?.status.canChat ?? false;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: _buildAppBar(context, otherName, otherProfile, chat, match),
+      backgroundColor: context.scaffoldColor,
+      appBar: _buildAppBar(context, otherName, otherProfile, chat),
       body: Column(
         children: [
-          // ── Wali approval banner ─────────────────────────────────────
+          // ── Wali approval banner ──────────────────────────────
           if (match.hasValue && match.value!.status.needsWali)
-            _WaliApprovalBanner(match: match.value!),
+            _WaliApprovalBanner(),
 
-          // ── Moderation alert ─────────────────────────────────────────
+          // ── Moderation alert ──────────────────────────────────
           if (chat.moderationAlert != null)
             _ModerationAlert(
-              message: chat.moderationAlert!,
+              message:   chat.moderationAlert!,
               onDismiss: () => ref
                   .read(chatProvider(widget.matchId).notifier)
                   .clearModerationAlert(),
             ),
 
-          // ── Message list ─────────────────────────────────────────────
+          // ── Message list ──────────────────────────────────────
           Expanded(
-            child: chat.isLoading && chat.messages.isEmpty
-                ? const _ChatLoading()
-                : _MessageList(
-                    groups:     chat.grouped,
-                    myUserId:   _myUserId,
-                    scrollCtrl: _scrollCtrl,
-                    matchId:    widget.matchId,
+            child: Stack(
+              children: [
+                chat.isLoading && chat.messages.isEmpty
+                    ? const _ChatLoading()
+                    : _MessageList(
+                        groups:     chat.grouped,
+                        myUserId:   _myUserId,
+                        scrollCtrl: _scrollCtrl,
+                        matchId:    widget.matchId,
+                      ),
+
+                // ── Scroll-to-bottom FAB ────────────────────────
+                if (!_atBottom)
+                  Positioned(
+                    right: 16, bottom: 12,
+                    child: GestureDetector(
+                      onTap: () => _scrollToBottom(animate: true),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 44, height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.roseDeep,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.roseDeep.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.white, size: 24),
+                          ),
+                          // New message badge
+                          if (_newBelow > 0)
+                            Positioned(
+                              top: -4, right: -4,
+                              child: Container(
+                                width: 20, height: 20,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.error,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text('$_newBelow',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                        .animate()
+                        .scale(begin: const Offset(0.6, 0.6),
+                               end: const Offset(1.0, 1.0),
+                               duration: 200.ms,
+                               curve: Curves.easeOutBack)
+                        .fadeIn(duration: 200.ms),
                   ),
+              ],
+            ),
           ),
 
-          // ── Typing indicator ─────────────────────────────────────────
+          // ── Typing indicator ──────────────────────────────────
           if (chat.anyoneTyping)
             TypingIndicator(userName: otherName),
 
-          // ── Scroll-to-bottom FAB ──────────────────────────────────────
-          if (!_atBottom)
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16, bottom: 4),
-                child: FloatingActionButton.small(
-                  onPressed: () => _scrollToBottom(animate: true),
-                  backgroundColor: AppColors.roseDeep,
-                  child: const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.white),
-                ),
-              ),
-            ),
-
-          // ── Input bar ────────────────────────────────────────────────
+          // ── Input bar ─────────────────────────────────────────
           SafeArea(
             top: false,
             child: ChatInputBar(
-              disabled:     !isActive,
-              onSendText:   (text) => ref
+              disabled:    !isActive,
+              onSendText:  (text) => ref
                   .read(chatProvider(widget.matchId).notifier)
                   .sendText(text),
-              onSendVoice:  (path) => ref
+              onSendVoice: (path) => ref
                   .read(chatProvider(widget.matchId).notifier)
                   .sendVoice(path),
-              onTyping:     (text) => ref
+              onTyping:    (text) => ref
                   .read(chatProvider(widget.matchId).notifier)
                   .onTextChanged(text),
             ),
@@ -162,32 +211,41 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     String       otherName,
     dynamic      otherProfile,
     ChatState    chat,
-    AsyncValue<Match> match,
   ) {
     final isOnline = chat.onlineUsers.isNotEmpty;
 
     return AppBar(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      elevation: 0,
+      backgroundColor:       context.scaffoldColor,
+      elevation:             0,
       scrolledUnderElevation: 1,
+      surfaceTintColor:      Colors.transparent,
       leading: const BackButton(),
       titleSpacing: 0,
       title: Row(
         children: [
-          // Avatar
+          // Avatar 40px with online dot
           Stack(
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.roseDeep,
-                child: Text(
-                  otherName.isNotEmpty ? otherName[0].toUpperCase() : '?',
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w700,
+              Container(
+                width: 40, height: 40,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.roseGradient,
+                  shape:    BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    otherName.isNotEmpty
+                        ? otherName[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      fontSize:   18,
+                      color:      AppColors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
+              // Green online dot 8px
               if (isOnline)
                 Positioned(
                   right: 0, bottom: 0,
@@ -197,24 +255,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       color:  AppColors.success,
                       shape:  BoxShape.circle,
                       border: Border.all(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        width: 2,
-                      ),
+                        color: context.scaffoldColor, width: 2),
                     ),
                   ),
                 ),
             ],
           ),
+
           const SizedBox(width: 10),
+
+          // Name + status
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(otherName, style: AppTypography.titleSmall),
+              Text(otherName,
+                style: AppTypography.titleSmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color:      context.onSurface,
+                ),
+              ),
               Text(
                 isOnline ? 'Online' : 'Last seen recently',
                 style: AppTypography.labelSmall.copyWith(
-                  color: isOnline ? AppColors.success : AppColors.neutral500,
+                  color:    isOnline
+                      ? AppColors.success
+                      : context.mutedText,
+                  fontSize: 11,
                 ),
               ),
             ],
@@ -222,15 +289,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
       actions: [
+        // Video call button
         IconButton(
-          icon:    const Icon(Icons.videocam_outlined),
+          icon: const Icon(Icons.videocam_outlined, size: 22),
+          color: context.mutedText,
           tooltip: 'Chaperoned call',
-          onPressed: () {}, // Sprint 5 — calls
+          onPressed: () {},
         ),
+        // More menu
         IconButton(
-          icon:    const Icon(Icons.more_vert_rounded),
-          onPressed: () {}, // TODO: match options
+          icon: const Icon(Icons.more_vert_rounded, size: 22),
+          color: context.mutedText,
+          onPressed: () {},
         ),
+        const SizedBox(width: 4),
       ],
     );
   }
@@ -255,11 +327,8 @@ class _MessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (groups.isEmpty) {
-      return const _EmptyChatState();
-    }
+    if (groups.isEmpty) return const _EmptyChatState();
 
-    // Flatten into a single scrollable list with date separators
     final items = <_ChatItem>[];
     for (final group in groups) {
       items.add(_ChatItem.dateSeparator(group.date));
@@ -269,9 +338,9 @@ class _MessageList extends StatelessWidget {
     }
 
     return ListView.builder(
-      controller:  scrollCtrl,
-      padding:     const EdgeInsets.only(top: 8, bottom: 8),
-      itemCount:   items.length,
+      controller: scrollCtrl,
+      padding:    const EdgeInsets.only(top: 8, bottom: 8),
+      itemCount:  items.length,
       itemBuilder: (context, index) {
         final item = items[index];
         if (item.isDivider) {
@@ -284,7 +353,6 @@ class _MessageList extends StatelessWidget {
         }
         final msg  = item.message!;
         final isMe = msg.senderId == myUserId;
-        // Show timestamp on first message or when gap > 5 min
         final showTs = index == 0 ||
             (index > 0 &&
              !items[index - 1].isDivider &&
@@ -293,10 +361,10 @@ class _MessageList extends StatelessWidget {
                items[index - 1].message!.createdAt).inMinutes > 5);
 
         return MessageBubble(
-          message:        msg,
-          isMe:           isMe,
-          showTimestamp:  showTs,
-          index:          index,
+          message:       msg,
+          isMe:          isMe,
+          showTimestamp: showTs,
+          index:         index,
         );
       },
     );
@@ -310,9 +378,13 @@ class _ChatItem {
 
   bool get isDivider => date != null && message == null;
 
-  factory _ChatItem.message(Message m)       => _ChatItem._(message: m);
-  factory _ChatItem.dateSeparator(DateTime d)=> _ChatItem._(date: d);
+  factory _ChatItem.message(Message m)        => _ChatItem._(message: m);
+  factory _ChatItem.dateSeparator(DateTime d) => _ChatItem._(date: d);
 }
+
+// ─────────────────────────────────────────────
+// DATE DIVIDER — horizontal rule + centred chip
+// ─────────────────────────────────────────────
 
 class _DateDivider extends StatelessWidget {
   const _DateDivider({required this.date});
@@ -331,58 +403,86 @@ class _DateDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider()),
+        Expanded(
+          child: Container(height: 1,
+              color: context.subtleBg),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(_label,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color:        context.subtleBg,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(_label,
               style: AppTypography.labelSmall.copyWith(
-                color: AppColors.neutral500)),
+                color:    context.mutedText,
+                fontSize: 11,
+              ),
+            ),
+          ),
         ),
-        const Expanded(child: Divider()),
+        Expanded(
+          child: Container(height: 1,
+              color: context.subtleBg),
+        ),
       ],
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// WALI APPROVAL BANNER
+// WALI APPROVAL BANNER — gold strip, slideY
 // ─────────────────────────────────────────────
 
 class _WaliApprovalBanner extends StatelessWidget {
-  const _WaliApprovalBanner({required this.match});
-  final Match match;
+  const _WaliApprovalBanner();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width:   double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color:   AppColors.goldPrimary.withOpacity(0.1),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [
+          AppColors.goldPrimary.withOpacity(0.12),
+          AppColors.goldLight.withOpacity(0.08),
+        ]),
+      ),
       child: Row(
         children: [
           const Text('🤲', style: TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Waiting for family blessings before chat opens.',
+              'Waiting for family blessings',
               style: AppTypography.bodySmall.copyWith(
-                color:  AppColors.goldDark,
-                height: 1.4,
+                color:      AppColors.goldDark,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms);
+    )
+        .animate()
+        .slideY(begin: -1.0, end: 0, duration: 400.ms,
+                curve: Curves.easeOutCubic)
+        .fadeIn(duration: 300.ms);
   }
 }
 
 // ─────────────────────────────────────────────
-// MODERATION ALERT
+// MODERATION ALERT — red strip, shakeX
 // ─────────────────────────────────────────────
 
 class _ModerationAlert extends StatelessWidget {
-  const _ModerationAlert({required this.message, required this.onDismiss});
+  const _ModerationAlert({
+    required this.message,
+    required this.onDismiss,
+  });
   final String       message;
   final VoidCallback onDismiss;
 
@@ -391,7 +491,7 @@ class _ModerationAlert extends StatelessWidget {
     return Container(
       width:   double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color:   AppColors.errorLight,
+      color:   context.errorLightBg,
       child: Row(
         children: [
           const Icon(Icons.info_outline_rounded,
@@ -399,8 +499,9 @@ class _ModerationAlert extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(message,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.error)),
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.error),
+            ),
           ),
           GestureDetector(
             onTap: onDismiss,
@@ -423,15 +524,8 @@ class _ChatLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            color: AppColors.roseDeep, strokeWidth: 2),
-          SizedBox(height: 16),
-          Text('Loading messages...'),
-        ],
-      ),
+      child: CircularProgressIndicator(
+          color: AppColors.roseDeep, strokeWidth: 2),
     );
   }
 }
@@ -450,8 +544,12 @@ class _EmptyChatState extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             'Bismillah — begin with the best',
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.neutral700),
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    20,
+              fontWeight:  FontWeight.w700,
+              color:       context.subtleText,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
@@ -460,7 +558,7 @@ class _EmptyChatState extends StatelessWidget {
             'Your wali can see all messages.',
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
-              color:  AppColors.neutral500,
+              color:  context.mutedText,
               height: 1.6,
             ),
           ),

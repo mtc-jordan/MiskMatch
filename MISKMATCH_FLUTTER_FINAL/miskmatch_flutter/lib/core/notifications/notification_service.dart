@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../api/api_endpoints.dart';
 import '../router/app_router.dart';
 
 /// MiskMatch — Push Notification Service
@@ -80,11 +83,17 @@ class NotificationService {
   NotificationService._();
 
   static GoRouter? _router;
+  static Dio? _dio;
 
-  /// Call once after runApp — pass the GoRouter instance
-  static Future<void> init(GoRouter router) async {
+  /// Call once after runApp — pass the GoRouter instance and Dio client
+  static Future<void> init(GoRouter router, {Dio? dio}) async {
     _router = router;
-    await _setupFcm();
+    _dio = dio;
+    try {
+      await _setupFcm();
+    } catch (e) {
+      debugPrint('NotificationService: FCM setup failed — $e');
+    }
   }
 
   /// Route to the correct screen from a notification payload
@@ -142,9 +151,22 @@ class NotificationService {
 
   static Future<void> _registerToken(String token) async {
     debugPrint('NotificationService: registering device token');
-    // TODO: POST token to /api/v1/auth/device-token
-    // final dio = ... get Dio instance
-    // await dio.post('/auth/device-token', data: {'token': token, 'platform': Platform.isIOS ? 'ios' : 'android'});
+    if (_dio == null) {
+      debugPrint('NotificationService: Dio not available — skipping token registration');
+      return;
+    }
+    try {
+      await _dio!.post(
+        ApiEndpoints.authDeviceToken,
+        data: {
+          'token': token,
+          'platform': Platform.isIOS ? 'ios' : 'android',
+        },
+      );
+      debugPrint('NotificationService: device token registered');
+    } catch (e) {
+      debugPrint('NotificationService: token registration failed — $e');
+    }
   }
 }
 

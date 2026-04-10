@@ -14,12 +14,7 @@ import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 
 /// Unified game player — routes to the correct interaction mode
-/// based on GameMode from the catalogue:
-///
-///   asyncTurn   → QuestionView + submit answer
-///   realTime    → QuestionView + submit + WaitingOverlay + RevealOverlay
-///   collaborative→ QuestionView (both sides)
-///   timerSealed → TimeCapsuleWidget
+/// based on GameMode from the catalogue.
 
 class GamePlayScreen extends ConsumerWidget {
   const GamePlayScreen({
@@ -33,12 +28,11 @@ class GamePlayScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args  = (matchId: matchId, gameType: gameType);
-    final play  = ref.watch(gamePlayProvider(args));
-    final theme = Theme.of(context);
+    final args = (matchId: matchId, gameType: gameType);
+    final play = ref.watch(gamePlayProvider(args));
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: context.scaffoldColor,
       body: Stack(
         children: [
           CustomScrollView(
@@ -52,9 +46,9 @@ class GamePlayScreen extends ConsumerWidget {
           // Real-time reveal overlay
           if (play.showReveal && play.lastResult != null)
             RevealOverlay(
-              result:   play.lastResult!,
-              gameType: gameType,
-              onDismiss:() => ref
+              result:    play.lastResult!,
+              gameType:  gameType,
+              onDismiss: () => ref
                   .read(gamePlayProvider(args).notifier)
                   .dismissReveal(),
             ),
@@ -67,34 +61,46 @@ class GamePlayScreen extends ConsumerWidget {
   }
 
   SliverAppBar _buildAppBar(BuildContext context, GamePlayState play) {
-    final gs    = play.gameState;
-    final name  = gs?.name ?? _defaultName(gameType);
-    final icon  = gs?.icon ?? '🎮';
-    final theme = Theme.of(context);
+    final gs   = play.gameState;
+    final name = gs?.name ?? _defaultName(gameType);
+    final icon = gs?.icon ?? '🎮';
 
     return SliverAppBar(
-      pinned:          true,
-      backgroundColor: theme.scaffoldBackgroundColor,
-      elevation:       0,
-      leading:         const BackButton(),
-      title: Row(children: [
-        Text(icon, style: const TextStyle(fontSize: 22)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(name,
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.roseDeep),
-              overflow: TextOverflow.ellipsis),
-        ),
-      ]),
+      pinned:           true,
+      backgroundColor:  context.scaffoldColor,
+      elevation:        0,
+      surfaceTintColor: Colors.transparent,
+      leading:          const BackButton(),
+      title: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 22)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(name,
+              style: const TextStyle(
+                fontFamily:  'Georgia',
+                fontSize:    18,
+                fontWeight:  FontWeight.w700,
+                color:       AppColors.roseDeep,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
       bottom: gs != null
           ? PreferredSize(
-              preferredSize: const Size.fromHeight(4),
-              child: LinearProgressIndicator(
-                value:           gs.progressFraction,
-                backgroundColor: AppColors.roseLight.withOpacity(0.3),
-                valueColor:      const AlwaysStoppedAnimation(AppColors.roseDeep),
-                minHeight:       3,
+              preferredSize: const Size.fromHeight(3),
+              child: TweenAnimationBuilder<double>(
+                tween:    Tween(begin: 0, end: gs.progressFraction),
+                duration: 400.ms,
+                curve:    Curves.easeOutCubic,
+                builder: (_, value, __) => LinearProgressIndicator(
+                  value:           value,
+                  backgroundColor: AppColors.roseLight.withOpacity(0.3),
+                  valueColor: const AlwaysStoppedAnimation(AppColors.roseDeep),
+                  minHeight: 3,
+                ),
               ),
             )
           : null,
@@ -106,8 +112,10 @@ class GamePlayScreen extends ConsumerWidget {
     if (play.isLoading) {
       return const Padding(
         padding: EdgeInsets.all(60),
-        child:   Center(child: CircularProgressIndicator(
-            color: AppColors.roseDeep, strokeWidth: 2)),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.roseDeep, strokeWidth: 2),
+        ),
       );
     }
 
@@ -154,9 +162,9 @@ class GamePlayScreen extends ConsumerWidget {
     }
 
     return QuestionView(
-      question:  q,
-      gameType:  gameType,
-      gameState: gs,
+      question:     q,
+      gameType:     gameType,
+      gameState:    gs,
       isSubmitting: play.isSubmitting,
       onSubmitAsync: (answer, {answerData}) => ref
           .read(gamePlayProvider(args).notifier)
@@ -190,7 +198,8 @@ class GamePlayScreen extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────
-// NOT STARTED
+// NOT STARTED — 🌙 spring scale, Georgia 26pt,
+// "Start — Bismillah" gold button with 🕌
 // ─────────────────────────────────────────────
 
 class _NotStarted extends StatelessWidget {
@@ -205,30 +214,54 @@ class _NotStarted extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 40),
-          Text('🌙', style: const TextStyle(fontSize: 64))
-              .animate().scale(begin: const Offset(0.6, 0.6),
-                  duration: 500.ms, curve: Curves.elasticOut),
-          const SizedBox(height: 24),
-          Text('Ready to begin?',
-              style: AppTypography.headlineSmall.copyWith(
-                color: AppColors.neutral900),
-              textAlign: TextAlign.center)
-              .animate(delay: 200.ms).fadeIn(),
-          const SizedBox(height: 10),
+          const SizedBox(height: 60),
+
+          const Text('🌙', style: TextStyle(fontSize: 64))
+              .animate()
+              .scale(
+                begin: const Offset(0.5, 0.5),
+                end:   const Offset(1.0, 1.0),
+                duration: 600.ms,
+                curve: Curves.elasticOut,
+              ),
+
+          const SizedBox(height: 28),
+
           Text(
-            'This game will help you and your match discover each other '
-            "through meaningful questions. Answer honestly — your wali can see all responses.",
+            'Ready to begin?',
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    26,
+              fontWeight:  FontWeight.w700,
+              color:       context.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ).animate(delay: 200.ms).fadeIn(duration: 400.ms),
+
+          const SizedBox(height: 12),
+
+          Text(
+            'This game will help you and your match discover '
+            'each other through meaningful questions. Answer '
+            'honestly — your wali can see all responses.',
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.neutral500, height: 1.6),
-          ).animate(delay: 300.ms).fadeIn(),
-          const SizedBox(height: 36),
+              color:  context.mutedText,
+              height: 1.6,
+            ),
+          ).animate(delay: 300.ms).fadeIn(duration: 400.ms),
+
+          const SizedBox(height: 40),
+
           MiskButton(
             label:     'Start — Bismillah',
             onPressed: onStart,
-            icon:      Icons.play_arrow_rounded,
-          ).animate(delay: 400.ms).fadeIn().slideY(begin: 0.1, end: 0),
+            variant:   MiskButtonVariant.gold,
+            icon:      Icons.mosque_rounded,
+          ).animate(delay: 400.ms)
+           .fadeIn(duration: 400.ms)
+           .slideY(begin: 0.15, end: 0, duration: 400.ms,
+               curve: Curves.easeOutCubic),
         ],
       ),
     );
@@ -236,7 +269,7 @@ class _NotStarted extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// WAITING FOR TURN
+// WAITING FOR TURN — ⏳ slow pulse, progress chip
 // ─────────────────────────────────────────────
 
 class _WaitingTurnBody extends StatelessWidget {
@@ -250,69 +283,80 @@ class _WaitingTurnBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 60),
+
           const Text('⏳', style: TextStyle(fontSize: 56))
               .animate(onPlay: (c) => c.repeat(reverse: true))
-              .scaleXY(begin: 1.0, end: 1.1, duration: 1500.ms),
-          const SizedBox(height: 24),
-          Text('Waiting for your match',
-              style: AppTypography.headlineSmall.copyWith(
-                color: AppColors.neutral700),
-              textAlign: TextAlign.center),
+              .scaleXY(begin: 1.0, end: 1.08, duration: 2000.ms),
+
+          const SizedBox(height: 28),
+
+          Text(
+            'Waiting for your match',
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    22,
+              fontWeight:  FontWeight.w600,
+              color:       context.subtleText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
           const SizedBox(height: 10),
+
           Text(
             'They have been notified. '
             "You'll receive a notification when it's your turn.",
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.neutral500, height: 1.6),
-          ),
-          const SizedBox(height: 32),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color:        AppColors.roseDeep.withOpacity(0.05),
-              borderRadius: AppRadius.cardRadius,
+              color:  context.mutedText,
+              height: 1.6,
             ),
-            child: Row(children: [
-              const Icon(Icons.history_toggle_off_rounded,
-                  color: AppColors.roseDeep, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
+          ),
+
+          const SizedBox(height: 32),
+
+          // Turn progress chip
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color:        AppColors.roseDeep.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.roseDeep.withOpacity(0.12)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.history_toggle_off_rounded,
+                  color: AppColors.roseDeep, size: 18),
+                const SizedBox(width: 8),
+                Text(
                   'Turn ${gameState.turnNumber} of ${gameState.totalTurns}',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.roseDeep),
-                ),
-              ),
-              Text(gameState.progress,
                   style: AppTypography.labelMedium.copyWith(
                     color:      AppColors.roseDeep,
                     fontWeight: FontWeight.w600,
-                  )),
-            ]),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
-
-  String get progress =>
-      '${gameState.turnNumber}/${gameState.totalTurns}';
-}
-
-extension on GameState {
-  String get progress => '$turnNumber/$totalTurns';
 }
 
 // ─────────────────────────────────────────────
-// COMPLETED
+// COMPLETED — gold celebration, ✨ elastic scale,
+// Georgia 26pt, turn history stagger
 // ─────────────────────────────────────────────
 
 class _CompletedBody extends StatelessWidget {
   const _CompletedBody({required this.gameState, required this.history});
-  final GameState                      gameState;
-  final List<Map<String, dynamic>>     history;
+  final GameState                  gameState;
+  final List<Map<String, dynamic>> history;
 
   @override
   Widget build(BuildContext context) {
@@ -321,67 +365,101 @@ class _CompletedBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Completion banner
+          // ── Gold celebration banner ─────────────────
           Container(
             width:   double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient:     AppColors.goldGradient,
-              borderRadius: AppRadius.cardRadius,
-              boxShadow:    AppShadows.elevated,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color:      AppColors.goldPrimary.withOpacity(0.25),
+                  blurRadius: 16,
+                  offset:     const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Column(children: [
-              const Text('✨', style: TextStyle(fontSize: 40))
-                  .animate().scale(
-                      begin:  const Offset(0.5, 0.5),
+            child: Column(
+              children: [
+                const Text('✨', style: TextStyle(fontSize: 48))
+                    .animate()
+                    .scale(
+                      begin:    const Offset(0.4, 0.4),
+                      end:      const Offset(1.0, 1.0),
                       duration: 600.ms,
-                      curve:  Curves.elasticOut),
-              const SizedBox(height: 12),
-              Text('Masha\'Allah — Game Complete!',
-                  style: AppTypography.headlineSmall.copyWith(
-                    color:      AppColors.white,
-                    fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.center),
-              Text(
-                'Added to your Match Memory.',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.white.withOpacity(0.85)),
-              ),
-            ]),
-          ).animate().fadeIn(duration: 500.ms).slideY(begin: -0.05, end: 0),
+                      curve:    Curves.elasticOut,
+                    ),
+                const SizedBox(height: 14),
+                const Text(
+                  "Masha'Allah — Complete!",
+                  style: TextStyle(
+                    fontFamily:  'Georgia',
+                    fontSize:    26,
+                    fontWeight:  FontWeight.w700,
+                    color:       AppColors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Added to your Match Memory.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.white.withOpacity(0.85)),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(duration: 500.ms)
+           .slideY(begin: -0.05, end: 0, duration: 500.ms),
 
-          const SizedBox(height: 24),
-          Text('Turn History',
-              style: AppTypography.titleMedium),
-          const SizedBox(height: 12),
+          const SizedBox(height: 28),
 
-          // Turn history
+          // ── Turn History header ─────────────────────
+          Text(
+            'Turn History',
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    18,
+              fontWeight:  FontWeight.w700,
+              color:       context.onSurface,
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // ── Turn history cards ──────────────────────
           ...history.indexed.map((e) {
             final i    = e.$1;
             final turn = e.$2;
             final q    = turn['question'] as Map<String, dynamic>?;
             final ans  = turn['answer']   as String? ?? '';
-            final uid  = turn['user_id']  as String? ?? '';
 
-            return MiskCard(
+            return Container(
               margin:  const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
-              child:   Column(
+              decoration: BoxDecoration(
+                color:        context.surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow:    context.cardShadow,
+              ),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color:        AppColors.roseDeep.withOpacity(0.08),
-                        borderRadius: AppRadius.chipRadius,
-                      ),
-                      child: Text('Turn ${i + 1}',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.roseDeep)),
+                  // Turn badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color:        AppColors.roseDeep.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ]),
+                    child: Text('Turn ${i + 1}',
+                      style: AppTypography.labelSmall.copyWith(
+                        color:      AppColors.roseDeep,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                   if (q != null) ...[
                     const SizedBox(height: 8),
                     Text(
@@ -389,22 +467,25 @@ class _CompletedBody extends StatelessWidget {
                       q['stem'] as String? ??
                       q['q']    as String? ?? '',
                       style: AppTypography.bodySmall.copyWith(
-                        color:     AppColors.neutral500,
-                        fontStyle: FontStyle.italic),
+                        color:     context.mutedText,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 6),
                   Text(ans,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color:      AppColors.neutral900,
-                        fontWeight: FontWeight.w500,
-                      )),
+                    style: AppTypography.bodyMedium.copyWith(
+                      color:      context.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             )
                 .animate(delay: Duration(milliseconds: i * 40))
                 .fadeIn(duration: 300.ms)
-                .slideY(begin: 0.03, end: 0);
+                .slideY(begin: 0.03, end: 0, duration: 300.ms,
+                    curve: Curves.easeOutCubic);
           }),
         ],
       ),
@@ -413,7 +494,7 @@ class _CompletedBody extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// WAITING OVERLAY  (real-time — submitted, waiting)
+// WAITING OVERLAY (real-time — submitted, waiting)
 // ─────────────────────────────────────────────
 
 class _WaitingOverlay extends StatelessWidget {
@@ -422,14 +503,15 @@ class _WaitingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.55),
+      color: AppColors.midnightDeep.withOpacity(0.55),
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(32),
           margin:  const EdgeInsets.symmetric(horizontal: 40),
           decoration: BoxDecoration(
-            color:        Theme.of(context).colorScheme.surface,
+            color:        context.surfaceColor,
             borderRadius: BorderRadius.circular(24),
+            boxShadow:    context.cardShadow,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -439,14 +521,21 @@ class _WaitingOverlay extends StatelessWidget {
                   .scaleXY(begin: 1.0, end: 1.1, duration: 1200.ms),
               const SizedBox(height: 20),
               Text("Waiting for your match's answer...",
-                  textAlign: TextAlign.center,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: AppColors.neutral900)),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily:  'Georgia',
+                  fontSize:    18,
+                  fontWeight:  FontWeight.w600,
+                  color:       context.onSurface,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Both answers are hidden until you both answer.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500)),
+              Text(
+                'Both answers are hidden until you both answer.',
+                textAlign: TextAlign.center,
+                style: AppTypography.bodySmall.copyWith(
+                  color: context.mutedText),
+              ),
             ],
           ),
         ),
@@ -468,16 +557,26 @@ class _ErrorBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(40),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.error_outline_rounded,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline_rounded,
             size: 48, color: AppColors.neutral300),
-        const SizedBox(height: 20),
-        Text(message, textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.neutral500)),
-        const SizedBox(height: 24),
-        MiskButton(label: 'Retry', onPressed: onRetry,
-            variant: MiskButtonVariant.outline, fullWidth: false),
-      ]),
+          const SizedBox(height: 20),
+          Text(message,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMedium.copyWith(
+              color: context.mutedText),
+          ),
+          const SizedBox(height: 24),
+          MiskButton(
+            label:     'Retry',
+            onPressed: onRetry,
+            variant:   MiskButtonVariant.outline,
+            fullWidth: false,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -489,17 +588,28 @@ class _NoQuestionBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(40),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Text('🌙', style: TextStyle(fontSize: 48)),
-        const SizedBox(height: 16),
-        Text('No more questions',
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.neutral700),
-            textAlign: TextAlign.center),
-        const SizedBox(height: 8),
-        Text('This game is wrapping up!',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.neutral500)),
-      ]),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('🌙', style: TextStyle(fontSize: 48)),
+          const SizedBox(height: 16),
+          Text(
+            'No more questions',
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    20,
+              fontWeight:  FontWeight.w600,
+              color:       context.subtleText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text('This game is wrapping up!',
+            style: AppTypography.bodyMedium.copyWith(
+              color: context.mutedText),
+          ),
+        ],
+      ),
     );
   }
 }

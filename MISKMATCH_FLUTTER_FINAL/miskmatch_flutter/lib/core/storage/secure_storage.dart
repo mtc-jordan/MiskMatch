@@ -29,16 +29,24 @@ class SecureStorage {
   Future<String?> getUserId() =>
       _storage.read(key: AppConfig.userIdKey);
 
+  Future<void> saveGender(String gender) =>
+      _storage.write(key: AppConfig.genderKey, value: gender);
+
+  Future<String?> getGender() =>
+      _storage.read(key: AppConfig.genderKey);
+
   // ── Token pair ────────────────────────────────────────────────────────────
   Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
     required String userId,
+    String? gender,
   }) async {
     await Future.wait([
       saveAccessToken(accessToken),
       saveRefreshToken(refreshToken),
       saveUserId(userId),
+      if (gender != null) saveGender(gender),
     ]);
   }
 
@@ -54,6 +62,7 @@ class SecureStorage {
       _storage.delete(key: AppConfig.accessTokenKey),
       _storage.delete(key: AppConfig.refreshTokenKey),
       _storage.delete(key: AppConfig.userIdKey),
+      _storage.delete(key: AppConfig.genderKey),
     ]);
   }
 }

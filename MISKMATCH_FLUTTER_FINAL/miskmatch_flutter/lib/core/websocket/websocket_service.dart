@@ -59,6 +59,7 @@ class WebSocketService {
   WsConnectionState       _state = WsConnectionState.disconnected;
   int                     _reconnectAttempts = 0;
   static const _maxReconnectDelay = 30; // seconds
+  static const _maxReconnectAttempts = 15; // give up after 15 attempts
   static const _pingInterval      = 25; // seconds
 
   // Pending messages to send after reconnect
@@ -192,6 +193,14 @@ class WebSocketService {
   // ── Reconnect ─────────────────────────────────────────────────────────────
   void _scheduleReconnect() {
     if (_state == WsConnectionState.disconnected) return;
+
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      debugPrint('WS max reconnect attempts reached — giving up');
+      _setState(WsConnectionState.disconnected);
+      _cleanupChannel();
+      return;
+    }
+
     _setState(WsConnectionState.reconnecting);
     _cleanupChannel();
 
@@ -201,7 +210,7 @@ class WebSocketService {
     );
     _reconnectAttempts++;
 
-    debugPrint('WS reconnect in ${delay}s (attempt $_reconnectAttempts)');
+    debugPrint('WS reconnect in ${delay}s (attempt $_reconnectAttempts/$_maxReconnectAttempts)');
 
     _reconnectTimer = Timer(Duration(seconds: delay), _doConnect);
   }

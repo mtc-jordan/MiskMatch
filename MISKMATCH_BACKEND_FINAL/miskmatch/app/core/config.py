@@ -29,16 +29,19 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:8080",
     ]
+    # Production origins — set via PRODUCTION_ORIGINS env var (comma-separated)
+    PRODUCTION_ORIGINS: str = "https://miskmatch.app,https://www.miskmatch.app,https://admin.miskmatch.app"
 
     # ─── Database ──────────────────────────────
     DATABASE_URL: str
     DATABASE_URL_SYNC: str
-    DB_POOL_SIZE: int = 20
-    DB_MAX_OVERFLOW: int = 40
+    DB_POOL_SIZE: int = 10          # base pool — tune per deployment (10 dev, 20 prod)
+    DB_MAX_OVERFLOW: int = 20       # burst capacity above pool_size
 
     # ─── Cache ─────────────────────────────────
     REDIS_URL: str = "redis://localhost:6379/0"
-    CACHE_TTL: int = 3600
+    REDIS_MAX_CONNECTIONS: int = 30     # max Redis pool connections
+    CACHE_TTL: int = 300                # default cache TTL (5 min)
 
     # ─── Auth ──────────────────────────────────
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
@@ -81,6 +84,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
 
+    # ─── Firebase ──────────────────────────────
+    FIREBASE_CREDENTIALS_PATH: str = ""  # path to service-account JSON
+
     # ─── Monitoring ────────────────────────────
     SENTRY_DSN: Optional[str] = None
 
@@ -95,9 +101,21 @@ class Settings(BaseSettings):
             raise ValueError("SECRET_KEY must be at least 32 characters")
         return v
 
+    @field_validator("ADMIN_PASSWORD")
+    @classmethod
+    def admin_password_not_default(cls, v: str, info) -> str:
+        env = info.data.get("ENVIRONMENT", "development")
+        if env == "production" and v in ("", "change-this-immediately"):
+            raise ValueError("ADMIN_PASSWORD must be changed for production")
+        return v
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT == "production"
+
+    @property
+    def is_staging(self) -> bool:
+        return self.ENVIRONMENT == "staging"
 
     @property
     def is_development(self) -> bool:

@@ -257,6 +257,28 @@ async def get_my_matches(
         page_size=page_size,
     )
 
+    # Batch-load profiles and users for all "other" sides to avoid N+1
+    other_ids = set()
+    for match in matches:
+        other_ids.add(
+            match.receiver_id if match.sender_id == current_user.id else match.sender_id
+        )
+
+    # Single query: all other profiles
+    profiles_result = await db.execute(
+        select(Profile).where(Profile.user_id.in_(other_ids))
+    )
+    profiles_map = {p.user_id: p for p in profiles_result.scalars().all()}
+
+    # Single query: all other users
+    users_result = await db.execute(
+        select(User).where(User.id.in_(other_ids))
+    )
+    users_map = {u.id: u for u in users_result.scalars().all()}
+
+    # Load current user's profile once for compatibility fallback
+    my_profile = await get_profile_by_user_id(db, current_user.id)
+
     # Build rich match responses
     match_responses = []
     for match in matches:
@@ -265,9 +287,8 @@ async def get_my_matches(
             if match.sender_id == current_user.id
             else match.sender_id
         )
-        other_profile = await get_profile_by_user_id(db, other_id)
-        other_user_result = await db.execute(select(User).where(User.id == other_id))
-        other_user = other_user_result.scalar_one_or_none()
+        other_profile = profiles_map.get(other_id)
+        other_user = users_map.get(other_id)
 
         # Build profile summary for the other person
         other_summary = None
@@ -286,9 +307,8 @@ async def get_my_matches(
             ]
 
             compat = match_svc.compute_compatibility_score(
-                await get_profile_by_user_id(db, current_user.id),
-                other_profile,
-            ) if match.compatibility_score is None else match.compatibility_score
+                my_profile, other_profile,
+            ) if match.compatibility_score is None and my_profile else match.compatibility_score
 
             other_summary = MatchProfileSummary(
                 user_id=other_profile.user_id,
@@ -356,11 +376,21 @@ async def get_wali_pending(
     """
     matches = await match_svc.get_wali_pending_matches(db, current_user.id)
 
+    # Batch-load all needed profiles to avoid N+1
+    all_user_ids = set()
+    for match in matches:
+        all_user_ids.add(match.sender_id)
+        all_user_ids.add(match.receiver_id)
+
+    profiles_result = await db.execute(
+        select(Profile).where(Profile.user_id.in_(all_user_ids))
+    )
+    profiles_map = {p.user_id: p for p in profiles_result.scalars().all()}
+
     result = []
     for match in matches:
-        # Build summary for both parties
-        sender_profile   = await get_profile_by_user_id(db, match.sender_id)
-        receiver_profile = await get_profile_by_user_id(db, match.receiver_id)
+        sender_profile = profiles_map.get(match.sender_id)
+        receiver_profile = profiles_map.get(match.receiver_id)
 
         result.append({
             "match_id":        str(match.id),

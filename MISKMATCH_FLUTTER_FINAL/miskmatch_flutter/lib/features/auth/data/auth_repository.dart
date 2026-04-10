@@ -45,6 +45,7 @@ class AuthRepository {
           accessToken:  tokens.accessToken,
           refreshToken: tokens.refreshToken,
           userId:       tokens.userId,
+          gender:       tokens.gender,
         );
         return ApiSuccess(tokens);
       }
@@ -67,6 +68,7 @@ class AuthRepository {
           accessToken:  tokens.accessToken,
           refreshToken: tokens.refreshToken,
           userId:       tokens.userId,
+          gender:       tokens.gender,
         );
         return ApiSuccess(tokens);
       }
@@ -100,6 +102,20 @@ class AuthRepository {
       // Best-effort — always clear local storage
     } finally {
       await storage.clearAll();
+    }
+  }
+
+  // ── Delete account ─────────────────────────────────────────────────────────
+  Future<ApiResult<String>> deleteAccount() async {
+    try {
+      final res = await dio.delete(ApiEndpoints.authDeleteAccount);
+      if (res.statusCode == 200) {
+        await storage.clearAll();
+        return const ApiSuccess('Account deleted successfully.');
+      }
+      return ApiError(AppError.fromResponse(res.statusCode, res.data));
+    } on DioException catch (e) {
+      return ApiError(AppError.fromDio(e));
     }
   }
 

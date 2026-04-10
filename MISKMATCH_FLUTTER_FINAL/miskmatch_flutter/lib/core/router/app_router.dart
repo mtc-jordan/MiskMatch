@@ -42,19 +42,102 @@ abstract class AppRoutes {
   static String gamePlayPath(String matchId, String type) => '/match/$matchId/games/$type';
 }
 
+/// Notifier that GoRouter listens to for redirect re-evaluation.
+class _AuthChangeNotifier extends ChangeNotifier {
+  _AuthChangeNotifier(this._ref) {
+    _ref.listen(authProvider, (_, __) => notifyListeners());
+  }
+  final Ref _ref;
+}
+
+// ─────────────────────────────────────────────
+// ROUTE TRANSITIONS
+// ─────────────────────────────────────────────
+
+/// Slide right — for drilldown navigation (match detail, settings, games)
+CustomTransitionPage<void> _slideRight(Widget child, GoRouterState state) {
+  return CustomTransitionPage(
+    key:   state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curve = CurvedAnimation(
+        parent: animation,
+        curve:  Curves.easeOutCubic,
+      );
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end:   Offset.zero,
+        ).animate(curve),
+        child: child,
+      );
+    },
+  );
+}
+
+/// Slide up — for chat and in-call screens
+CustomTransitionPage<void> _slideUp(Widget child, GoRouterState state) {
+  return CustomTransitionPage(
+    key:   state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curve = CurvedAnimation(
+        parent: animation,
+        curve:  Curves.easeOutCubic,
+      );
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.0, 1.0),
+          end:   Offset.zero,
+        ).animate(curve),
+        child: child,
+      );
+    },
+  );
+}
+
+/// Fade + scale — for overlays and special screens
+CustomTransitionPage<void> _fadeScale(Widget child, GoRouterState state) {
+  return CustomTransitionPage(
+    key:   state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curve = CurvedAnimation(
+        parent: animation,
+        curve:  Curves.easeOutCubic,
+      );
+      return FadeTransition(
+        opacity: curve,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.95, end: 1.0).animate(curve),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authNotifier = _AuthChangeNotifier(ref);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    refreshListenable: authNotifier,
     redirect: (context, state) {
       final loc  = state.matchedLocation;
-      final auth = authState;
+      final auth = ref.read(authProvider);
       final isAuthRoute = loc.startsWith('/auth');
       final isSplash    = loc == AppRoutes.splash;
 
       if (auth is AuthInitial)          return isSplash ? null : AppRoutes.splash;
       if (auth is AuthUnauthenticated)  return isAuthRoute ? null : AppRoutes.phone;
+      if (auth is AuthError)            return isAuthRoute ? null : AppRoutes.phone;
       if (auth is AuthOtpSent)          return loc == AppRoutes.otp ? null : AppRoutes.otp;
       if (auth is AuthAuthenticated) {
         if (auth.needsOnboarding) {
@@ -67,59 +150,118 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
-      GoRoute(path: AppRoutes.phone,  builder: (_, __) => const PhoneScreen()),
+      // ── Splash — fade scale ─────────────────────
+      GoRoute(
+        path: AppRoutes.splash,
+        pageBuilder: (_, state) =>
+            _fadeScale(const SplashScreen(), state),
+      ),
+
+      // ── Auth flow — slide right ─────────────────
+      GoRoute(
+        path: AppRoutes.phone,
+        pageBuilder: (_, state) =>
+            _slideRight(const PhoneScreen(), state),
+      ),
       GoRoute(
         path: AppRoutes.otp,
-        builder: (_, state) {
+        pageBuilder: (_, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return OtpScreen(
-            phone:     extra?['phone']     as String? ?? '',
-            isNewUser: extra?['isNewUser'] as bool?   ?? true,
+          return _slideRight(
+            OtpScreen(
+              phone:     extra?['phone']     as String? ?? '',
+              isNewUser: extra?['isNewUser'] as bool?   ?? true,
+            ),
+            state,
           );
         },
       ),
-      GoRoute(path: AppRoutes.niyyah,   builder: (_, __) => const NiyyahScreen()),
-      GoRoute(path: AppRoutes.waliSetup,builder: (_, __) => const WaliSetupScreen()),
 
-      // Main shell with bottom nav
+      // ── Niyyah & Wali setup — fade scale (spiritual) ──
+      GoRoute(
+        path: AppRoutes.niyyah,
+        pageBuilder: (_, state) =>
+            _fadeScale(const NiyyahScreen(), state),
+      ),
+      GoRoute(
+        path: AppRoutes.waliSetup,
+        pageBuilder: (_, state) =>
+            _slideRight(const WaliSetupScreen(), state),
+      ),
+
+      // ── Main shell with bottom nav ──────────────
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
-          GoRoute(path: AppRoutes.discovery, builder: (_, __) => const DiscoveryScreen()),
-          GoRoute(path: AppRoutes.matches,   builder: (_, __) => const MatchesListScreen()),
-          GoRoute(path: AppRoutes.wali,      builder: (_, __) => const WaliDashboardScreen()),
+          GoRoute(
+            path: AppRoutes.discovery,
+            pageBuilder: (_, state) =>
+                _fadeScale(const DiscoveryScreen(), state),
+          ),
+          GoRoute(
+            path: AppRoutes.matches,
+            pageBuilder: (_, state) =>
+                _fadeScale(const MatchesListScreen(), state),
+          ),
+          GoRoute(
+            path: AppRoutes.wali,
+            pageBuilder: (_, state) =>
+                _fadeScale(const WaliDashboardScreen(), state),
+          ),
           GoRoute(
             path: AppRoutes.profile,
-            builder: (_, __) => const ProfileScreen(),
+            pageBuilder: (_, state) =>
+                _fadeScale(const ProfileScreen(), state),
             routes: [
-              GoRoute(path: 'edit', builder: (_, __) => const ProfileEditScreen()),
+              GoRoute(
+                path: 'edit',
+                pageBuilder: (_, state) =>
+                    _slideRight(const ProfileEditScreen(), state),
+              ),
             ],
           ),
         ],
       ),
 
-      // Match detail + chat (full screen)
+      // ── Settings — slide right ──────────────────
+      GoRoute(
+        path: AppRoutes.settings,
+        pageBuilder: (_, state) =>
+            _slideRight(const SettingsScreen(), state),
+      ),
+
+      // ── Match detail + sub-routes ───────────────
       GoRoute(
         path: AppRoutes.match,
-        builder: (_, state) =>
-            MatchScreen(matchId: state.pathParameters['matchId']!),
+        pageBuilder: (_, state) => _slideRight(
+          MatchScreen(matchId: state.pathParameters['matchId']!),
+          state,
+        ),
         routes: [
+          // Chat — slide up
           GoRoute(
             path: 'chat',
-            builder: (_, state) =>
-                ChatScreen(matchId: state.pathParameters['matchId']!),
+            pageBuilder: (_, state) => _slideUp(
+              ChatScreen(matchId: state.pathParameters['matchId']!),
+              state,
+            ),
           ),
+          // Games — slide right for hub, slide right for play
           GoRoute(
             path: 'games',
-            builder: (_, state) =>
-                GameHubScreen(matchId: state.pathParameters['matchId']!),
+            pageBuilder: (_, state) => _slideRight(
+              GameHubScreen(matchId: state.pathParameters['matchId']!),
+              state,
+            ),
             routes: [
               GoRoute(
                 path: ':gameType',
-                builder: (_, state) => GamePlayScreen(
-                  matchId:  state.pathParameters['matchId']!,
-                  gameType: state.pathParameters['gameType']!,
+                pageBuilder: (_, state) => _slideRight(
+                  GamePlayScreen(
+                    matchId:  state.pathParameters['matchId']!,
+                    gameType: state.pathParameters['gameType']!,
+                  ),
+                  state,
                 ),
               ),
             ],

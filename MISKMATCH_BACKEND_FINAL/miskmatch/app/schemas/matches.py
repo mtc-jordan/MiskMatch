@@ -7,8 +7,9 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
+from app.core.sanitize import sanitize_text
 from app.models.models import MatchStatus, Gender
 
 
@@ -25,6 +26,11 @@ class ExpressInterestRequest(BaseModel):
         description="A respectful, intentional message. Minimum 20 characters.",
     )
 
+    @field_validator("message", mode="before")
+    @classmethod
+    def sanitize_message(cls, v: str) -> str:
+        return sanitize_text(v) if v else v
+
 
 class RespondToInterestRequest(BaseModel):
     accept: bool
@@ -34,6 +40,11 @@ class RespondToInterestRequest(BaseModel):
         description="Optional response message",
     )
 
+    @field_validator("message", mode="before")
+    @classmethod
+    def sanitize_message(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_text(v) if v else v
+
 
 class WaliDecisionRequest(BaseModel):
     approved: bool
@@ -42,6 +53,11 @@ class WaliDecisionRequest(BaseModel):
         max_length=300,
         description="Optional note for the family record",
     )
+
+    @field_validator("note", mode="before")
+    @classmethod
+    def sanitize_note(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_text(v) if v else v
 
 
 class CloseMatchRequest(BaseModel):

@@ -342,14 +342,15 @@ async def get_messages(
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
 
-    # Enrich with sender names
-    responses = []
-    name_cache: dict[UUID, str] = {}
-    for msg in messages:
-        if msg.sender_id not in name_cache:
-            p = await get_profile_by_user_id(db, msg.sender_id)
-            name_cache[msg.sender_id] = p.first_name if p else "User"
+    # Batch-load sender names to avoid N+1
+    sender_ids = {msg.sender_id for msg in messages}
+    profiles_result = await db.execute(
+        select(Profile).where(Profile.user_id.in_(sender_ids))
+    )
+    name_map = {p.user_id: p.first_name for p in profiles_result.scalars().all()}
 
+    responses = []
+    for msg in messages:
         responses.append(MessageResponse(
             id=msg.id,
             match_id=msg.match_id,
@@ -360,7 +361,7 @@ async def get_messages(
             status=msg.status,
             created_at=msg.created_at,
             updated_at=msg.updated_at,
-            sender_name=name_cache[msg.sender_id],
+            sender_name=name_map.get(msg.sender_id, "User"),
         ))
 
     return MessageListResponse(
@@ -464,6 +465,16 @@ async def mark_read(
     db: DB,
 ):
     """Mark specific messages as read. Triggers read receipts for the sender."""
+    # Verify user is a participant in this match
+    match_result = await db.execute(
+        select(Match).where(
+            Match.id == match_id,
+            (Match.sender_id == current_user.id) | (Match.receiver_id == current_user.id),
+        )
+    )
+    if not match_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Match not found.")
+
     count = await msg_svc.mark_messages_read(
         db=db,
         match_id=match_id,
@@ -566,18 +577,19 @@ async def wali_read_conversation(
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
 
-    # Enrich with sender names and flag status
-    enriched = []
-    name_cache: dict[UUID, str] = {}
-    for msg in messages:
-        if msg.sender_id not in name_cache:
-            p = await get_profile_by_user_id(db, msg.sender_id)
-            name_cache[msg.sender_id] = p.first_name if p else "User"
+    # Batch-load sender names to avoid N+1
+    sender_ids = {msg.sender_id for msg in messages}
+    profiles_result = await db.execute(
+        select(Profile).where(Profile.user_id.in_(sender_ids))
+    )
+    name_map = {p.user_id: p.first_name for p in profiles_result.scalars().all()}
 
+    enriched = []
+    for msg in messages:
         enriched.append({
             "id":                str(msg.id),
             "sender_id":         str(msg.sender_id),
-            "sender_name":       name_cache[msg.sender_id],
+            "sender_name":       name_map.get(msg.sender_id, "User"),
             "content":           msg.content,
             "content_type":      msg.content_type,
             "status":            msg.status,

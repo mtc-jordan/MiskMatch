@@ -234,6 +234,9 @@ async def embed_text(text: str) -> Optional[list[float]]:
             input=text,
             encoding_format="float",
         )
+        if not response.data:
+            logger.error("OpenAI embedding returned empty data")
+            return None
         vector = response.data[0].embedding
         logger.debug(f"Embedded {len(text)} chars → {len(vector)} dims")
         return vector

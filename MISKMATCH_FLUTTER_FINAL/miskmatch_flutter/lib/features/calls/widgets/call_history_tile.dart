@@ -6,8 +6,12 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
 
-/// A single call log tile — shown in the match screen call history section
-/// and optionally in a dedicated calls list.
+/// Call history tile — 72px standard list tile.
+///
+/// Left:  44px icon circle (outgoing/incoming/missed/active)
+/// Centre: status label (coloured) + call type badge, name + wali shield
+/// Right: time ago + duration bold coloured
+/// Stagger: 40ms per index
 
 class CallHistoryTile extends StatelessWidget {
   const CallHistoryTile({
@@ -19,127 +23,170 @@ class CallHistoryTile extends StatelessWidget {
     this.onTap,
   });
 
-  final CallModel    call;
-  final String       otherName;
-  final bool         isInitiator;
-  final int          index;
+  final CallModel     call;
+  final String        otherName;
+  final bool          isInitiator;
+  final int           index;
   final VoidCallback? onTap;
 
+  // ── Icon per status ────────────────────────────
   IconData get _icon => switch (call.status) {
-    CallStatus.ended    => isInitiator
-        ? Icons.call_made_rounded
-        : Icons.call_received_rounded,
-    CallStatus.missed   => Icons.call_missed_rounded,
-    CallStatus.active   => Icons.call_rounded,
-    CallStatus.ringing  => Icons.phone_in_talk_rounded,
-    CallStatus.scheduled=> Icons.schedule_rounded,
+    CallStatus.ended     => isInitiator
+        ? Icons.call_made_rounded        // up-right arrow
+        : Icons.call_received_rounded,   // down-left arrow
+    CallStatus.missed    => Icons.call_missed_rounded,
+    CallStatus.active    => Icons.call_rounded,
+    CallStatus.ringing   => Icons.phone_in_talk_rounded,
+    CallStatus.scheduled => Icons.schedule_rounded,
   };
 
-  Color get _iconColor => switch (call.status) {
-    CallStatus.ended    => AppColors.success,
-    CallStatus.missed   => AppColors.error,
-    CallStatus.active   => AppColors.roseDeep,
-    CallStatus.ringing  => AppColors.roseDeep,
-    CallStatus.scheduled=> AppColors.goldPrimary,
+  // ── Colour per status ──────────────────────────
+  Color get _color => switch (call.status) {
+    CallStatus.ended     => isInitiator
+        ? AppColors.success   // outgoing → green
+        : AppColors.roseDeep, // incoming → rose
+    CallStatus.missed    => AppColors.error,
+    CallStatus.active    => AppColors.roseDeep,
+    CallStatus.ringing   => AppColors.roseDeep,
+    CallStatus.scheduled => AppColors.goldPrimary,
   };
 
+  // ── Status label ───────────────────────────────
   String get _label => switch (call.status) {
-    CallStatus.ended    => isInitiator ? 'Outgoing' : 'Incoming',
-    CallStatus.missed   => 'Missed',
-    CallStatus.active   => 'In progress',
-    CallStatus.ringing  => 'Ringing',
-    CallStatus.scheduled=> 'Scheduled',
+    CallStatus.ended     => isInitiator ? 'Outgoing' : 'Incoming',
+    CallStatus.missed    => 'Missed',
+    CallStatus.active    => 'In progress',
+    CallStatus.ringing   => 'Ringing',
+    CallStatus.scheduled => 'Scheduled',
   };
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isActive = call.status == CallStatus.active;
 
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Row(children: [
-          // Icon
-          Container(
-            width: 44, height: 44,
-            decoration: BoxDecoration(
-              color:  _iconColor.withOpacity(0.1),
-              shape:  BoxShape.circle,
-              border: Border.all(color: _iconColor.withOpacity(0.2)),
-            ),
-            child: Icon(_icon, color: _iconColor, size: 20),
-          ),
+      child: SizedBox(
+        height: 72,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(children: [
+            // ── Left: 44px icon circle ───────────────
+            _buildIconCircle(isActive),
 
-          const SizedBox(width: 14),
+            const SizedBox(width: 14),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Text(_label,
+            // ── Centre: status + name ────────────────
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Status label + call type badge
+                  Row(children: [
+                    Text(_label,
                       style: AppTypography.titleSmall.copyWith(
-                        color: _iconColor)),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color:        theme.colorScheme.outlineVariant
-                          .withOpacity(0.2),
-                      borderRadius: AppRadius.chipRadius,
+                        color:      _color,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Text(call.callType.emoji,
-                          style: const TextStyle(fontSize: 11)),
-                      const SizedBox(width: 4),
-                      Text(call.callType.label,
-                          style: AppTypography.labelSmall.copyWith(
-                            color:   theme.colorScheme.onSurfaceVariant,
-                            fontSize:10,
-                          )),
-                    ]),
-                  ),
-                ]),
-                const SizedBox(height: 2),
-                Row(children: [
-                  Text(otherName,
+                    const SizedBox(width: 8),
+                    // Small call type badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color:        _color.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(call.callType.emoji,
+                            style: const TextStyle(fontSize: 10)),
+                          const SizedBox(width: 3),
+                          Text(call.callType.label,
+                            style: AppTypography.labelSmall.copyWith(
+                              color:    _color.withOpacity(0.7),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+
+                  const SizedBox(height: 3),
+
+                  // Name + wali shield
+                  Row(children: [
+                    Text(otherName,
                       style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.neutral700)),
-                  if (call.waliJoined) ...[
-                    const SizedBox(width: 6),
-                    const Text('🛡️', style: TextStyle(fontSize: 12)),
-                  ],
-                ]),
+                        color: context.subtleText),
+                    ),
+                    if (call.waliJoined) ...[
+                      const SizedBox(width: 6),
+                      const Text('🛡️',
+                        style: TextStyle(fontSize: 12)),
+                    ],
+                  ]),
+                ],
+              ),
+            ),
+
+            // ── Right: time + duration ───────────────
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Time ago or date
+                Text(
+                  call.startedAt?.timeAgo ??
+                  call.scheduledAt?.shortDate ?? '',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: context.mutedText),
+                ),
+                const SizedBox(height: 3),
+                // Duration (bold coloured) or status name
+                Text(
+                  call.status == CallStatus.ended
+                      ? call.formattedDuration
+                      : call.status.name.capitalised,
+                  style: AppTypography.labelSmall.copyWith(
+                    color:      _color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
-          ),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                call.startedAt?.timeAgo ??
-                call.scheduledAt?.shortDate ?? '',
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.neutral500),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                call.status == CallStatus.ended
-                    ? call.formattedDuration
-                    : call.status.name.capitalised,
-                style: AppTypography.labelSmall.copyWith(
-                  color: _iconColor, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ]),
+          ]),
+        ),
       ),
     )
-        .animate(delay: Duration(milliseconds: index * 40))
-        .fadeIn(duration: 300.ms)
-        .slideX(begin: 0.03, end: 0);
+        .animate(delay: Duration(milliseconds: index * 60))
+        .fadeIn(duration: 350.ms)
+        .slideY(begin: 0.05, end: 0, duration: 350.ms,
+            curve: Curves.easeOutCubic);
+  }
+
+  Widget _buildIconCircle(bool isActive) {
+    final circle = Container(
+      width: 44, height: 44,
+      decoration: BoxDecoration(
+        color: _color.withOpacity(0.10),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(_icon, color: _color, size: 20),
+    );
+
+    if (isActive) {
+      // Pulsing circle for active calls
+      return circle
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(begin: 1.0, end: 1.08, duration: 800.ms)
+          .fade(begin: 1.0, end: 0.7, duration: 800.ms);
+    }
+
+    return circle;
   }
 }

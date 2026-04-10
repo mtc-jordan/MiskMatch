@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:miskmatch/features/profile/data/profile_models.dart';
@@ -8,20 +10,9 @@ import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'voice_player.dart';
 
-/// The core discovery profile card.
-///
-/// Design: Hinge-style (not Tinder swipe) — a rich scrollable card
-/// that reveals Islamic character signals progressively.
-///
-/// Layout:
-///   1. Photo / avatar header (full-width, blurred if not yet mutual)
-///   2. Name, age, location, trust badges
-///   3. Voice intro playback (60s)
-///   4. Islamic practice row (prayer, madhab, quran)
-///   5. Life goals chips
-///   6. Bio snippet (max 3 lines, expandable)
-///   7. Compatibility ring + score breakdown
-///   8. Express interest CTA
+/// Trendy Hinge-style discovery card.
+/// Full-bleed hero photo, frosted-glass name overlay,
+/// rich Islamic practice section, animated actions.
 
 class ProfileCard extends StatefulWidget {
   const ProfileCard({
@@ -33,11 +24,11 @@ class ProfileCard extends StatefulWidget {
     this.index = 0,
   });
 
-  final CandidateCard     candidate;
-  final VoidCallback       onInterest;
-  final VoidCallback       onDismiss;
-  final VoidCallback       onExpand;    // open full profile detail
-  final int                index;
+  final CandidateCard  candidate;
+  final VoidCallback   onInterest;
+  final VoidCallback   onDismiss;
+  final VoidCallback   onExpand;
+  final int            index;
 
   @override
   State<ProfileCard> createState() => _ProfileCardState();
@@ -51,122 +42,308 @@ class _ProfileCardState extends State<ProfileCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenPadding, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
-        borderRadius: AppRadius.cardRadius,
-        boxShadow:    AppShadows.card,
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.4),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── 1. Photo header ─────────────────────────────────────────
-          _PhotoHeader(profile: profile, onExpand: widget.onExpand),
-
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.cardPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── 2. Name + location + trust ───────────────────────
-                _NameRow(profile: profile, score: score),
-
-                const SizedBox(height: 12),
-
-                // ── 3. Voice intro ───────────────────────────────────
-                if (profile.hasVoiceIntro) ...[
-                  VoicePlayerWidget(
-                    audioUrl: profile.voiceIntroUrl!,
-                    label:    'Hear ${profile.displayFirstName}\'s intro',
-                  ),
-                  const SizedBox(height: 14),
-                ],
-
-                // ── 4. Islamic practice signals ──────────────────────
-                _IslamicPracticeRow(profile: profile),
-
-                const SizedBox(height: 12),
-
-                // ── 5. Life goals chips ──────────────────────────────
-                _LifeGoalsChips(profile: profile),
-
-                const SizedBox(height: 14),
-
-                // ── 6. Bio ───────────────────────────────────────────
-                if (profile.bio != null && profile.bio!.isNotEmpty) ...[
-                  _BioSection(
-                    bio:         profile.bio!,
-                    expanded:    _bioExpanded,
-                    onToggle:    () =>
-                        setState(() => _bioExpanded = !_bioExpanded),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-
-                // ── 7. Compatibility breakdown ────────────────────────
-                _CompatibilitySection(candidate: widget.candidate),
-
-                const SizedBox(height: 16),
-
-                // ── 8. Action buttons ─────────────────────────────────
-                _ActionRow(
-                  onInterest: widget.onInterest,
-                  onDismiss:  widget.onDismiss,
-                  onExpand:   widget.onExpand,
-                ),
-              ],
-            ),
+        color:        context.cardSurface,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color:      AppColors.roseDeep.withOpacity(0.08),
+            blurRadius: 24,
+            offset:     const Offset(0, 8),
           ),
+          ...context.cardShadow,
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── 1. Hero photo with glass overlay ─────────────
+            _HeroSection(
+              profile: profile,
+              score:   score,
+              hasAi:   widget.candidate.hasAiScore,
+              onTap:   widget.onExpand,
+            ),
+
+            // ── 2. Content body ──────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Voice intro
+                  if (profile.hasVoiceIntro) ...[
+                    VoicePlayerWidget(
+                      audioUrl: profile.voiceIntroUrl!,
+                      label: 'Hear ${profile.displayFirstName}\'s intro',
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Islamic practice grid
+                  _IslamicPracticeGrid(profile: profile),
+
+                  const SizedBox(height: 14),
+
+                  // Life goals
+                  _LifeGoalsPills(profile: profile),
+
+                  // Bio
+                  if (profile.bio != null && profile.bio!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _BioSection(
+                      bio:      profile.bio!,
+                      expanded: _bioExpanded,
+                      onToggle: () =>
+                          setState(() => _bioExpanded = !_bioExpanded),
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // Compatibility bar
+                  _CompatibilityBar(candidate: widget.candidate),
+
+                  const SizedBox(height: 18),
+
+                  // Actions
+                  _ActionRow(
+                    onInterest: widget.onInterest,
+                    onDismiss:  widget.onDismiss,
+                    onExpand:   widget.onExpand,
+                    firstName:  profile.displayFirstName,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     )
         .animate(delay: Duration(milliseconds: widget.index * 80))
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.06, end: 0, duration: 400.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 450.ms)
+        .slideY(begin: 0.06, end: 0, duration: 450.ms,
+                curve: Curves.easeOutCubic);
   }
 }
 
 // ─────────────────────────────────────────────
-// PHOTO HEADER
+// HERO SECTION — full-bleed photo, frosted glass name
 // ─────────────────────────────────────────────
 
-class _PhotoHeader extends StatelessWidget {
-  const _PhotoHeader({required this.profile, required this.onExpand});
+class _HeroSection extends StatelessWidget {
+  const _HeroSection({
+    required this.profile,
+    required this.score,
+    required this.hasAi,
+    required this.onTap,
+  });
   final UserProfile  profile;
-  final VoidCallback onExpand;
+  final double       score;
+  final bool         hasAi;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return GestureDetector(
-      onTap: onExpand,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppRadius.xl)),
-        child: AspectRatio(
-          aspectRatio: 4 / 3,
-          child: profile.hasPhoto && profile.photoUrl != null
-              ? CachedNetworkImage(
-                  imageUrl:   profile.photoUrl!,
-                  fit:        BoxFit.cover,
-                  placeholder: (_, __) => _PhotoPlaceholder(profile: profile),
-                  errorWidget: (_, __, ___) =>
-                      _PhotoPlaceholder(profile: profile),
-                )
-              : _PhotoPlaceholder(profile: profile),
+      onTap: onTap,
+      child: AspectRatio(
+        aspectRatio: 3 / 4,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Photo or placeholder
+            profile.hasPhoto && profile.photoUrl != null
+                ? CachedNetworkImage(
+                    imageUrl:    profile.photoUrl!,
+                    fit:         BoxFit.cover,
+                    placeholder: (_, __) => _PhotoPlaceholder(profile: profile),
+                    errorWidget: (_, __, ___) =>
+                        _PhotoPlaceholder(profile: profile),
+                  )
+                : _PhotoPlaceholder(profile: profile),
+
+            // Bottom gradient fade for text readability
+            Positioned(
+              left: 0, right: 0, bottom: 0,
+              height: 200,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end:   Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.65),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Frosted glass name card — bottom left
+            Positioned(
+              left: 16, right: 16, bottom: 16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Name + age
+                              Row(
+                                children: [
+                                  Text(
+                                    profile.displayFirstName,
+                                    style: const TextStyle(
+                                      fontFamily:  'Georgia',
+                                      fontSize:    24,
+                                      fontWeight:  FontWeight.w700,
+                                      color:       Colors.white,
+                                    ),
+                                  ),
+                                  if (profile.age != null)
+                                    Text(
+                                      ', ${profile.age}',
+                                      style: TextStyle(
+                                        fontFamily: 'Georgia',
+                                        fontSize:   24,
+                                        color: Colors.white.withOpacity(0.7),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // Location + occupation
+                              Row(
+                                children: [
+                                  if (profile.locationText.isNotEmpty) ...[
+                                    const Text('📍',
+                                      style: TextStyle(fontSize: 11)),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      profile.locationText,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ],
+                                  if (profile.occupation != null &&
+                                      profile.locationText.isNotEmpty) ...[
+                                    Text('  •  ',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.4),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                  if (profile.occupation != null)
+                                    Flexible(
+                                      child: Text(
+                                        profile.occupation!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              // Trust badges
+                              const SizedBox(height: 8),
+                              _TrustBadgesRow(profile: profile),
+                            ],
+                          ),
+                        ),
+                        // Compatibility score ring
+                        if (score > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: CompatibilityRing(score: score, size: 52),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+// ─────────────────────────────────────────────
+// TRUST BADGES ROW — glass pills on photo
+// ─────────────────────────────────────────────
+
+class _TrustBadgesRow extends StatelessWidget {
+  const _TrustBadgesRow({required this.profile});
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final badges = <(String, String)>[];
+    if (profile.mosqueVerified)  badges.add(('🕌', 'Mosque'));
+    if (profile.scholarEndorsed) badges.add(('📜', 'Scholar'));
+    if (profile.idVerified)      badges.add(('✓', 'Verified'));
+
+    if (badges.isEmpty) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 6,
+      children: badges.map((b) {
+        final (icon, label) = b;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(icon, style: const TextStyle(fontSize: 10)),
+              const SizedBox(width: 3),
+              Text(label,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// PHOTO PLACEHOLDER — gradient + initial
+// ─────────────────────────────────────────────
 
 class _PhotoPlaceholder extends StatelessWidget {
   const _PhotoPlaceholder({required this.profile});
@@ -175,35 +352,96 @@ class _PhotoPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.roseLight.withOpacity(0.3),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end:   Alignment.bottomRight,
+          colors: [AppColors.roseDeep, AppColors.midnightDeep],
+          stops:  [0.0, 0.85],
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Container(
-            width: 72, height: 72,
-            decoration: BoxDecoration(
-              gradient: AppColors.roseGradient,
-              shape:    BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                profile.firstName.isNotEmpty
-                    ? profile.firstName[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                  fontSize:   32,
-                  color:      AppColors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+          // Subtle geometric pattern
+          Positioned(
+            top: -40, right: -40,
+            child: Container(
+              width: 200, height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.05), width: 1),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Photo revealed after mutual interest',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
+          Positioned(
+            bottom: 60, left: -30,
+            child: Container(
+              width: 120, height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.04), width: 1),
+              ),
             ),
+          ),
+          // Avatar + text
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 88, height: 88,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25), width: 2.5),
+                ),
+                child: Center(
+                  child: Text(
+                    profile.firstName.isNotEmpty
+                        ? profile.firstName[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      fontSize:   40,
+                      color:      Colors.white,
+                      fontWeight: FontWeight.w300,
+                      fontFamily: 'Georgia',
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('📷',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Photo reveals after mutual interest',
+                      style: TextStyle(
+                        color:     Colors.white.withOpacity(0.6),
+                        fontSize:  12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -212,151 +450,108 @@ class _PhotoPlaceholder extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// NAME ROW
+// ISLAMIC PRACTICE GRID — 2×2 with icons
 // ─────────────────────────────────────────────
 
-class _NameRow extends StatelessWidget {
-  const _NameRow({required this.profile, required this.score});
-  final UserProfile profile;
-  final double      score;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Name + age
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: profile.displayFirstName,
-                      style: AppTypography.titleLarge.copyWith(
-                        color:      AppColors.neutral900,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (profile.age != null)
-                      TextSpan(
-                        text: ', ${profile.age}',
-                        style: AppTypography.titleLarge.copyWith(
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              // Location
-              if (profile.locationText.isNotEmpty) ...[
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 14, color: AppColors.neutral500),
-                    const SizedBox(width: 3),
-                    Text(profile.locationText,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.neutral500,
-                        )),
-                  ],
-                ),
-              ],
-              // Trust badges
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  if (profile.mosqueVerified)
-                    const TrustBadge(type: TrustBadgeType.mosque),
-                  if (profile.scholarEndorsed)
-                    const TrustBadge(type: TrustBadgeType.scholar),
-                  if (profile.idVerified)
-                    const TrustBadge(type: TrustBadgeType.identity),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Compatibility ring
-        if (score > 0)
-          CompatibilityRing(score: score, size: 64),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// ISLAMIC PRACTICE ROW
-// ─────────────────────────────────────────────
-
-class _IslamicPracticeRow extends StatelessWidget {
-  const _IslamicPracticeRow({required this.profile});
+class _IslamicPracticeGrid extends StatelessWidget {
+  const _IslamicPracticeGrid({required this.profile});
   final UserProfile profile;
 
   @override
   Widget build(BuildContext context) {
-    final items = <(String, String)>[];
+    final items = <(String, String, String)>[]; // emoji, label, value
 
     if (profile.prayerFrequency != null) {
       items.add((
         profile.prayerFrequency!.emoji,
+        'Prayer',
         profile.prayerFrequency!.label,
       ));
     }
     if (profile.madhab != null) {
-      items.add(('📚', profile.madhab!.label));
+      items.add(('📚', 'Madhab', profile.madhab!.label));
     }
     if (profile.quranLevel != null && profile.quranLevel!.isNotEmpty) {
       final quranLabels = {
-        'hafiz':           'Hafiz 📖',
-        'hafiz_partial':   'Partial Hafiz 📖',
-        'memorising':      'Memorising Quran',
-        'recites_tajweed': 'Tajweed recitation',
-        'strong':          'Strong recitation',
-        'learning':        'Learning Quran',
-        'beginner':        'Quran beginner',
+        'hafiz':           'Hafiz',
+        'hafiz_partial':   'Partial Hafiz',
+        'memorising':      'Memorising',
+        'recites_tajweed': 'Tajweed',
+        'strong':          'Strong',
+        'learning':        'Learning',
+        'beginner':        'Beginner',
       };
-      items.add(('📖', quranLabels[profile.quranLevel] ?? profile.quranLevel!));
+      items.add(('📖', 'Quran',
+          quranLabels[profile.quranLevel] ?? profile.quranLevel!));
     }
     if (profile.isRevert) {
-      items.add(('🌙', profile.revertYear != null
-          ? 'Revert since ${profile.revertYear}'
+      items.add(('🌙', 'Journey', profile.revertYear != null
+          ? 'Revert ${profile.revertYear}'
           : 'Revert'));
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.roseDeep.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(
-          color: AppColors.roseDeep.withOpacity(0.1),
+        gradient: LinearGradient(
+          colors: [
+            AppColors.roseDeep.withOpacity(0.04),
+            AppColors.goldPrimary.withOpacity(0.03),
+          ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.roseDeep.withOpacity(0.10)),
       ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        children: items.map((item) {
-          final (emoji, label) = item;
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 14)),
-              const SizedBox(width: 5),
-              Text(label,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral700,
-                    fontWeight: FontWeight.w500,
-                  )),
-            ],
+      child: Row(
+        children: items.asMap().entries.map((entry) {
+          final i = entry.key;
+          final (emoji, label, value) = entry.value;
+          return Expanded(
+            child: Row(
+              children: [
+                if (i > 0)
+                  Container(
+                    width: 1,
+                    height: 28,
+                    margin: const EdgeInsets.only(right: 10),
+                    color: AppColors.roseDeep.withOpacity(0.08),
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(emoji,
+                            style: const TextStyle(fontSize: 13)),
+                          const SizedBox(width: 4),
+                          Text(label,
+                            style: AppTypography.labelSmall.copyWith(
+                              color:    context.mutedText,
+                              fontSize: 9,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(value,
+                        style: AppTypography.bodySmall.copyWith(
+                          color:      context.onSurface,
+                          fontWeight: FontWeight.w600,
+                          fontSize:   11,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         }).toList(),
       ),
@@ -365,11 +560,11 @@ class _IslamicPracticeRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// LIFE GOALS CHIPS
+// LIFE GOALS PILLS — horizontal gradient pills
 // ─────────────────────────────────────────────
 
-class _LifeGoalsChips extends StatelessWidget {
-  const _LifeGoalsChips({required this.profile});
+class _LifeGoalsPills extends StatelessWidget {
+  const _LifeGoalsPills({required this.profile});
   final UserProfile profile;
 
   @override
@@ -378,66 +573,69 @@ class _LifeGoalsChips extends StatelessWidget {
 
     if (profile.wantsChildren == true) {
       chips.add(profile.numChildrenDesired != null
-          ? '👶 Wants ${profile.numChildrenDesired} children'
+          ? '👶 Wants ${profile.numChildrenDesired}'
           : '👶 Wants children');
-    } else if (profile.wantsChildren == false) {
-      chips.add('No children');
     }
 
     if (profile.hajjTimeline != null) {
-      final hajjLabels = {
+      final labels = {
         'within_1_year':  '🕋 Hajj this year',
-        'within_3_years': '🕋 Hajj within 3 years',
-        'within_5_years': '🕋 Hajj within 5 years',
+        'within_3_years': '🕋 Hajj < 3y',
+        'within_5_years': '🕋 Hajj < 5y',
         'someday':        '🕋 Hajj someday',
-        'done':           '🕋 Hajj done',
+        'done':           '🕋 Hajj ✓',
       };
-      final label = hajjLabels[profile.hajjTimeline];
+      final label = labels[profile.hajjTimeline];
       if (label != null) chips.add(label);
     }
 
     if (profile.islamicFinanceStance == 'strict') {
-      chips.add('💚 Islamic finance only');
+      chips.add('💚 Islamic finance');
     }
     if (profile.wantsHijra) {
-      chips.add('✈️ Wants hijra${profile.hijraCountry != null ? ' to ${profile.hijraCountry}' : ''}');
+      chips.add('✈️ Hijra${profile.hijraCountry != null
+          ? ' → ${profile.hijraCountry}' : ''}');
     }
 
     if (chips.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: chips
-          .map((chip) => _GoalChip(label: chip))
-          .toList(),
-    );
-  }
-}
-
-class _GoalChip extends StatelessWidget {
-  const _GoalChip({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color:        Theme.of(context).colorScheme.primaryContainer
-            .withOpacity(0.6),
-        borderRadius: AppRadius.chipRadius,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: chips.map((chip) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.roseDeep.withOpacity(0.08),
+                    AppColors.roseDeep.withOpacity(0.04),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: AppColors.roseDeep.withOpacity(0.12)),
+              ),
+              child: Text(chip,
+                style: AppTypography.labelSmall.copyWith(
+                  color:    AppColors.roseDeep,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
-      child: Text(label,
-          style: AppTypography.labelSmall.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-          )),
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// BIO SECTION
+// BIO SECTION — expandable
 // ─────────────────────────────────────────────
 
 class _BioSection extends StatelessWidget {
@@ -452,43 +650,69 @@ class _BioSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          bio,
-          maxLines:       expanded ? null : 3,
-          overflow:       expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-          style: AppTypography.bodyMedium.copyWith(
-            color:  AppColors.neutral700,
-            height: 1.6,
-          ),
-        ),
-        if (bio.length > 120)
-          GestureDetector(
-            onTap: onToggle,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                expanded ? 'Show less' : 'Read more',
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color:        context.subtleBg.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('💭',
+                style: TextStyle(fontSize: 13,
+                  color: context.mutedText)),
+              const SizedBox(width: 6),
+              Text('About',
                 style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.roseDeep,
-                  fontWeight: FontWeight.w600,
+                  color:         context.mutedText,
+                  fontSize:      10,
+                  letterSpacing: 0.5,
+                  fontWeight:    FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            bio,
+            maxLines:  expanded ? null : 3,
+            overflow:  expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            style: AppTypography.bodyMedium.copyWith(
+              color:    context.subtleText,
+              fontSize: 13,
+              height:   1.6,
+            ),
+          ),
+          if (bio.length > 100)
+            GestureDetector(
+              onTap: onToggle,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  expanded ? 'Show less' : 'Read more',
+                  style: AppTypography.labelSmall.copyWith(
+                    color:      AppColors.roseDeep,
+                    fontSize:   11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// COMPATIBILITY SECTION
+// COMPATIBILITY BAR — gradient fill
 // ─────────────────────────────────────────────
 
-class _CompatibilitySection extends StatelessWidget {
-  const _CompatibilitySection({required this.candidate});
+class _CompatibilityBar extends StatelessWidget {
+  const _CompatibilityBar({required this.candidate});
   final CandidateCard candidate;
 
   Color get _tierColor {
@@ -514,43 +738,86 @@ class _CompatibilitySection extends StatelessWidget {
     if (candidate.compatibilityScore <= 0) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color:        _tierColor.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: _tierColor.withOpacity(0.2)),
+        gradient: LinearGradient(
+          colors: [
+            _tierColor.withOpacity(0.08),
+            _tierColor.withOpacity(0.03),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _tierColor.withOpacity(0.20)),
       ),
       child: Row(
         children: [
-          Icon(Icons.favorite_rounded, color: _tierColor, size: 16),
-          const SizedBox(width: 8),
+          // Animated progress arc
+          SizedBox(
+            width: 44, height: 44,
+            child: TweenAnimationBuilder<double>(
+              tween:    Tween(begin: 0, end: candidate.compatibilityScore / 100),
+              duration: 800.ms,
+              curve:    Curves.easeOutCubic,
+              builder: (_, value, __) => Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value:           value,
+                    strokeWidth:     4,
+                    backgroundColor: _tierColor.withOpacity(0.12),
+                    valueColor:      AlwaysStoppedAnimation(_tierColor),
+                  ),
+                  Text(
+                    '${candidate.compatibilityScore.round()}',
+                    style: TextStyle(
+                      fontFamily:  'Georgia',
+                      fontSize:    14,
+                      fontWeight:  FontWeight.w700,
+                      color:       _tierColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$_tierLabel — ${candidate.compatibilityScore.round()}% compatibility',
-                  style: AppTypography.labelSmall.copyWith(
+                  _tierLabel,
+                  style: AppTypography.titleSmall.copyWith(
                     color:      _tierColor,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
+                    fontSize:   13,
                   ),
                 ),
                 if (candidate.hasAiScore)
-                  Text(
-                    'AI values analysis included',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: _tierColor.withOpacity(0.7),
-                      fontSize: 10,
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.auto_awesome_rounded,
+                        size: 11, color: _tierColor.withOpacity(0.6)),
+                      const SizedBox(width: 3),
+                      Text(
+                        'AI values analysis',
+                        style: AppTypography.caption.copyWith(
+                          color:    _tierColor.withOpacity(0.6),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
           ),
           Text(
             '${candidate.compatibilityScore.round()}%',
-            style: AppTypography.titleMedium.copyWith(
-              color:      _tierColor,
-              fontWeight: FontWeight.w700,
+            style: TextStyle(
+              fontFamily:  'Georgia',
+              fontSize:    22,
+              fontWeight:  FontWeight.w700,
+              color:       _tierColor,
             ),
           ),
         ],
@@ -560,7 +827,7 @@ class _CompatibilitySection extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// ACTION ROW
+// ACTION ROW — dismiss, profile, express interest
 // ─────────────────────────────────────────────
 
 class _ActionRow extends StatelessWidget {
@@ -568,41 +835,74 @@ class _ActionRow extends StatelessWidget {
     required this.onInterest,
     required this.onDismiss,
     required this.onExpand,
+    required this.firstName,
   });
   final VoidCallback onInterest;
   final VoidCallback onDismiss;
   final VoidCallback onExpand;
+  final String       firstName;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         // Dismiss
-        _CircleAction(
+        _ActionCircle(
           icon:    Icons.close_rounded,
-          color:   AppColors.neutral300,
+          bgColor: context.subtleBg,
+          fgColor: context.mutedText,
           onTap:   onDismiss,
-          tooltip: 'Not now',
+          size:    50,
         ),
+        const SizedBox(width: 10),
+
+        // Profile
+        _ActionCircle(
+          icon:    Icons.person_outline_rounded,
+          bgColor: context.subtleBg,
+          fgColor: context.mutedText,
+          onTap:   onExpand,
+          size:    50,
+        ),
+
         const SizedBox(width: 12),
 
-        // View full profile
-        _CircleAction(
-          icon:    Icons.person_outline_rounded,
-          color:   AppColors.neutral300,
-          onTap:   onExpand,
-          tooltip: 'Full profile',
-        ),
-
-        const Spacer(),
-
-        // Express interest — primary CTA
+        // Express Interest
         Expanded(
-          flex: 3,
-          child: MiskButton(
-            label:    'Express Interest',
-            onPressed: onInterest,
-            icon:     Icons.favorite_rounded,
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              onInterest();
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                gradient:     AppColors.roseGradient,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color:      AppColors.roseDeep.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset:     const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.favorite_rounded,
+                    color: Colors.white, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Express Interest',
+                    style: AppTypography.labelMedium.copyWith(
+                      color:      Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -610,34 +910,33 @@ class _ActionRow extends StatelessWidget {
   }
 }
 
-class _CircleAction extends StatelessWidget {
-  const _CircleAction({
+class _ActionCircle extends StatelessWidget {
+  const _ActionCircle({
     required this.icon,
-    required this.color,
+    required this.bgColor,
+    required this.fgColor,
     required this.onTap,
-    required this.tooltip,
+    this.size = 48,
   });
-  final IconData icon;
-  final Color    color;
+  final IconData     icon;
+  final Color        bgColor;
+  final Color        fgColor;
   final VoidCallback onTap;
-  final String   tooltip;
+  final double       size;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap:        onTap,
-        borderRadius: BorderRadius.circular(40),
-        child: Container(
-          width: 48, height: 48,
-          decoration: BoxDecoration(
-            color:  color.withOpacity(0.15),
-            shape:  BoxShape.circle,
-            border: Border.all(color: color.withOpacity(0.4)),
-          ),
-          child: Icon(icon, color: color, size: 22),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size, height: size,
+        decoration: BoxDecoration(
+          color:  bgColor,
+          shape:  BoxShape.circle,
+          border: Border.all(
+            color: fgColor.withOpacity(0.15)),
         ),
+        child: Icon(icon, color: fgColor, size: 22),
       ),
     );
   }

@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:record/record.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 
-// ═══════════════════════════════════════════════════════════════════
-// TYPING INDICATOR — animated three dots
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// TYPING INDICATOR — 3 animated bounce dots
+// ═══════════════════════════════════════════════════════════
 
 class TypingIndicator extends StatefulWidget {
   const TypingIndicator({super.key, required this.userName});
@@ -28,14 +29,12 @@ class _TypingIndicatorState extends State<TypingIndicator>
   void initState() {
     super.initState();
     _controllers = List.generate(3, (i) => AnimationController(
-      vsync:    this,
-      duration: const Duration(milliseconds: 600),
+      vsync: this, duration: 600.ms,
     ));
     _animations = _controllers.map((c) => CurvedAnimation(
       parent: c, curve: Curves.easeInOut,
     )).toList();
 
-    // Stagger the dots
     for (var i = 0; i < 3; i++) {
       Future.delayed(Duration(milliseconds: i * 180), () {
         if (mounted) _controllers[i].repeat(reverse: true);
@@ -52,23 +51,22 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-          left: AppSpacing.screenPadding, bottom: 6, top: 4),
+      padding: const EdgeInsets.only(left: 16, bottom: 6, top: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color:        Theme.of(context).colorScheme.surface,
+              color:        context.subtleBg,
               borderRadius: const BorderRadius.only(
-                topLeft:     Radius.circular(AppRadius.lg),
-                topRight:    Radius.circular(AppRadius.lg),
-                bottomRight: Radius.circular(AppRadius.lg),
+                topLeft:     Radius.circular(20),
+                topRight:    Radius.circular(20),
+                bottomRight: Radius.circular(20),
                 bottomLeft:  Radius.circular(4),
               ),
               border: Border.all(
-                color: AppColors.neutral300.withOpacity(0.5), width: 1),
+                color: context.cardBorder, width: 1),
             ),
             child: Row(
               children: [
@@ -79,8 +77,8 @@ class _TypingIndicatorState extends State<TypingIndicator>
                       offset: Offset(0, -4 * _animations[i].value),
                       child: Container(
                         width: 6, height: 6,
-                        decoration: const BoxDecoration(
-                          color: AppColors.neutral500,
+                        decoration: BoxDecoration(
+                          color: context.mutedText,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -93,19 +91,24 @@ class _TypingIndicatorState extends State<TypingIndicator>
           ),
           const SizedBox(width: 8),
           Text('${widget.userName} is typing...',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.neutral500,
-                fontSize: 11,
-              )),
+            style: AppTypography.bodySmall.copyWith(
+              color:    context.mutedText,
+              fontSize: 11,
+            ),
+          ),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms);
+    )
+        .animate()
+        .slideX(begin: -0.1, end: 0, duration: 300.ms,
+                curve: Curves.easeOutCubic)
+        .fadeIn(duration: 300.ms);
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // CHAT INPUT BAR
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 
 class ChatInputBar extends StatefulWidget {
   const ChatInputBar({
@@ -117,7 +120,7 @@ class ChatInputBar extends StatefulWidget {
   });
 
   final void Function(String)  onSendText;
-  final void Function(String)  onSendVoice; // localPath
+  final void Function(String)  onSendVoice;
   final void Function(String)  onTyping;
   final bool                   disabled;
 
@@ -129,11 +132,12 @@ class _ChatInputBarState extends State<ChatInputBar> {
   final _ctrl       = TextEditingController();
   final _focusNode  = FocusNode();
   bool  _hasText    = false;
-  bool  _isRecording= false;
+  bool  _isRecording = false;
   int   _recSeconds = 0;
   Timer?  _recTimer;
   final _recorder = AudioRecorder();
   String? _recordingPath;
+  double _swipeOffset = 0;
 
   @override
   void dispose() {
@@ -152,6 +156,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
   void _send() {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
+    HapticFeedback.lightImpact();
     widget.onSendText(text);
     _ctrl.clear();
     setState(() => _hasText = false);
@@ -161,6 +166,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) return;
 
+    HapticFeedback.mediumImpact();
     final dir  = Directory.systemTemp;
     final path = '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
@@ -173,11 +179,12 @@ class _ChatInputBarState extends State<ChatInputBar> {
     setState(() {
       _isRecording = true;
       _recSeconds  = 0;
+      _swipeOffset = 0;
     });
 
     _recTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() => _recSeconds++);
-      if (_recSeconds >= 60) _stopRecording(); // max 60s
+      if (_recSeconds >= 60) _stopRecording();
     });
   }
 
@@ -197,6 +204,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
   void _cancelRecording() async {
     _recTimer?.cancel();
     await _recorder.stop();
+    HapticFeedback.lightImpact();
     setState(() {
       _isRecording = false;
       _recSeconds  = 0;
@@ -205,23 +213,38 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // ── Recording mode ──────────────────────────────────────
+    if (_isRecording) {
+      return GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          setState(() {
+            _swipeOffset += details.delta.dx;
+            if (_swipeOffset < 0) _swipeOffset = 0;
+          });
+        },
+        onHorizontalDragEnd: (details) {
+          final width = MediaQuery.of(context).size.width;
+          if (_swipeOffset > width * 0.4) {
+            _cancelRecording();
+          }
+          setState(() => _swipeOffset = 0);
+        },
+        child: _RecordingBar(
+          seconds:  _recSeconds,
+          onStop:   _stopRecording,
+          onCancel: _cancelRecording,
+        ),
+      );
+    }
 
-    if (_isRecording) return _RecordingBar(
-      seconds:  _recSeconds,
-      onStop:   _stopRecording,
-      onCancel: _cancelRecording,
-    );
-
+    // ── Normal input mode ───────────────────────────────────
     return Container(
       padding: EdgeInsets.only(
-        left:   12,
-        right:  12,
-        top:    10,
+        left: 12, right: 12, top: 10,
         bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 10 : 16,
       ),
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        color: context.surfaceColor,
         boxShadow: [
           BoxShadow(
             color:      AppColors.roseDeep.withOpacity(0.06),
@@ -233,16 +256,15 @@ class _ChatInputBarState extends State<ChatInputBar> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Text field
+          // Text field — rounded, multiline, max 5 rows
           Expanded(
             child: Container(
               constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
-                color:        theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(AppRadius.xxl),
+                color:        context.subtleBg.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.5),
-                ),
+                  color: context.cardBorder.withOpacity(0.4)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -250,24 +272,25 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextField(
-                      controller:   _ctrl,
-                      focusNode:    _focusNode,
-                      enabled:      !widget.disabled,
-                      maxLines:     5,
-                      minLines:     1,
-                      onChanged:    _onChanged,
+                      controller:      _ctrl,
+                      focusNode:       _focusNode,
+                      enabled:         !widget.disabled,
+                      maxLines:        5,
+                      minLines:        1,
+                      textDirection:   TextDirection.ltr,
+                      onChanged:       _onChanged,
                       textInputAction: TextInputAction.newline,
                       style: AppTypography.bodyMedium.copyWith(
-                        color: theme.colorScheme.onSurface),
+                        color: context.onSurface),
                       decoration: InputDecoration(
                         border:         InputBorder.none,
                         hintText:       widget.disabled
                             ? 'Chat available when match is active'
                             : 'Message...',
-                        hintStyle:      AppTypography.bodyMedium.copyWith(
-                          color: AppColors.neutral500),
+                        hintStyle: AppTypography.bodyMedium.copyWith(
+                          color: context.mutedText),
                         contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12),
+                            vertical: 12),
                         isDense: true,
                       ),
                     ),
@@ -282,13 +305,17 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
           // Send / mic button
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
+            duration: 200.ms,
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: anim,
+              child: child,
+            ),
             child: _hasText
                 ? _SendBtn(onTap: _send, key: const ValueKey('send'))
                 : _MicBtn(
-                    key:     const ValueKey('mic'),
-                    onHold:  _startRecording,
-                    disabled:widget.disabled,
+                    key:      const ValueKey('mic'),
+                    onHold:   _startRecording,
+                    disabled: widget.disabled,
                   ),
           ),
         ],
@@ -296,6 +323,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
     );
   }
 }
+
+// ─────────────────────────────────────────────
+// SEND BUTTON — rose circle 48px, spring scale
+// ─────────────────────────────────────────────
 
 class _SendBtn extends StatelessWidget {
   const _SendBtn({super.key, required this.onTap});
@@ -307,22 +338,38 @@ class _SendBtn extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 48, height: 48,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: AppColors.roseGradient,
           shape:    BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color:      AppColors.roseDeep.withOpacity(0.25),
+              blurRadius: 8,
+              offset:     const Offset(0, 2),
+            ),
+          ],
         ),
         child: const Icon(Icons.send_rounded,
             color: AppColors.white, size: 22),
       ),
     ).animate().scale(
-      begin: const Offset(0.7, 0.7),
-      end:   const Offset(1.0, 1.0),
-      duration: 200.ms, curve: Curves.easeOutBack);
+        begin: const Offset(0.6, 0.6),
+        end:   const Offset(1.0, 1.0),
+        duration: 200.ms,
+        curve: Curves.easeOutBack);
   }
 }
 
+// ─────────────────────────────────────────────
+// MIC BUTTON — rose tint circle, long-press
+// ─────────────────────────────────────────────
+
 class _MicBtn extends StatelessWidget {
-  const _MicBtn({super.key, required this.onHold, required this.disabled});
+  const _MicBtn({
+    super.key,
+    required this.onHold,
+    required this.disabled,
+  });
   final VoidCallback onHold;
   final bool         disabled;
 
@@ -333,18 +380,23 @@ class _MicBtn extends StatelessWidget {
       child: Container(
         width: 48, height: 48,
         decoration: BoxDecoration(
-          color:  disabled
-              ? AppColors.neutral300
-              : Theme.of(context).colorScheme.primaryContainer,
-          shape:  BoxShape.circle,
+          color: disabled
+              ? context.subtleBg
+              : AppColors.roseLight,
+          shape: BoxShape.circle,
         ),
         child: Icon(Icons.mic_rounded,
-            color: disabled ? AppColors.neutral500 : AppColors.roseDeep,
-            size: 24),
+          color: disabled ? context.mutedText : AppColors.roseDeep,
+          size:  24,
+        ),
       ),
     );
   }
 }
+
+// ─────────────────────────────────────────────
+// RECORDING BAR — morphed input, swipe to cancel
+// ─────────────────────────────────────────────
 
 class _RecordingBar extends StatelessWidget {
   const _RecordingBar({
@@ -357,7 +409,7 @@ class _RecordingBar extends StatelessWidget {
   final VoidCallback onCancel;
 
   String get _timer {
-    final m = (seconds ~/ 60).toString().padLeft(2, '0');
+    final m = (seconds ~/ 60).toString().padLeft(1, '0');
     final s = (seconds  % 60).toString().padLeft(2, '0');
     return '$m:$s';
   }
@@ -367,10 +419,10 @@ class _RecordingBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: context.surfaceColor,
         boxShadow: [
           BoxShadow(
-            color:      AppColors.roseDeep.withOpacity(0.08),
+            color:      AppColors.roseDeep.withOpacity(0.06),
             blurRadius: 16,
             offset:     const Offset(0, -3),
           ),
@@ -378,15 +430,23 @@ class _RecordingBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Cancel
+          // Cancel (trash)
           GestureDetector(
             onTap: onCancel,
-            child: const Icon(Icons.delete_outline_rounded,
-                color: AppColors.neutral500, size: 24),
+            child: Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: context.subtleBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.delete_outline_rounded,
+                  color: context.mutedText, size: 22),
+            ),
           ),
-          const SizedBox(width: 16),
 
-          // Pulse + timer
+          const SizedBox(width: 14),
+
+          // Red dot pulse + timer
           Expanded(
             child: Row(
               children: [
@@ -398,14 +458,29 @@ class _RecordingBar extends StatelessWidget {
                   ),
                 )
                     .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .fade(duration: 600.ms),
+                    .fade(begin: 0.4, end: 1.0, duration: 600.ms),
+
                 const SizedBox(width: 10),
-                Text('Recording — $_timer',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: AppColors.error)),
+
+                Text('Recording $_timer',
+                  style: AppTypography.labelMedium.copyWith(
+                    color:      AppColors.error,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const Spacer(),
+
+                Text('← Swipe to cancel',
+                  style: AppTypography.caption.copyWith(
+                    color: context.mutedText,
+                  ),
+                ),
               ],
             ),
           ),
+
+          const SizedBox(width: 14),
 
           // Stop & send
           GestureDetector(
@@ -422,6 +497,8 @@ class _RecordingBar extends StatelessWidget {
           ),
         ],
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 300.ms);
   }
 }

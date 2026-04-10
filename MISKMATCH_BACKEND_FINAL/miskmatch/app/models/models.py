@@ -342,7 +342,7 @@ class Profile(Base, TimestampMixin):
     # Trust scores
     mosque_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     mosque_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("mosques.id"), nullable=True
+        UUID(as_uuid=True), ForeignKey("mosques.id", ondelete="SET NULL"), nullable=True
     )
     scholar_endorsed: Mapped[bool] = mapped_column(Boolean, default=False)
     trust_score: Mapped[int] = mapped_column(Integer, default=0)  # 0-100
@@ -425,7 +425,7 @@ class WaliRelationship(Base, TimestampMixin):
     wali_phone: Mapped[str] = mapped_column(String(20), nullable=False)
     wali_relationship: Mapped[str] = mapped_column(String(50), nullable=False)  # father, brother, etc
     wali_user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )  # if wali is also on the platform
 
     # Status
@@ -629,7 +629,7 @@ class Game(Base, TimestampMixin):
 
     # Game state
     current_turn_user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True), nullable=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     game_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     player1_answers: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
@@ -668,7 +668,7 @@ class Call(Base, TimestampMixin):
         nullable=False, index=True,
     )
     initiator_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     call_type: Mapped[CallType] = mapped_column(Enum(CallType), nullable=False)
@@ -777,10 +777,10 @@ class Report(Base, TimestampMixin):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     reporter_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     reported_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     reason: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -789,6 +789,8 @@ class Report(Base, TimestampMixin):
     is_block: Mapped[bool] = mapped_column(Boolean, default=False)
 
     status: Mapped[str] = mapped_column(String(30), default="pending")
-    reviewed_by: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
+    reviewed_by: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     resolution: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

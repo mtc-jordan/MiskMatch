@@ -3,19 +3,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/call_models.dart';
 import '../providers/call_provider.dart';
+import '../screens/in_call_screen.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 
-/// Bottom sheet — start or schedule a chaperoned call from the match screen.
-///
-/// Options:
-///   - Call now (video chaperoned) — immediate
-///   - Schedule for later (date + time picker)
-///   - Audio only toggle
-///   - Wali invite toggle (on by default — Islamic requirement)
+/// Bottom sheet — start or schedule a chaperoned call.
+/// Header: 48px rose circle + "Call [Name]" + subtitle
+/// Islamic note card, 3 toggle rows, date picker, CTA
 
 Future<void> showCallScheduleSheet({
   required BuildContext context,
@@ -83,12 +80,11 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
     if (!mounted) return;
 
     if (callModel != null) {
-      Navigator.of(context).pop();  // close sheet
+      Navigator.of(context).pop(); // close sheet
 
       if (!_scheduleForLater) {
-        // Navigate to in-call screen immediately
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => _InCallWrapper(
+          builder: (_) => InCallScreen(
             callType:  _callType,
             myName:    widget.myName,
             otherName: widget.otherName,
@@ -112,13 +108,12 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
+        color:        context.surfaceColor,
         borderRadius: AppRadius.bottomSheet,
       ),
       child: SingleChildScrollView(
@@ -127,28 +122,28 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle
+            // ── Handle ────────────────────────────────
             Center(
               child: Container(
-                margin:  const EdgeInsets.only(top: 12, bottom: 20),
-                width:   40, height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 20),
+                width:  40, height: 4,
                 decoration: BoxDecoration(
-                  color:        theme.colorScheme.outline.withOpacity(0.4),
+                  color:        context.handleColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
 
-            // ── Header ─────────────────────────────────────────────
+            // ── Header — 48px rose circle + title ─────
             Row(children: [
               Container(
                 width: 48, height: 48,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: AppColors.roseGradient,
                   shape:    BoxShape.circle,
                 ),
                 child: const Icon(Icons.videocam_rounded,
-                    color: AppColors.white, size: 24),
+                  color: AppColors.white, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -156,11 +151,19 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Call ${widget.otherName}',
-                        style: AppTypography.titleLarge.copyWith(
-                          color: AppColors.neutral900)),
-                    Text('Chaperoned call — guardian will be notified',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.neutral500)),
+                      style: TextStyle(
+                        fontFamily:  'Georgia',
+                        fontSize:    20,
+                        color:       context.onSurface,
+                        fontWeight:  FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Chaperoned call — guardian will be notified',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: context.mutedText),
+                    ),
                   ],
                 ),
               ),
@@ -168,49 +171,52 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
 
             const SizedBox(height: 24),
 
-            // ── Islamic note ───────────────────────────────────────
+            // ── Islamic note — gold tint card ─────────
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color:        AppColors.goldPrimary.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.goldPrimary.withOpacity(0.2)),
+                  color: AppColors.goldPrimary.withOpacity(0.20)),
               ),
-              child: Row(children: [
-                const Text('🛡️', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Your guardian will be invited to join as an observer. '
-                    'This is the blessed way — open communication with family.',
-                    style: AppTypography.bodySmall.copyWith(
-                      color:  AppColors.goldDark,
-                      height: 1.5,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('🛡️', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Your guardian will be invited to join as an observer. '
+                      'This is the blessed way — open communication with family.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color:  AppColors.goldDark,
+                        height: 1.5,
+                      ),
                     ),
                   ),
-                ),
-              ]),
-            ).animate(delay: 100.ms).fadeIn(),
+                ],
+              ),
+            ).animate(delay: 100.ms).fadeIn(duration: 350.ms),
 
             const SizedBox(height: 20),
 
-            // ── Options ────────────────────────────────────────────
-            _OptionTile(
+            // ── Toggle rows with rose switches ────────
+            _ToggleTile(
               icon:     Icons.volume_up_rounded,
               label:    'Audio only',
               subtitle: 'No camera — audio call instead',
               value:    _audioOnly,
               onChange: (v) => setState(() => _audioOnly = v),
             ),
-            _OptionTile(
+            _ToggleTile(
               icon:     Icons.shield_rounded,
               label:    'Invite guardian',
               subtitle: 'Your wali will receive a call invite',
               value:    _inviteWali,
               onChange: (v) => setState(() => _inviteWali = v),
             ),
-            _OptionTile(
+            _ToggleTile(
               icon:     Icons.schedule_rounded,
               label:    'Schedule for later',
               subtitle: 'Pick a time instead of calling now',
@@ -218,18 +224,29 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
               onChange: (v) => setState(() => _scheduleForLater = v),
             ),
 
-            // ── Date/time picker (when scheduled) ─────────────────
-            if (_scheduleForLater) ...[
-              const SizedBox(height: 16),
-              _DateTimePicker(
-                value:     _scheduledAt,
-                onChange: (dt) => setState(() => _scheduledAt = dt),
-              ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.05, end: 0),
-            ],
+            // ── Date picker (slides down when schedule ON) ──
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve:    Curves.easeOutCubic,
+              child: _scheduleForLater
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _DateTimePicker(
+                        value:    _scheduledAt,
+                        onChange: (dt) =>
+                            setState(() => _scheduledAt = dt),
+                      ).animate()
+                          .fadeIn(duration: 300.ms)
+                          .slideY(begin: -0.08, end: 0,
+                              duration: 350.ms,
+                              curve: Curves.easeOutBack),
+                    )
+                  : const SizedBox.shrink(),
+            ),
 
             const SizedBox(height: 24),
 
-            // ── CTA ────────────────────────────────────────────────
+            // ── CTA button ────────────────────────────
             MiskButton(
               label:     _scheduleForLater
                   ? 'Schedule call'
@@ -239,10 +256,13 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
               icon:      _scheduleForLater
                   ? Icons.schedule_rounded
                   : Icons.videocam_rounded,
-            ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.05, end: 0),
+            ).animate(delay: 200.ms)
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: 0.05, end: 0, duration: 350.ms),
 
             const SizedBox(height: 10),
 
+            // ── Cancel — ghost button ─────────────────
             MiskButton(
               label:     'Cancel',
               onPressed: () => Navigator.pop(context),
@@ -256,89 +276,23 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
 }
 
 // ─────────────────────────────────────────────
-// DATE/TIME PICKER
+// TOGGLE TILE
+// Icon + label + subtitle, rose-colored switch
 // ─────────────────────────────────────────────
 
-class _DateTimePicker extends StatelessWidget {
-  const _DateTimePicker({required this.value, required this.onChange});
-  final DateTime                 value;
-  final void Function(DateTime)  onChange;
-
-  Future<void> _pick(BuildContext context) async {
-    final date = await showDatePicker(
-      context:      context,
-      initialDate:  value,
-      firstDate:    DateTime.now(),
-      lastDate:     DateTime.now().add(const Duration(days: 30)),
-    );
-    if (date == null || !context.mounted) return;
-
-    final time = await showTimePicker(
-      context:      context,
-      initialTime:  TimeOfDay.fromDateTime(value),
-    );
-    if (time == null) return;
-
-    onChange(DateTime(date.year, date.month, date.day,
-        time.hour, time.minute));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: () => _pick(context),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color:        theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.roseDeep.withOpacity(0.3)),
-        ),
-        child: Row(children: [
-          const Icon(Icons.calendar_today_outlined,
-              color: AppColors.roseDeep, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Scheduled time',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.neutral500)),
-                Text(
-                  '${value.shortDate} at ${value.timeHHMM}',
-                  style: AppTypography.titleSmall.copyWith(
-                    color: AppColors.roseDeep),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.edit_outlined,
-              color: AppColors.roseDeep, size: 18),
-        ]),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// OPTION TILE
-// ─────────────────────────────────────────────
-
-class _OptionTile extends StatelessWidget {
-  const _OptionTile({
+class _ToggleTile extends StatelessWidget {
+  const _ToggleTile({
     required this.icon,
     required this.label,
     required this.subtitle,
     required this.value,
     required this.onChange,
   });
-  final IconData               icon;
-  final String                 label;
-  final String                 subtitle;
-  final bool                   value;
-  final void Function(bool)    onChange;
+  final IconData            icon;
+  final String              label;
+  final String              subtitle;
+  final bool                value;
+  final void Function(bool) onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -347,11 +301,13 @@ class _OptionTile extends StatelessWidget {
       child: SwitchListTile(
         value:          value,
         onChanged:      onChange,
-        secondary:      Icon(icon, color: AppColors.neutral500, size: 20),
-        title:          Text(label, style: AppTypography.bodyMedium),
+        secondary:      Icon(icon, color: context.mutedText, size: 20),
+        title:          Text(label,
+          style: AppTypography.bodyMedium.copyWith(
+            color: context.onSurface)),
         subtitle:       Text(subtitle,
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500)),
+          style: AppTypography.bodySmall.copyWith(
+            color: context.mutedText)),
         activeColor:    AppColors.roseDeep,
         contentPadding: EdgeInsets.zero,
         dense:          true,
@@ -361,60 +317,70 @@ class _OptionTile extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// IN-CALL WRAPPER  (navigated to from the sheet)
+// DATE/TIME PICKER
+// White card, calendar icon, rose border
+// Shows date + time, tappable
 // ─────────────────────────────────────────────
 
-class _InCallWrapper extends StatelessWidget {
-  const _InCallWrapper({
-    required this.callType,
-    required this.myName,
-    required this.otherName,
-    required this.matchId,
-  });
-  final CallType callType;
-  final String   myName;
-  final String   otherName;
-  final String   matchId;
+class _DateTimePicker extends StatelessWidget {
+  const _DateTimePicker({required this.value, required this.onChange});
+  final DateTime                value;
+  final void Function(DateTime) onChange;
+
+  Future<void> _pick(BuildContext context) async {
+    final date = await showDatePicker(
+      context:     context,
+      initialDate: value,
+      firstDate:   DateTime.now(),
+      lastDate:    DateTime.now().add(const Duration(days: 30)),
+    );
+    if (date == null || !context.mounted) return;
+
+    final time = await showTimePicker(
+      context:     context,
+      initialTime: TimeOfDay.fromDateTime(value),
+    );
+    if (time == null) return;
+
+    onChange(DateTime(date.year, date.month, date.day,
+        time.hour, time.minute));
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Import InCallScreen from in_call_screen.dart
-    return import_in_call_screen(
-      callType:  callType,
-      myName:    myName,
-      otherName: otherName,
-      matchId:   matchId,
+    return GestureDetector(
+      onTap: () => _pick(context),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color:        context.surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.roseDeep.withOpacity(0.30)),
+        ),
+        child: Row(children: [
+          Icon(Icons.calendar_today_outlined,
+            color: AppColors.roseDeep, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Scheduled time',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: context.mutedText)),
+                Text(
+                  '${value.shortDate} at ${value.timeHHMM}',
+                  style: AppTypography.titleSmall.copyWith(
+                    color: AppColors.roseDeep),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.edit_outlined,
+            color: AppColors.roseDeep, size: 18),
+        ]),
+      ),
     );
   }
 }
-
-// Forward reference resolved at import time
-Widget import_in_call_screen({
-  required CallType callType,
-  required String   myName,
-  required String   otherName,
-  required String   matchId,
-}) {
-  // This is resolved via the actual import below.
-  // Avoids a circular dependency with in_call_screen.dart.
-  // In practice: replace this with direct InCallScreen() constructor.
-  return Builder(builder: (context) {
-    return Scaffold(
-      backgroundColor: AppColors.midnightDeep,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(color: AppColors.white),
-            const SizedBox(height: 16),
-            Text('Connecting...',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.white)),
-          ],
-        ),
-      ),
-    );
-  });
-}
-
-// Using showSuccessSnack / showErrorSnack from app_extensions.dart

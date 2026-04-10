@@ -5,12 +5,25 @@ import 'package:flutter/foundation.dart';
 /// Automatically disabled in production (see api_client.dart).
 
 class LoggingInterceptor extends Interceptor {
+  static const _sensitiveFields = {'password', 'token', 'access_token', 'refresh_token', 'otp'};
+
+  /// Redact sensitive fields from request body before logging.
+  dynamic _redactBody(dynamic data) {
+    if (data is Map) {
+      return data.map((key, value) {
+        if (_sensitiveFields.contains(key)) return MapEntry(key, '***');
+        return MapEntry(key, value);
+      });
+    }
+    return data;
+  }
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint('┌─────────────────────────────────────────');
-    debugPrint('│ 🌙 ${options.method} ${options.uri}');
+    debugPrint('│ ${options.method} ${options.uri}');
     if (options.data != null) {
-      debugPrint('│ Body: ${options.data}');
+      debugPrint('│ Body: ${_redactBody(options.data)}');
     }
     debugPrint('└─────────────────────────────────────────');
     handler.next(options);
@@ -18,14 +31,12 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final emoji = response.statusCode != null && response.statusCode! < 300
-        ? '✅'
-        : '⚠️';
+    final ok = response.statusCode != null && response.statusCode! < 300;
     debugPrint('┌─────────────────────────────────────────');
-    debugPrint('│ $emoji ${response.statusCode} '
+    debugPrint('│ ${ok ? "OK" : "WARN"} ${response.statusCode} '
         '${response.requestOptions.method} ${response.requestOptions.path}');
-    debugPrint('│ Body: ${response.data.toString().substring(
-        0, response.data.toString().length.clamp(0, 200))}...');
+    final body = response.data.toString();
+    debugPrint('│ Body: ${body.substring(0, body.length.clamp(0, 200))}...');
     debugPrint('└─────────────────────────────────────────');
     handler.next(response);
   }
@@ -33,7 +44,7 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     debugPrint('┌─────────────────────────────────────────');
-    debugPrint('│ ❌ ${err.response?.statusCode} '
+    debugPrint('│ ERROR ${err.response?.statusCode} '
         '${err.requestOptions.method} ${err.requestOptions.path}');
     debugPrint('│ Error: ${err.message}');
     if (err.response?.data != null) {

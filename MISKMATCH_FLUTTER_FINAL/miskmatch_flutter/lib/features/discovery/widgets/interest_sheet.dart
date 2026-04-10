@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/features/profile/data/profile_models.dart';
@@ -13,14 +14,14 @@ import 'package:miskmatch/shared/widgets/common_widgets.dart';
 /// Min 20 characters enforced (matches backend validation).
 
 Future<bool?> showInterestSheet(
-  BuildContext     context,
-  UserProfile      candidate,
-  WidgetRef        ref,
+  BuildContext context,
+  UserProfile  candidate,
+  WidgetRef    ref,
 ) {
   return showModalBottomSheet<bool>(
-    context:           context,
+    context:            context,
     isScrollControlled: true,
-    backgroundColor:   Colors.transparent,
+    backgroundColor:    Colors.transparent,
     builder: (_) => ProviderScope(
       parent: ProviderScope.containerOf(context),
       child: _InterestSheet(candidate: candidate),
@@ -37,8 +38,8 @@ class _InterestSheet extends ConsumerStatefulWidget {
 }
 
 class _InterestSheetState extends ConsumerState<_InterestSheet> {
-  final _msgCtrl   = TextEditingController();
-  int   _selected  = -1; // index of suggestion, -1 = custom
+  final _msgCtrl  = TextEditingController();
+  int   _selected = -1;
 
   static const _suggestions = [
     'Assalamu Alaikum. I read your profile carefully and was impressed '
@@ -62,6 +63,7 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
   }
 
   void _selectSuggestion(int i) {
+    HapticFeedback.selectionClick();
     setState(() {
       _selected = i;
       _msgCtrl.text = _suggestions[i];
@@ -71,29 +73,31 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
   Future<void> _send() async {
     final message = _msgCtrl.text.trim();
     if (message.length < 20) return;
+    HapticFeedback.mediumImpact();
 
     final success = await ref.read(discoveryProvider.notifier).expressInterest(
       receiverId: widget.candidate.userId,
       message:    message,
     );
 
-    if (mounted) {
-      Navigator.of(context).pop(success);
-    }
+    if (mounted) Navigator.of(context).pop(success);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme     = Theme.of(context);
-    final feed      = ref.watch(discoveryProvider);
-    final isSending = false; // simplified — check feed state if needed
-    final message   = _msgCtrl.text.trim();
+    final message = _msgCtrl.text.trim();
 
     return Container(
       decoration: BoxDecoration(
-        color:        theme.colorScheme.surface,
-        borderRadius: AppRadius.bottomSheet,
-        boxShadow:    AppShadows.elevated,
+        color: context.surfaceColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x148B1A4A),
+            blurRadius: 32,
+            offset: Offset(0, -8),
+          ),
+        ],
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -104,31 +108,31 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
+            // ── Handle bar ─────────────────────────────────────────
             Center(
               child: Container(
                 margin: const EdgeInsets.only(top: 12, bottom: 20),
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color:        theme.colorScheme.outline.withOpacity(0.4),
+                  color:        context.handleColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
 
-            // ── Header ───────────────────────────────────────────────
+            // ── Header — avatar + name ─────────────────────────────
             Row(
               children: [
                 Container(
                   width: 44, height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: AppColors.roseGradient,
                     shape:    BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       widget.candidate.firstName.isNotEmpty
-                          ? widget.candidate.firstName[0]
+                          ? widget.candidate.firstName[0].toUpperCase()
                           : '?',
                       style: const TextStyle(
                         fontSize: 20, color: AppColors.white,
@@ -139,32 +143,50 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Send interest to ${widget.candidate.displayFirstName}',
-                        style: AppTypography.titleMedium,
-                      ),
-                      Text(
-                        'Your wali and theirs will both be notified.',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'Send interest to ${widget.candidate.displayFirstName}',
+                    style: AppTypography.titleMedium.copyWith(
+                      color:      context.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
 
+            const SizedBox(height: 12),
+
+            // ── Wali notification gold chip ────────────────────────
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color:        AppColors.goldPrimary.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: AppColors.goldPrimary.withOpacity(0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.shield_outlined,
+                      size: 14, color: AppColors.goldPrimary),
+                  const SizedBox(width: 6),
+                  Text('Both walis will be notified',
+                    style: AppTypography.labelSmall.copyWith(
+                      color:      AppColors.goldPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 20),
 
-            // ── Suggestion cards ──────────────────────────────────────
+            // ── Suggestion cards ───────────────────────────────────
             Text('Choose a message or write your own:',
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.neutral500,
-                )),
+              style: AppTypography.labelMedium.copyWith(
+                color: context.mutedText)),
 
             const SizedBox(height: 12),
 
@@ -174,28 +196,29 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
                 onTap: () => _selectSuggestion(i),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin:  const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color:        isSelected
-                        ? theme.colorScheme.primaryContainer
-                        : theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    color: isSelected
+                        ? AppColors.roseLight
+                        : context.surfaceColor,
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isSelected
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.outline.withOpacity(0.5),
+                          ? AppColors.roseDeep
+                          : context.cardBorder,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (isSelected)
-                        Icon(Icons.check_circle_rounded,
-                            color: theme.colorScheme.primary, size: 18)
+                        const Icon(Icons.check_circle_rounded,
+                            color: AppColors.roseDeep, size: 18)
                       else
                         Icon(Icons.radio_button_unchecked_rounded,
-                            color: theme.colorScheme.outline, size: 18),
+                            color: context.cardBorder, size: 18),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -204,8 +227,8 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.bodySmall.copyWith(
                             color: isSelected
-                                ? theme.colorScheme.primary
-                                : AppColors.neutral700,
+                                ? AppColors.roseDeep
+                                : context.subtleText,
                             height: 1.5,
                           ),
                         ),
@@ -221,52 +244,60 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
 
             const SizedBox(height: 12),
 
-            // ── Custom message ────────────────────────────────────────
-            TextFormField(
-              controller: _msgCtrl,
-              maxLines:   4,
-              maxLength:  500,
-              onChanged:  (_) => setState(() => _selected = -1),
-              decoration: InputDecoration(
-                labelText: 'Your message (min. 20 characters)',
-                hintText:  'Write a personalised message...',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  borderSide: BorderSide(
-                      color: theme.colorScheme.primary, width: 2),
+            // ── Custom text field ──────────────────────────────────
+            Container(
+              decoration: BoxDecoration(
+                color:        context.subtleBg.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: _selected == -1 && message.isNotEmpty
+                      ? AppColors.roseDeep.withOpacity(0.4)
+                      : context.cardBorder.withOpacity(0.5),
                 ),
               ),
-              style: AppTypography.bodyMedium.copyWith(
-                color: theme.colorScheme.onSurface,
+              child: TextField(
+                controller:    _msgCtrl,
+                maxLines:      4,
+                maxLength:     500,
+                textDirection: TextDirection.ltr,
+                onChanged: (_) => setState(() => _selected = -1),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: context.onSurface),
+                decoration: InputDecoration(
+                  hintText:    'Write a personalised message...',
+                  hintStyle: AppTypography.bodyMedium.copyWith(
+                    color: context.mutedText.withOpacity(0.6)),
+                  border:          InputBorder.none,
+                  contentPadding:  const EdgeInsets.all(16),
+                  counterStyle: AppTypography.caption.copyWith(
+                    color: context.mutedText),
+                ),
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            // Character count / validation
+            // ── Character count ────────────────────────────────────
             Text(
               message.length < 20
                   ? '${20 - message.length} more characters needed'
                   : '✓ Message ready',
               style: AppTypography.bodySmall.copyWith(
-                color: message.length >= 20
+                color:    message.length >= 20
                     ? AppColors.success
-                    : AppColors.neutral500,
+                    : context.mutedText,
+                fontSize: 11,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // ── Islamic note ──────────────────────────────────────────
+            // ── Islamic note ───────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color:        AppColors.goldPrimary.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
@@ -274,8 +305,8 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Both walis will be notified. Your guardian '
-                      'must approve before a conversation begins.',
+                      'Your guardian must approve before a conversation '
+                      'begins. Both walis will be notified of this interest.',
                       style: AppTypography.bodySmall.copyWith(
                         color:  AppColors.goldDark,
                         height: 1.5,
@@ -288,11 +319,11 @@ class _InterestSheetState extends ConsumerState<_InterestSheet> {
 
             const SizedBox(height: 20),
 
-            // ── Send button ───────────────────────────────────────────
+            // ── Send button — gold variant ─────────────────────────
             MiskButton(
               label:     'Send with bismillah',
               onPressed: message.length >= 20 ? _send : null,
-              loading:   isSending,
+              variant:   MiskButtonVariant.gold,
               icon:      Icons.send_rounded,
             ),
 

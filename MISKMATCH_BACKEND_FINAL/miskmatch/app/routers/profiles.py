@@ -580,8 +580,8 @@ async def get_public_profile(
     # Gender filter — only show opposite gender profiles
     if target_user.gender == current_user.gender:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Profile not accessible",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found",
         )
 
     # Build public response
