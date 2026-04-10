@@ -479,3 +479,164 @@ class TestCompatibilityRouter:
     def test_total_route_count(self):
         from app.routers.compatibility import router
         assert len(router.routes) == 7
+
+
+# ─────────────────────────────────────────────
+# HTTP ENDPOINT TESTS
+# ─────────────────────────────────────────────
+
+from app.main import app
+from app.core.database import get_db
+from app.routers.auth import get_current_active_user
+from app.models.models import Match, MatchStatus, User, UserRole
+from tests.conftest import TEST_USER_ID
+
+
+@pytest.fixture(autouse=True, scope="class")
+def _override_compat_deps(test_user, mock_db):
+    async def _fake_get_db():
+        yield mock_db
+
+    app.dependency_overrides[get_db] = _fake_get_db
+    app.dependency_overrides[get_current_active_user] = lambda: test_user
+    yield
+    app.dependency_overrides.clear()
+
+
+class TestCompatibilityHTTP:
+
+    @pytest.mark.asyncio
+    async def test_match_compatibility_no_match_404(self, client, mock_db):
+        from tests.conftest import mock_db_result
+        mock_db.execute = AsyncMock(return_value=mock_db_result(scalar_value=None))
+        resp = await client.get(f"/api/v1/compatibility/{uuid4()}")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_match_compatibility_with_match(self, client, mock_db):
+        match_id = uuid4()
+        other_id = uuid4()
+        match = MagicMock(spec=Match)
+        match.id = match_id
+        match.sender_id = TEST_USER_ID
+        match.receiver_id = other_id
+        match.status = MatchStatus.MUTUAL
+
+        sender_profile = make_profile(
+            user_id=TEST_USER_ID, wants_children=True,
+            prayer_frequency="all_five", madhab="hanbali",
+        )
+        receiver_profile = make_profile(
+            user_id=other_id, wants_children=True,
+            prayer_frequency="all_five", madhab="hanbali",
+        )
+
+        call_count = [0]
+        async def mock_execute(*args, **kwargs):
+            call_count[0] += 1
+            r = MagicMock()
+            if call_count[0] == 1:
+                r.scalar_one_or_none.return_value = match
+            elif call_count[0] == 2:
+                r.scalar_one_or_none.return_value = sender_profile
+            else:
+                r.scalar_one_or_none.return_value = receiver_profile
+            return r
+        mock_db.execute = mock_execute
+
+        resp = await client.get(f"/api/v1/compatibility/{match_id}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "score" in data
+        assert "explanation" in data
+        assert data["score"] >= 0
+
+    @pytest.mark.asyncio
+    async def test_preview_compatibility_no_profile_422(self, client, mock_db):
+        from tests.conftest import mock_db_result
+        mock_db.execute = AsyncMock(return_value=mock_db_result(scalar_value=None))
+        resp = await client.get(f"/api/v1/compatibility/preview/{uuid4()}")
+        assert resp.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_preview_compatibility_success(self, client, mock_db):
+        candidate_id = uuid4()
+        my_profile = make_profile(
+            user_id=TEST_USER_ID, wants_children=True,
+            prayer_frequency="all_five",
+        )
+        cand_profile = make_profile(
+            user_id=candidate_id, wants_children=True,
+            prayer_frequency="all_five",
+        )
+
+        call_count = [0]
+        async def mock_execute(*args, **kwargs):
+            call_count[0] += 1
+            r = MagicMock()
+            if call_count[0] == 1:
+                r.scalar_one_or_none.return_value = my_profile
+            else:
+                r.scalar_one_or_none.return_value = cand_profile
+            return r
+        mock_db.execute = mock_execute
+
+        resp = await client.get(f"/api/v1/compatibility/preview/{candidate_id}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "score" in data
+        assert "candidate_id" in data
+
+    @pytest.mark.asyncio
+    async def test_embed_me_no_profile_422(self, client, mock_db):
+        from tests.conftest import mock_db_result
+        mock_db.execute = AsyncMock(return_value=mock_db_result(scalar_value=None))
+        resp = await client.post("/api/v1/compatibility/embed/me")
+        assert resp.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_embed_me_sync_success(self, client, mock_db):
+        profile = make_profile(
+            user_id=TEST_USER_ID, wants_children=True,
+            bio="I love reading and prayer.",
+        )
+        from tests.conftest import mock_db_result
+        mock_db.execute = AsyncMock(return_value=mock_db_result(scalar_value=profile))
+        mock_db.commit = AsyncMock()
+
+        with patch("app.routers.compatibility.embed_profile", new_callable=AsyncMock) as mock_embed:
+            mock_embed.return_value = [0.1] * EMBEDDING_DIMS
+            resp = await client.post("/api/v1/compatibility/embed/me?sync=true")
+            assert resp.status_code == 200
+            assert resp.json()["status"] == "embedded"
+
+    @pytest.mark.asyncio
+    async def test_embed_status_own_profile(self, client, mock_db):
+        profile = make_profile(
+            user_id=TEST_USER_ID,
+            compatibility_embedding=[0.1] * EMBEDDING_DIMS,
+        )
+        from tests.conftest import mock_db_result
+        mock_db.execute = AsyncMock(return_value=mock_db_result(scalar_value=profile))
+
+        resp = await client.get(f"/api/v1/compatibility/embed/status/{TEST_USER_ID}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["has_embedding"] is True
+        assert data["embedding_dims"] == EMBEDDING_DIMS
+
+    @pytest.mark.asyncio
+    async def test_embed_status_other_user_forbidden(self, client, mock_db):
+        other_id = uuid4()
+        resp = await client.get(f"/api/v1/compatibility/embed/status/{other_id}")
+        assert resp.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_admin_stats_forbidden_for_non_admin(self, client):
+        resp = await client.get("/api/v1/compatibility/admin/stats")
+        assert resp.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_admin_reembed_forbidden_for_non_admin(self, client):
+        resp = await client.post("/api/v1/compatibility/admin/reembed")
+        assert resp.status_code == 403

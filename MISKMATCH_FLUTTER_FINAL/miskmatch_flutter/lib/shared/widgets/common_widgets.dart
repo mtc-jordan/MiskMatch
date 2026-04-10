@@ -137,11 +137,12 @@ class _MiskButtonState extends State<MiskButton>
         child: CircularProgressIndicator(strokeWidth: 2, color: _fg),
       );
     }
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.icon != null) ...[
-          Icon(widget.icon, size: widget.small ? 18 : 20, color: _fg),
+          _maybeFlipIcon(widget.icon!, widget.small ? 18 : 20, isRtl),
           const SizedBox(width: 8),
         ],
         Text(widget.label,
@@ -152,6 +153,23 @@ class _MiskButtonState extends State<MiskButton>
         ),
       ],
     );
+  }
+
+  /// Directional icons (forward arrows) need to be flipped in RTL mode
+  /// because MiskButton receives IconData, bypassing Flutter's auto-mirror.
+  static const _rtlFlippableIcons = <IconData>{
+    Icons.arrow_forward_rounded,
+    Icons.arrow_forward,
+    Icons.arrow_forward_ios_rounded,
+    Icons.arrow_forward_ios,
+  };
+
+  Widget _maybeFlipIcon(IconData icon, double size, bool isRtl) {
+    final child = Icon(icon, size: size, color: _fg);
+    if (isRtl && _rtlFlippableIcons.contains(icon)) {
+      return Transform.flip(flipX: true, child: child);
+    }
+    return child;
   }
 }
 

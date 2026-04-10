@@ -295,7 +295,10 @@ class WardSummaryCard extends StatelessWidget {
               ),
             ),
 
-            const Icon(Icons.chevron_right_rounded,
+            Icon(
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.chevron_left_rounded
+                  : Icons.chevron_right_rounded,
               color: AppColors.neutral300, size: 20),
           ],
         ),

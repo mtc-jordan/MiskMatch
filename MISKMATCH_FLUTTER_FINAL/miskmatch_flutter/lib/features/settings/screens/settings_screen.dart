@@ -393,7 +393,10 @@ class _SettingsTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 trailing!,
               ] else if (onTap != null)
-                Icon(Icons.chevron_right_rounded,
+                Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left_rounded
+                      : Icons.chevron_right_rounded,
                   color: context.handleColor, size: 18),
             ]),
           ),

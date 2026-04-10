@@ -2,7 +2,7 @@
 
 import pytest
 from datetime import datetime, timezone, timedelta
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock, patch
 from uuid import uuid4
 
 from app.games.engine import (
@@ -216,3 +216,158 @@ class TestGamesRouter:
         from app.routers.games import RealtimeAnswerRequest
         req = RealtimeAnswerRequest(question_id="it001", answer="114")
         assert req.question_id == "it001"
+
+
+# ─────────────────────────────────────────────
+# HTTP ENDPOINT TESTS (integration via test client)
+# ─────────────────────────────────────────────
+
+from app.core.database import get_db
+from app.routers.auth import get_current_active_user
+from tests.conftest import TEST_USER_ID
+
+
+@pytest.fixture(autouse=True, scope="class")
+def _override_deps_http(test_user, mock_db):
+    """Override FastAPI deps for HTTP endpoint tests."""
+    from app.main import app
+
+    async def _fake_get_db():
+        yield mock_db
+
+    app.dependency_overrides[get_db] = _fake_get_db
+    app.dependency_overrides[get_current_active_user] = lambda: test_user
+    yield
+    app.dependency_overrides.clear()
+
+
+class TestGamesHTTP:
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.get_game_catalogue")
+    async def test_get_catalogue(self, mock_svc, client):
+        mock_svc.return_value = {
+            "match_id": str(uuid4()), "match_day": 5,
+            "games": [{"game_type": "qalb_quiz", "unlocked": True, "status": "not_started"}],
+        }
+        resp = await client.get(f"/api/v1/games/{uuid4()}")
+        assert resp.status_code == 200
+        assert "games" in resp.json()
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.get_game_catalogue")
+    async def test_catalogue_forbidden(self, mock_svc, client):
+        mock_svc.side_effect = ValueError("Not a participant")
+        resp = await client.get(f"/api/v1/games/{uuid4()}")
+        assert resp.status_code == 403
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.start_game")
+    async def test_start_game_success(self, mock_svc, client, mock_db):
+        mock_svc.return_value = {"game_id": str(uuid4()), "status": "in_progress"}
+        resp = await client.post(f"/api/v1/games/{uuid4()}/qalb_quiz/start")
+        assert resp.status_code == 201
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.start_game")
+    async def test_start_game_locked(self, mock_svc, client):
+        mock_svc.side_effect = ValueError("unlocks on day 21")
+        resp = await client.post(f"/api/v1/games/{uuid4()}/time_capsule/start")
+        assert resp.status_code == 422
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.get_game_state")
+    async def test_get_game_state(self, mock_svc, client):
+        mock_svc.return_value = {"game_type": "qalb_quiz", "status": "in_progress", "turn_number": 3}
+        resp = await client.get(f"/api/v1/games/{uuid4()}/qalb_quiz")
+        assert resp.status_code == 200
+        assert resp.json()["turn_number"] == 3
+
+    @pytest.mark.asyncio
+    async def test_get_unknown_game_type_404(self, client):
+        resp = await client.get(f"/api/v1/games/{uuid4()}/nonexistent_game")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    @patch("app.core.websocket.manager.send_to_match", new_callable=AsyncMock)
+    @patch("app.services.games.submit_turn")
+    async def test_submit_turn(self, mock_svc, mock_ws, client, mock_db):
+        mock_svc.return_value = {"accepted": True, "turn_number": 4}
+        resp = await client.post(
+            f"/api/v1/games/{uuid4()}/qalb_quiz/turn",
+            json={"answer": "Honesty and kindness"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["accepted"] is True
+
+    @pytest.mark.asyncio
+    async def test_submit_turn_empty_answer_422(self, client):
+        resp = await client.post(
+            f"/api/v1/games/{uuid4()}/qalb_quiz/turn",
+            json={"answer": ""},
+        )
+        assert resp.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_submit_turn_realtime_game_rejected(self, client):
+        resp = await client.post(
+            f"/api/v1/games/{uuid4()}/would_you_rather/turn",
+            json={"answer": "Option A"},
+        )
+        assert resp.status_code == 422
+
+    @pytest.mark.asyncio
+    @patch("app.core.websocket.manager.send_to_match", new_callable=AsyncMock)
+    @patch("app.services.games.submit_realtime_answer")
+    async def test_realtime_both_answered_triggers_ws(self, mock_svc, mock_ws, client, mock_db):
+        mock_svc.return_value = {"submitted": True, "both_answered": True, "reveal": {}}
+        resp = await client.post(
+            f"/api/v1/games/{uuid4()}/would_you_rather/realtime",
+            json={"question_id": "q1", "answer": "Option B"},
+        )
+        assert resp.status_code == 200
+        mock_ws.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("app.core.websocket.manager.send_to_match", new_callable=AsyncMock)
+    @patch("app.services.games.submit_realtime_answer")
+    async def test_realtime_waiting(self, mock_svc, mock_ws, client, mock_db):
+        mock_svc.return_value = {"submitted": True, "both_answered": False}
+        resp = await client.post(
+            f"/api/v1/games/{uuid4()}/would_you_rather/realtime",
+            json={"question_id": "q1", "answer": "Option A"},
+        )
+        assert resp.status_code == 200
+        mock_ws.assert_not_called()
+
+    @pytest.mark.asyncio
+    @patch("app.core.websocket.manager.send_to_match", new_callable=AsyncMock)
+    @patch("app.services.games.seal_capsule")
+    async def test_seal_time_capsule(self, mock_svc, mock_ws, client, mock_db):
+        mock_svc.return_value = {"sealed_at": "2026-01-15T00:00:00Z", "opens_at": "2026-02-14T00:00:00Z"}
+        resp = await client.post(f"/api/v1/games/{uuid4()}/time-capsule/seal")
+        assert resp.status_code == 200
+        assert "opens_at" in resp.json()
+
+    @pytest.mark.asyncio
+    @patch("app.core.websocket.manager.send_to_match", new_callable=AsyncMock)
+    @patch("app.services.games.open_capsule")
+    async def test_open_time_capsule(self, mock_svc, mock_ws, client, mock_db):
+        mock_svc.return_value = {"opened_at": "2026-02-15T00:00:00Z", "entries": []}
+        resp = await client.post(f"/api/v1/games/{uuid4()}/time-capsule/open")
+        assert resp.status_code == 200
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.get_memory_timeline")
+    async def test_memory_timeline(self, mock_svc, client):
+        mock_svc.return_value = {"match_id": str(uuid4()), "days_together": 12}
+        resp = await client.get(f"/api/v1/games/{uuid4()}/memory")
+        assert resp.status_code == 200
+        assert resp.json()["days_together"] == 12
+
+    @pytest.mark.asyncio
+    @patch("app.services.games.get_memory_timeline")
+    async def test_memory_timeline_forbidden(self, mock_svc, client):
+        mock_svc.side_effect = ValueError("Not a participant")
+        resp = await client.get(f"/api/v1/games/{uuid4()}/memory")
+        assert resp.status_code == 403
