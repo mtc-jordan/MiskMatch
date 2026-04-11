@@ -10,6 +10,7 @@ import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/features/auth/providers/auth_provider.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Niyyah (intention) screen — the most spiritually important screen.
 /// Designed with reverence. No rush. No clutter.
@@ -25,14 +26,13 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
   int?   _selected;
   final  _customCtrl = TextEditingController();
 
-  static const _intentions = [
-    'I intend to marry for the sake of Allah',
-    'I intend to find a righteous spouse',
-    'I intend to protect my deen through marriage',
-  ];
+  List<String> _intentions(BuildContext context) {
+    final l = S.of(context);
+    return [l.niyyahMarriage, l.niyyahRighteous, l.niyyahDeen];
+  }
 
   String? get _niyyah {
-    if (_selected != null) return _intentions[_selected!];
+    if (_selected != null) return 'selected';
     if (_customCtrl.text.trim().isNotEmpty) return _customCtrl.text.trim();
     return null;
   }
@@ -89,12 +89,12 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                   const SizedBox(height: 32),
 
                   // 2. Arabic du'a
-                  const Directionality(
+                  Directionality(
                     textDirection: TextDirection.rtl,
                     child: Text(
-                      'بِسْمِ اللَّهِ وَعَلَى سُنَّةِ رَسُولِ اللَّهِ',
+                      S.of(context).bismillahDua,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Scheherazade',
                         fontSize:   22,
                         color:      AppColors.goldLight,
@@ -109,7 +109,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 3. Translation
                   Text(
-                    '"In the name of Allah, upon the Sunnah of His Messenger"',
+                    S.of(context).bismillahTranslation,
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall.copyWith(
                       color:     AppColors.neutral300,
@@ -134,9 +134,9 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                   const SizedBox(height: 28),
 
                   // 5. Heading
-                  const Text(
-                    'Set your niyyah',
-                    style: TextStyle(
+                  Text(
+                    S.of(context).setYourNiyyah,
+                    style: const TextStyle(
                       fontFamily:  'Georgia',
                       fontSize:    28,
                       fontWeight:  FontWeight.w700,
@@ -154,9 +154,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 320),
                     child: Text(
-                      'Your intention matters more than anything else '
-                      'in this journey. State it clearly, sincerely, '
-                      'and with taqwa — for Allah sees what the eyes cannot.',
+                      S.of(context).niyyahDescription,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMedium.copyWith(
                         color:  AppColors.neutral300,
@@ -174,7 +172,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _NiyyahCard(
-                        text:       _intentions[i],
+                        text:       _intentions(context)[i],
                         selected:   _selected == i,
                         onTap: () {
                           HapticFeedback.selectionClick();
@@ -210,7 +208,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.goldLight),
                       decoration: InputDecoration(
-                        hintText:  'Or write your own intention...',
+                        hintText:  S.of(context).writeOwnNiyyah,
                         hintStyle: AppTypography.bodyMedium.copyWith(
                           color: AppColors.goldLight.withOpacity(0.4)),
                         border:         InputBorder.none,
@@ -232,7 +230,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 9. Submit button — gold variant
                   MiskButton(
-                    label:     'I declare my niyyah',
+                    label:     S.of(context).declareNiyyah,
                     onPressed: _niyyah != null ? _submit : null,
                     variant:   MiskButtonVariant.gold,
                     icon:      Icons.favorite_rounded,
@@ -246,7 +244,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 10. Skip
                   MiskButton(
-                    label:     'I\'ll set this later',
+                    label:     S.of(context).setNiyyahLater,
                     onPressed: _submit,
                     variant:   MiskButtonVariant.ghost,
                   )

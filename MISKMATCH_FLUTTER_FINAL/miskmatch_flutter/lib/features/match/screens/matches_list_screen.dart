@@ -13,6 +13,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// All matches screen — grouped: Active → Awaiting families.
 
@@ -70,8 +71,8 @@ class _MatchesListScreenState extends ConsumerState<MatchesListScreen> {
             surfaceTintColor: Colors.transparent,
             title: Row(
               children: [
-                const Text('Matches',
-                  style: TextStyle(
+                Text(S.of(context).matches,
+                  style: const TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    22,
                     fontWeight:  FontWeight.w700,
@@ -137,7 +138,7 @@ class _MatchesListScreenState extends ConsumerState<MatchesListScreen> {
                   ),
                   const SizedBox(height: 20),
                   MiskButton(
-                    label:     'Retry',
+                    label:     S.of(context).retry,
                     onPressed: () =>
                         ref.read(matchListProvider.notifier).load(),
                     variant:   MiskButtonVariant.outline,
@@ -155,13 +156,13 @@ class _MatchesListScreenState extends ConsumerState<MatchesListScreen> {
           else ...[
             // ── ACTIVE MATCHES ─────────────────────────────────
             _SectionHeader(
-              title: 'Active Matches',
+              title: S.of(context).activeMatches,
               count: state.activeMatches.length,
             ),
             if (state.activeMatches.isEmpty)
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: _SectionEmptyState(
-                  label: 'No active matches yet',
+                  label: S.of(context).noActiveMatchesYet,
                 ),
               )
             else
@@ -181,13 +182,13 @@ class _MatchesListScreenState extends ConsumerState<MatchesListScreen> {
 
             // ── AWAITING FAMILIES ──────────────────────────────
             _SectionHeader(
-              title: 'Awaiting Families',
+              title: S.of(context).awaitingFamilies,
               count: state.pendingMatches.length,
             ),
             if (state.pendingMatches.isEmpty)
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: _SectionEmptyState(
-                  label: 'No pending matches yet',
+                  label: S.of(context).noPendingMatchesYet,
                 ),
               )
             else
@@ -297,7 +298,7 @@ class _MatchTile extends StatelessWidget {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Close this match?'),
+            title: Text(S.of(context).closeMatch),
             content: const Text(
               'This will respectfully end the match. '
               'Both you and the other person will be notified.',
@@ -305,12 +306,12 @@ class _MatchTile extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
+                child: Text(S.of(context).cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                child: const Text('Close match'),
+                child: Text(S.of(context).closeMatch),
               ),
             ],
           ),
@@ -543,7 +544,7 @@ class _GlobalEmptyState extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          Text('No matches yet',
+          Text(S.of(context).noMatchesYet,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    24,

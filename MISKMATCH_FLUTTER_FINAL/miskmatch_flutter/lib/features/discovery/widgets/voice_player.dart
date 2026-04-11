@@ -124,34 +124,39 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget>
       child: Row(
         children: [
           // ── Play / Pause circle — 44px, rose gradient, gold glow ──
-          GestureDetector(
-            onTap: _toggle,
-            child: Container(
-              width: 44, height: 44,
-              decoration: BoxDecoration(
-                gradient: AppColors.roseGradient,
-                shape:    BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color:      AppColors.goldPrimary.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset:     const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: _loading
-                  ? const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: CircularProgressIndicator(
-                          color: AppColors.white, strokeWidth: 2),
-                    )
-                  : Icon(
-                      _isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: AppColors.white,
-                      size: 26,
+          Semantics(
+            button: true,
+            label: _isPlaying ? 'Pause audio introduction' : 'Play audio introduction',
+            excludeSemantics: true,
+            child: GestureDetector(
+              onTap: _toggle,
+              child: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  gradient: AppColors.roseGradient,
+                  shape:    BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color:      AppColors.goldPrimary.withOpacity(0.25),
+                      blurRadius: 12,
+                      offset:     const Offset(0, 2),
                     ),
+                  ],
+                ),
+                child: _loading
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(
+                            color: AppColors.white, strokeWidth: 2),
+                      )
+                    : Icon(
+                        _isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        color: AppColors.white,
+                        size: 26,
+                      ),
+              ),
             ),
           ),
 
@@ -159,10 +164,14 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget>
 
           // ── 28-bar waveform ──────────────────────────────────────
           Expanded(
-            child: _WaveformBars(
-              isPlaying:  _isPlaying,
-              controller: _waveCtrl,
-              progress:   progress,
+            child: Semantics(
+              label: 'Audio progress',
+              excludeSemantics: true,
+              child: _WaveformBars(
+                isPlaying:  _isPlaying,
+                controller: _waveCtrl,
+                progress:   progress,
+              ),
             ),
           ),
 

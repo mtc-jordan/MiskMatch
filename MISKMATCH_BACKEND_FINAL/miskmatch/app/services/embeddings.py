@@ -241,8 +241,8 @@ async def embed_text(text: str) -> Optional[list[float]]:
         logger.debug(f"Embedded {len(text)} chars → {len(vector)} dims")
         return vector
 
-    except Exception as e:
-        logger.error(f"OpenAI embedding failed: {e}")
+    except Exception as e:  # OpenAI SDK raises various APIError subclasses
+        logger.error(f"OpenAI embedding failed ({type(e).__name__}): {e}")
         return None
 
 

@@ -179,8 +179,8 @@ async def ai_moderate(content: str) -> ModerationResult:
             layer="ai",
         )
 
-    except Exception as e:
-        logger.error(f"AI moderation failed: {e}")
+    except Exception as e:  # OpenAI SDK + JSON parse errors — must not crash message pipeline
+        logger.error(f"AI moderation failed ({type(e).__name__}): {e}")
         # On AI failure → pass through (log for manual review)
         return ModerationResult(
             passed=True,

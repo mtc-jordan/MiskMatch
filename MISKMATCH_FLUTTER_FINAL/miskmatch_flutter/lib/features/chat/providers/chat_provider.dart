@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/core/websocket/websocket_service.dart';
 import 'package:miskmatch/features/match/data/match_models.dart';
@@ -224,9 +226,32 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   // ── Send voice message ────────────────────────────────────────────────────
   Future<void> sendVoice(String localPath) async {
-    // In full implementation: upload file, get URL, send as audio message
-    // For now send a text placeholder — real implementation in Sprint 4
-    await sendText('[Voice message — 🎙️]');
+    state = state.copyWith(isSending: true);
+
+    final file = File(localPath);
+    final uploadResult = await _chatRepo.uploadAudio(matchId, file);
+
+    switch (uploadResult) {
+      case ApiSuccess(data: final mediaUrl):
+        final sendResult = await _chatRepo.sendMessage(
+          matchId:     matchId,
+          content:     '',
+          contentType: 'audio',
+          mediaUrl:    mediaUrl,
+        );
+        state = switch (sendResult) {
+          ApiSuccess(data: final msg) => () {
+              _addMessage(msg);
+              return state.copyWith(isSending: false);
+            }(),
+          ApiError(error: final e) => state.copyWith(
+              isSending: false, error: e),
+        };
+
+      case ApiError(error: final e):
+        debugPrint('Voice upload failed: $e');
+        state = state.copyWith(isSending: false, error: e);
+    }
   }
 
   // ── Typing indicators ──────────────────────────────────────────────────────

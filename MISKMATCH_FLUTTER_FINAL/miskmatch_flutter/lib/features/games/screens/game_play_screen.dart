@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 import '../data/game_models.dart';
 import '../providers/game_providers.dart';
 import '../widgets/reveal_overlay.dart';
@@ -228,7 +229,7 @@ class _NotStarted extends StatelessWidget {
           const SizedBox(height: 28),
 
           Text(
-            'Ready to begin?',
+            S.of(context).readyToBegin,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    26,
@@ -254,7 +255,7 @@ class _NotStarted extends StatelessWidget {
           const SizedBox(height: 40),
 
           MiskButton(
-            label:     'Start — Bismillah',
+            label:     S.of(context).startBismillah,
             onPressed: onStart,
             variant:   MiskButtonVariant.gold,
             icon:      Icons.mosque_rounded,
@@ -292,7 +293,7 @@ class _WaitingTurnBody extends StatelessWidget {
           const SizedBox(height: 28),
 
           Text(
-            'Waiting for your match',
+            S.of(context).waitingForMatch,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    22,
@@ -305,7 +306,7 @@ class _WaitingTurnBody extends StatelessWidget {
           const SizedBox(height: 10),
 
           Text(
-            'They have been notified. '
+            '${S.of(context).matchNotified} '
             "You'll receive a notification when it's your turn.",
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
@@ -391,9 +392,9 @@ class _CompletedBody extends StatelessWidget {
                       curve:    Curves.elasticOut,
                     ),
                 const SizedBox(height: 14),
-                const Text(
-                  "Masha'Allah — Complete!",
-                  style: TextStyle(
+                Text(
+                  S.of(context).mashAllahComplete,
+                  style: const TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    26,
                     fontWeight:  FontWeight.w700,
@@ -403,7 +404,7 @@ class _CompletedBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Added to your Match Memory.',
+                  S.of(context).addedToMatchMemory,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.white.withOpacity(0.85)),
                 ),
@@ -416,7 +417,7 @@ class _CompletedBody extends StatelessWidget {
 
           // ── Turn History header ─────────────────────
           Text(
-            'Turn History',
+            S.of(context).turnHistory,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    18,
@@ -520,7 +521,7 @@ class _WaitingOverlay extends StatelessWidget {
                   .animate(onPlay: (c) => c.repeat(reverse: true))
                   .scaleXY(begin: 1.0, end: 1.1, duration: 1200.ms),
               const SizedBox(height: 20),
-              Text("Waiting for your match's answer...",
+              Text(S.of(context).waitingForMatchAnswer,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily:  'Georgia',
@@ -531,7 +532,7 @@ class _WaitingOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Both answers are hidden until you both answer.',
+                S.of(context).answersHiddenUntil,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodySmall.copyWith(
                   color: context.mutedText),
@@ -570,7 +571,7 @@ class _ErrorBody extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           MiskButton(
-            label:     'Retry',
+            label:     S.of(context).retry,
             onPressed: onRetry,
             variant:   MiskButtonVariant.outline,
             fullWidth: false,
@@ -594,7 +595,7 @@ class _NoQuestionBody extends StatelessWidget {
           const Text('🌙', style: TextStyle(fontSize: 48)),
           const SizedBox(height: 16),
           Text(
-            'No more questions',
+            S.of(context).noMoreQuestions,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
@@ -604,7 +605,7 @@ class _NoQuestionBody extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          Text('This game is wrapping up!',
+          Text(S.of(context).gameWrappingUp,
             style: AppTypography.bodyMedium.copyWith(
               color: context.mutedText),
           ),

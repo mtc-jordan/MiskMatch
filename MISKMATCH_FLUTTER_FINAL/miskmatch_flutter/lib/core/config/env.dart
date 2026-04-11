@@ -11,6 +11,13 @@ abstract class AppConfig {
     defaultValue: 'development',
   );
 
+  /// Override the dev API host via --dart-define=DEV_API_HOST=192.168.1.50:8010
+  /// Defaults to Android emulator loopback (10.0.2.2:8010).
+  static const String _devApiHost = String.fromEnvironment(
+    'DEV_API_HOST',
+    defaultValue: '10.0.2.2:8010',
+  );
+
   static Env get environment {
     switch (_env) {
       case 'production': return Env.production;
@@ -29,7 +36,8 @@ abstract class AppConfig {
       case Env.production: return 'https://api.miskmatch.app/api/v1';
       case Env.staging:    return 'https://api-staging.miskmatch.app/api/v1';
       case Env.development:
-      default:             return 'http://10.0.2.2:8010/api/v1';
+        final scheme = _isLoopback(_devApiHost) ? 'http' : 'https';
+        return '$scheme://$_devApiHost/api/v1';
     }
   }
 
@@ -38,8 +46,15 @@ abstract class AppConfig {
       case Env.production: return 'wss://api.miskmatch.app/api/v1';
       case Env.staging:    return 'wss://api-staging.miskmatch.app/api/v1';
       case Env.development:
-      default:             return 'ws://10.0.2.2:8010/api/v1';
+        final scheme = _isLoopback(_devApiHost) ? 'ws' : 'wss';
+        return '$scheme://$_devApiHost/api/v1';
     }
+  }
+
+  /// Only allow insecure transport for known local loopback addresses.
+  static bool _isLoopback(String host) {
+    final h = host.split(':').first;
+    return h == 'localhost' || h == '127.0.0.1' || h == '10.0.2.2';
   }
 
   // ── Timeouts ─────────────────────────────────────────────────────────────

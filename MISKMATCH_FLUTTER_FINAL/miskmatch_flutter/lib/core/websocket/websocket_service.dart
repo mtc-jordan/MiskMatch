@@ -54,6 +54,7 @@ class WebSocketService {
   StreamSubscription?     _sub;
   Timer?                  _pingTimer;
   Timer?                  _reconnectTimer;
+  Timer?                  _tokenRefreshTimer;
 
   String?                 _currentMatchId;
   WsConnectionState       _state = WsConnectionState.disconnected;
@@ -95,8 +96,9 @@ class WebSocketService {
       return;
     }
 
+    // Connect without token in URL — authenticate via first message
     final wsUrl = '${AppConfig.wsBaseUrl}'
-        '/messages/ws/$_currentMatchId?token=$token';
+        '/messages/ws/$_currentMatchId';
 
     try {
       _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
@@ -107,9 +109,16 @@ class WebSocketService {
         onTimeout: () => throw TimeoutException('WS connect timeout'),
       );
 
+      // Send auth as first message (token never appears in URL/logs)
+      _channel!.sink.add(jsonEncode({
+        'type': 'authenticate',
+        'payload': {'token': token},
+      }));
+
       _setState(WsConnectionState.connected);
       _reconnectAttempts = 0;
       _startPing();
+      _startTokenRefreshTimer();
       _flushPendingQueue();
 
       _sub = _channel!.stream.listen(
@@ -224,6 +233,27 @@ class WebSocketService {
     );
   }
 
+  // ── Token refresh — reconnect before JWT expires ─────────────────────────
+  static const _tokenRefreshMinutes = 25; // JWT typically expires in 30 min
+
+  void _startTokenRefreshTimer() {
+    _tokenRefreshTimer?.cancel();
+    _tokenRefreshTimer = Timer(
+      const Duration(minutes: _tokenRefreshMinutes),
+      () async {
+        debugPrint('WS token refresh: reconnecting with fresh token');
+        // Disconnect and reconnect — the reconnect will fetch the latest
+        // access token from storage (already refreshed by RefreshInterceptor
+        // during normal API calls).
+        final matchId = _currentMatchId;
+        if (matchId != null && _state != WsConnectionState.disconnected) {
+          _cleanupChannel();
+          await _doConnect();
+        }
+      },
+    );
+  }
+
   // ── Queue flush after reconnect ───────────────────────────────────────────
   void _flushPendingQueue() {
     if (_pendingQueue.isEmpty) return;
@@ -237,6 +267,7 @@ class WebSocketService {
   // ── Cleanup ───────────────────────────────────────────────────────────────
   void _cleanupChannel() {
     _pingTimer?.cancel();
+    _tokenRefreshTimer?.cancel();
     _sub?.cancel();
     _channel?.sink.close();
     _channel = null;

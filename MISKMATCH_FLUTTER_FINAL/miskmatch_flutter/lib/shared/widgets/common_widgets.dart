@@ -183,6 +183,7 @@ class MiskTextField extends StatelessWidget {
     required this.label,
     this.hint,
     this.controller,
+    this.initialValue,
     this.keyboardType,
     this.obscureText    = false,
     this.prefixIcon,
@@ -197,11 +198,13 @@ class MiskTextField extends StatelessWidget {
     this.textInputAction,
     this.readOnly       = false,
     this.onTap,
-  });
+  }) : assert(controller == null || initialValue == null,
+         'Cannot provide both controller and initialValue');
 
   final String                label;
   final String?               hint;
   final TextEditingController? controller;
+  final String?               initialValue;
   final TextInputType?        keyboardType;
   final bool                  obscureText;
   final Widget?               prefixIcon;
@@ -221,6 +224,7 @@ class MiskTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller:       controller,
+      initialValue:     controller == null ? initialValue : null,
       keyboardType:     keyboardType,
       obscureText:      obscureText,
       validator:        validator,
@@ -380,39 +384,43 @@ class _CompatibilityRingState extends State<CompatibilityRing>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _progress,
-      builder: (_, __) => SizedBox(
-        width: widget.size, height: widget.size,
-        child: CustomPaint(
-          painter: _RingPainter(
-            progress:   _progress.value,
-            outerColor: AppColors.roseDeep,
-            innerColor: AppColors.goldPrimary,
-            outerWidth: 5,
-            innerWidth: 3,
-          ),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${widget.score.round()}%',
-                  style: TextStyle(
-                    fontFamily:  'Georgia',
-                    fontSize:    widget.size * 0.22,
-                    fontWeight:  FontWeight.w700,
-                    color:       _color,
-                  ),
-                ),
-                if (widget.showLabel)
-                  Text(_tier,
-                    style: AppTypography.caption.copyWith(
-                      fontSize: widget.size * 0.10,
-                      color:    _color,
+    return Semantics(
+      label: 'Compatibility score ${widget.score.round()} percent, $_tier',
+      excludeSemantics: true,
+      child: AnimatedBuilder(
+        animation: _progress,
+        builder: (_, __) => SizedBox(
+          width: widget.size, height: widget.size,
+          child: CustomPaint(
+            painter: _RingPainter(
+              progress:   _progress.value,
+              outerColor: AppColors.roseDeep,
+              innerColor: AppColors.goldPrimary,
+              outerWidth: 5,
+              innerWidth: 3,
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${widget.score.round()}%',
+                    style: TextStyle(
+                      fontFamily:  'Georgia',
+                      fontSize:    widget.size * 0.22,
+                      fontWeight:  FontWeight.w700,
+                      color:       _color,
                     ),
                   ),
-              ],
+                  if (widget.showLabel)
+                    Text(_tier,
+                      style: AppTypography.caption.copyWith(
+                        fontSize: widget.size * 0.10,
+                        color:    _color,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -492,6 +500,12 @@ class TrustBadge extends StatelessWidget {
 
   final TrustBadgeType type;
 
+  String get _semanticsLabel => switch (type) {
+    TrustBadgeType.mosque   => 'Mosque verified',
+    TrustBadgeType.scholar  => 'Scholar endorsed',
+    TrustBadgeType.identity => 'ID verified',
+  };
+
   @override
   Widget build(BuildContext context) {
     final (icon, label, bg) = switch (type) {
@@ -500,27 +514,31 @@ class TrustBadge extends StatelessWidget {
       TrustBadgeType.identity => (Icons.check_rounded,   'ID Verified', AppColors.success),
     };
 
-    return Container(
-      height:  22,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color:        bg,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: AppColors.white),
-          const SizedBox(width: 4),
-          Text(label,
-            style: const TextStyle(
-              fontSize:   9,
-              fontWeight: FontWeight.w600,
-              color:      AppColors.white,
-              height:     1.2,
+    return Semantics(
+      label: _semanticsLabel,
+      excludeSemantics: true,
+      child: Container(
+        height:  22,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color:        bg,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 11, color: AppColors.white),
+            const SizedBox(width: 4),
+            Text(label,
+              style: const TextStyle(
+                fontSize:   9,
+                fontWeight: FontWeight.w600,
+                color:      AppColors.white,
+                height:     1.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

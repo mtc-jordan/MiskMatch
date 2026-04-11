@@ -93,8 +93,8 @@ def generate_agora_token(
             f"Agora token generated: channel={channel_name} uid={uid} role={'pub' if role_publisher else 'sub'}"
         )
         return token
-    except Exception as e:
-        logger.error(f"Agora token generation failed: {e}")
+    except (ImportError, ValueError, OSError) as e:
+        logger.error(f"Agora token generation failed ({type(e).__name__}): {e}")
         return _dev_token(channel_name, uid)
 
 

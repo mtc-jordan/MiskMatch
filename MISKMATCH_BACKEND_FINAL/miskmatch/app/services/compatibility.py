@@ -273,8 +273,8 @@ def compute_hybrid_score(
             ai_similarity = cosine_similarity(vec_a, vec_b)
             ai_score      = similarity_to_score(ai_similarity)
             has_ai        = real_embeddings
-        except Exception as e:
-            logger.warning(f"Cosine similarity failed: {e}")
+        except (ValueError, TypeError, ZeroDivisionError) as e:
+            logger.warning(f"Cosine similarity failed ({type(e).__name__}): {e}")
 
     # ── Hybrid blend ──────────────────────────────────────────────────────────
     if ai_score is not None:

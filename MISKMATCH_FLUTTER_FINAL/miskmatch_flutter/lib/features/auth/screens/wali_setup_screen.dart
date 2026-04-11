@@ -11,6 +11,7 @@ import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/features/auth/providers/auth_provider.dart';
 import 'package:miskmatch/features/wali/data/wali_repository.dart';
 import 'package:miskmatch/features/wali/data/wali_models.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Wali (guardian) setup — 3-step onboarding wizard.
 
@@ -202,7 +203,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
                 child: Column(
                   children: [
                     MiskButton(
-                      label:     _step < 2 ? 'Next' : 'Complete Setup',
+                      label:     _step < 2 ? S.of(context).next : S.of(context).completeSetup,
                       onPressed: _canProceed ? _next : null,
                       loading:   _loading,
                       icon:      _step < 2
@@ -211,7 +212,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
                     ),
                     const SizedBox(height: 8),
                     MiskButton(
-                      label:     'Skip — set up guardian later',
+                      label:     S.of(context).skipGuardianSetup,
                       onPressed: _skip,
                       variant:   MiskButtonVariant.ghost,
                       small:     true,
@@ -277,17 +278,17 @@ class _WaliHeader extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Your Guardian',
-                        style: TextStyle(
+                      Text(S.of(context).yourGuardian,
+                        style: const TextStyle(
                           fontFamily: 'Georgia', fontSize: 22,
                           fontWeight: FontWeight.w700, color: AppColors.white),
                       ),
                       const SizedBox(height: 2),
-                      const Directionality(
+                      Directionality(
                         textDirection: TextDirection.rtl,
                         child: Text(
-                          'لَا نِكَاحَ إِلَّا بِوَلِيٍّ',
-                          style: TextStyle(
+                          S.of(context).noMarriageWithoutGuardian,
+                          style: const TextStyle(
                             fontFamily: 'Scheherazade', fontSize: 16,
                             color: AppColors.goldLight, height: 2.0),
                         ),
@@ -300,7 +301,7 @@ class _WaliHeader extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 68, top: 2),
               child: Text(
-                '"No marriage without a guardian"',
+                S.of(context).noMarriageTranslation,
                 style: AppTypography.caption.copyWith(
                   color: AppColors.white.withOpacity(0.7),
                   fontStyle: FontStyle.italic, fontSize: 11),
@@ -363,11 +364,11 @@ class _Step1Relationship extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Who is your guardian?',
+          Text(S.of(context).whoIsGuardian,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text('Select the relationship type',
+          Text(S.of(context).selectRelationship,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
@@ -514,25 +515,25 @@ class _Step2Details extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Enter their details',
+          Text(S.of(context).enterTheirDetails,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text('We\'ll send them an SMS invitation',
+          Text(S.of(context).smsInvitationHint,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
 
           MiskTextField(
-            label:      'Guardian\'s full name',
-            hint:       'e.g. Ahmad Al-Rashidi',
+            label:      S.of(context).guardianFullName,
+            hint:       S.of(context).guardianNameHint,
             controller: nameCtrl,
             prefixIcon: const Icon(Icons.person_outline_rounded),
             textInputAction: TextInputAction.next,
             onChanged:  (_) => onChanged(),
             validator: (v) {
               if (v == null || v.trim().length < 2) {
-                return 'Please enter the guardian\'s name';
+                return S.of(context).pleaseEnterGuardianName;
               }
               return null;
             },
@@ -571,8 +572,8 @@ class _Step2Details extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: MiskTextField(
-                  label:        'Phone number',
-                  hint:         '79 123 4567',
+                  label:        S.of(context).phoneNumber,
+                  hint:         S.of(context).phoneHint,
                   controller:   phoneCtrl,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
@@ -674,11 +675,11 @@ class _WaliCountrySheetState extends State<_WaliCountrySheet> {
                 color: context.handleColor,
                 borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            Text('Select country',
+            Text(S.of(context).selectCountry,
               style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             MiskTextField(
-              label: 'Search', hint: 'Country name or code',
+              label: S.of(context).search, hint: S.of(context).countryNameOrCode,
               prefixIcon: const Icon(Icons.search_rounded),
               onChanged: (v) => setState(() => _q = v)),
             const SizedBox(height: 12),
@@ -731,41 +732,41 @@ class _Step3Permissions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Choose their involvement',
+          Text(S.of(context).chooseInvolvement,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text('You can change these settings later',
+          Text(S.of(context).changeSettingsLater,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
 
           _PermissionRow(
             icon:     Icons.check_circle_rounded,
-            label:    'Must approve all matches',
-            subtitle: 'Required — your guardian approves each match',
+            label:    S.of(context).mustApproveMatches,
+            subtitle: S.of(context).mustApproveDesc,
             value:    approveMatches,
             onChanged: null, // can't turn off
             isFirst:  true,
           ),
           _PermissionRow(
             icon:     Icons.chat_bubble_outline_rounded,
-            label:    'Can read conversations',
-            subtitle: 'Your guardian can view chat messages',
+            label:    S.of(context).canReadConversations,
+            subtitle: S.of(context).canReadDesc,
             value:    readConvos,
             onChanged: onRead,
           ),
           _PermissionRow(
             icon:     Icons.notifications_outlined,
-            label:    'Receives notifications',
-            subtitle: 'Gets notified about new matches and activity',
+            label:    S.of(context).receivesNotifications,
+            subtitle: S.of(context).receivesNotifDesc,
             value:    notifications,
             onChanged: onNotify,
           ),
           _PermissionRow(
             icon:     Icons.call_outlined,
-            label:    'Can join chaperoned calls',
-            subtitle: 'Can listen in on voice/video calls',
+            label:    S.of(context).canJoinCalls,
+            subtitle: S.of(context).canJoinCallsDesc,
             value:    joinCalls,
             onChanged: onCall,
             isLast:   true,
@@ -840,7 +841,7 @@ class _PermissionRow extends StatelessWidget {
                     color: AppColors.roseDeep.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text('Required',
+                  child: Text(S.of(context).required,
                     style: AppTypography.caption.copyWith(
                       color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                 )

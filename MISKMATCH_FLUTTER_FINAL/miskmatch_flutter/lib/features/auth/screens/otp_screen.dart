@@ -7,6 +7,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
@@ -70,7 +71,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   void dispose() {
     _timer?.cancel();
     for (final n in _nodes) { n.dispose(); }
-    // Controllers not disposed — PinCode accesses after dispose
+    for (final c in _ctrls) { c.dispose(); }
     super.dispose();
   }
 
@@ -162,13 +163,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
                     child: Column(
                       children: [
-                        Text('Enter verification code',
+                        Text(S.of(context).enterVerificationCode,
                           style: AppTypography.titleLarge.copyWith(
                             fontSize: 20, fontWeight: FontWeight.w700,
                             color: context.onSurface),
                         ),
                         const SizedBox(height: 6),
-                        Text('6-digit code sent to your phone',
+                        Text(S.of(context).otpSentHint,
                           style: AppTypography.bodySmall.copyWith(
                             fontSize: 13, color: context.mutedText),
                         ),
@@ -218,7 +219,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         // Verify button — only when 6 digits
                         if (_otp.length == 6)
                           MiskButton(
-                            label:     'Verify & continue',
+                            label:     S.of(context).verifyAndContinue,
                             onPressed: _verify,
                             loading:   isLoading,
                             icon:      Icons.check_circle_outline_rounded,
@@ -237,7 +238,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         // Countdown / resend
                         _canResend
                             ? MiskButton(
-                                label:     'Resend code',
+                                label:     S.of(context).resendCode,
                                 onPressed: _resend,
                                 variant:   MiskButtonVariant.ghost,
                                 fullWidth: false,
@@ -245,7 +246,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                                 icon:      Icons.refresh_rounded,
                               )
                             : Text(
-                                'Resend in 0:${_resendSeconds.toString().padLeft(2, '0')}',
+                                S.of(context).resendInCountdown('0:${_resendSeconds.toString().padLeft(2, '0')}'),
                                 style: AppTypography.bodySmall.copyWith(
                                   color: _resendSeconds <= 10
                                       ? AppColors.roseDeep
@@ -260,10 +261,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('🔒 ',
-                              style: TextStyle(fontSize: 12)),
+                            Icon(Icons.lock_outline_rounded,
+                              size: 14, color: context.mutedText),
+                            const SizedBox(width: 4),
                             Text(
-                              'Your OTP is private. We will never ask for it.',
+                              S.of(context).otpPrivacyNote,
                               style: AppTypography.caption.copyWith(
                                 color: context.mutedText,
                                 fontStyle: FontStyle.italic),
@@ -335,9 +337,9 @@ class _OtpHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Verify your\nnumber',
-                      style: TextStyle(
+                    Text(
+                      S.of(context).verifyYourNumber,
+                      style: const TextStyle(
                         fontFamily: 'Georgia', fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: AppColors.white, height: 1.2,
@@ -360,7 +362,7 @@ class _OtpHeader extends StatelessWidget {
                               color: AppColors.neutral300, fontSize: 14),
                           ),
                           const SizedBox(width: 8),
-                          Text('Change',
+                          Text(S.of(context).change,
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.goldLight,
                               decoration: TextDecoration.underline,

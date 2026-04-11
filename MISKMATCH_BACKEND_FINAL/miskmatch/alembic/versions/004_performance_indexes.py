@@ -48,16 +48,11 @@ def upgrade() -> None:
         ["sender_id"],
     )
 
-    # Wali relationships: lookup by ward (used in wali pending)
-    op.create_index(
-        "ix_wali_user_active",
-        "wali_relationships",
-        ["user_id", "is_active"],
-    )
+    # NOTE: wali_relationships(user_id, is_active) already indexed
+    # as ix_wali_ward_active in migration 002 — skipped here.
 
 
 def downgrade() -> None:
-    op.drop_index("ix_wali_user_active", table_name="wali_relationships")
     op.drop_index("ix_messages_sender", table_name="messages")
     op.drop_index("ix_matches_sender_created", table_name="matches")
     op.drop_index("ix_matches_receiver_status", table_name="matches")

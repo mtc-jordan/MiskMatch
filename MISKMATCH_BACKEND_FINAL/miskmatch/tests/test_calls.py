@@ -532,3 +532,108 @@ class TestCallsRouter:
     def test_router_tag(self):
         from app.routers.calls import router
         assert "Call" in router.tags[0]
+
+
+# ─────────────────────────────────────────────
+# CALLS SERVICE UNIT TESTS
+# ─────────────────────────────────────────────
+
+class TestCallServiceHelpers:
+
+    def test_make_channel_name_format(self):
+        from app.services.calls import make_channel_name
+        import uuid
+        call_id = uuid.uuid4()
+        channel = make_channel_name(call_id)
+        assert channel.startswith("misk_")
+        assert len(channel) == 25  # "misk_" + 20 chars
+
+    def test_make_channel_name_unique(self):
+        from app.services.calls import make_channel_name
+        import uuid
+        c1 = make_channel_name(uuid.uuid4())
+        c2 = make_channel_name(uuid.uuid4())
+        assert c1 != c2
+
+    def test_call_status_ended_with_duration(self):
+        from app.services.calls import call_status
+        call = _make_call(
+            started_at=datetime.now(timezone.utc) - timedelta(minutes=10),
+            ended_at=datetime.now(timezone.utc),
+            duration_seconds=600,
+        )
+        assert call_status(call) == "ended"
+
+    def test_call_status_missed(self):
+        from app.services.calls import call_status
+        call = _make_call(
+            started_at=None,
+            ended_at=datetime.now(timezone.utc),
+            duration_seconds=0,
+        )
+        assert call_status(call) == "missed"
+
+    def test_call_status_active(self):
+        from app.services.calls import call_status
+        call = _make_call(
+            started_at=datetime.now(timezone.utc) - timedelta(minutes=5),
+            ended_at=None,
+        )
+        assert call_status(call) == "active"
+
+    def test_call_status_ringing(self):
+        from app.services.calls import call_status
+        call = _make_call(started_at=None, ended_at=None)
+        call.scheduled_at = None
+        assert call_status(call) == "ringing"
+
+    def test_call_status_scheduled(self):
+        from app.services.calls import call_status
+        call = _make_call(started_at=None, ended_at=None)
+        call.scheduled_at = datetime.now(timezone.utc) + timedelta(hours=1)
+        assert call_status(call) == "scheduled"
+
+    def test_dev_token_deterministic(self):
+        from app.services.calls import _dev_token
+        t1 = _dev_token("channel1", 123)
+        t2 = _dev_token("channel1", 123)
+        assert t1 == t2
+        assert t1.startswith("dev_token_")
+
+    def test_dev_token_different_inputs(self):
+        from app.services.calls import _dev_token
+        t1 = _dev_token("channel1", 123)
+        t2 = _dev_token("channel2", 456)
+        assert t1 != t2
+
+    def test_generate_agora_token_dev_mode(self):
+        from app.services.calls import generate_agora_token
+        with patch("app.services.calls.settings") as mock_settings:
+            mock_settings.AGORA_APP_ID = ""
+            mock_settings.AGORA_APP_CERT = ""
+            mock_settings.is_production = False
+            token = generate_agora_token("test_channel", 1)
+            assert token.startswith("dev_token_")
+
+    def test_serialise_call_all_fields(self):
+        from app.services.calls import serialise_call
+        call = _make_call(
+            started_at=datetime.now(timezone.utc),
+            ended_at=None,
+        )
+        result = serialise_call(call)
+        assert result.id == call.id
+        assert result.match_id == call.match_id
+        assert result.status == "active"
+        assert result.token is None
+
+    def test_serialise_call_ended(self):
+        from app.services.calls import serialise_call
+        call = _make_call(
+            started_at=datetime.now(timezone.utc) - timedelta(minutes=5),
+            ended_at=datetime.now(timezone.utc),
+            duration_seconds=300,
+        )
+        result = serialise_call(call)
+        assert result.status == "ended"
+        assert result.duration_seconds == 300

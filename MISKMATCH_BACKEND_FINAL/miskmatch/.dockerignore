@@ -1,0 +1,57 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.eggs
+dist
+build
+*.egg
+
+# Virtual environments
+venv
+.venv
+env
+
+# Tests
+tests/
+pytest.ini
+.pytest_cache
+.coverage
+htmlcov
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+docs/
+
+# CI
+.github
+
+# Alembic (migrations run separately via deploy pipeline)
+# Keep alembic/ — needed for `alembic upgrade head` in container
+
+# Misc
+.mypy_cache
+.ruff_cache
+__pycache__
+*.log

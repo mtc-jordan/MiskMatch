@@ -149,13 +149,16 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AspectRatio(
-        aspectRatio: 3 / 4,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
+    return Semantics(
+      button: true,
+      label: 'View full profile for ${profile.displayFirstName}',
+      child: GestureDetector(
+        onTap: onTap,
+        child: AspectRatio(
+          aspectRatio: 3 / 4,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
             // Photo or placeholder
             profile.hasPhoto && profile.photoUrl != null
                 ? CachedNetworkImage(
@@ -285,7 +288,8 @@ class _HeroSection extends StatelessWidget {
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -687,16 +691,20 @@ class _BioSection extends StatelessWidget {
             ),
           ),
           if (bio.length > 100)
-            GestureDetector(
-              onTap: onToggle,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  expanded ? 'Show less' : 'Read more',
-                  style: AppTypography.labelSmall.copyWith(
-                    color:      AppColors.roseDeep,
-                    fontSize:   11,
-                    fontWeight: FontWeight.w600,
+            Semantics(
+              button: true,
+              label: expanded ? 'Collapse bio' : 'Expand bio',
+              child: GestureDetector(
+                onTap: onToggle,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    expanded ? 'Show less' : 'Read more',
+                    style: AppTypography.labelSmall.copyWith(
+                      color:      AppColors.roseDeep,
+                      fontSize:   11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -847,22 +855,30 @@ class _ActionRow extends StatelessWidget {
     return Row(
       children: [
         // Dismiss
-        _ActionCircle(
-          icon:    Icons.close_rounded,
-          bgColor: context.subtleBg,
-          fgColor: context.mutedText,
-          onTap:   onDismiss,
-          size:    50,
+        Semantics(
+          button: true,
+          label: 'Dismiss profile',
+          child: _ActionCircle(
+            icon:    Icons.close_rounded,
+            bgColor: context.subtleBg,
+            fgColor: context.mutedText,
+            onTap:   onDismiss,
+            size:    50,
+          ),
         ),
         const SizedBox(width: 10),
 
         // Profile
-        _ActionCircle(
-          icon:    Icons.person_outline_rounded,
-          bgColor: context.subtleBg,
-          fgColor: context.mutedText,
-          onTap:   onExpand,
-          size:    50,
+        Semantics(
+          button: true,
+          label: 'View full profile',
+          child: _ActionCircle(
+            icon:    Icons.person_outline_rounded,
+            bgColor: context.subtleBg,
+            fgColor: context.mutedText,
+            onTap:   onExpand,
+            size:    50,
+          ),
         ),
 
         const SizedBox(width: 12),

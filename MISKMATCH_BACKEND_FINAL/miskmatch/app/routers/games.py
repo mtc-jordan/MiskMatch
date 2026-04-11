@@ -68,6 +68,22 @@ async def get_game_catalogue(match_id: UUID, current_user: CurrentUser, db: DB):
 
 
 # ─────────────────────────────────────────────
+# MATCH MEMORY TIMELINE  (before /{match_id}/{game_type} to avoid capture)
+# ─────────────────────────────────────────────
+
+@router.get("/{match_id}/memory", summary="Match Memory timeline")
+async def get_memory_timeline(match_id: UUID, current_user: CurrentUser, db: DB):
+    """
+    The complete 'our story so far' chronicle.
+    Games completed, milestones, days together.
+    """
+    try:
+        return await game_svc.get_memory_timeline(db, match_id, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+# ─────────────────────────────────────────────
 # START A GAME
 # ─────────────────────────────────────────────
 
@@ -181,22 +197,6 @@ async def open_time_capsule(match_id: UUID, current_user: CurrentUser, db: DB):
         return result
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
-
-
-# ─────────────────────────────────────────────
-# MATCH MEMORY TIMELINE
-# ─────────────────────────────────────────────
-
-@router.get("/{match_id}/memory", summary="Match Memory timeline")
-async def get_memory_timeline(match_id: UUID, current_user: CurrentUser, db: DB):
-    """
-    The complete 'our story so far' chronicle.
-    Games completed, milestones, days together.
-    """
-    try:
-        return await game_svc.get_memory_timeline(db, match_id, current_user.id)
-    except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
 
 
 # ─────────────────────────────────────────────

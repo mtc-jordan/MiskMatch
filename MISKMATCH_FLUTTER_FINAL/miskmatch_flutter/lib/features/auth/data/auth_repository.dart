@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/core/api/api_client.dart';
 import 'package:miskmatch/core/api/api_endpoints.dart';
@@ -98,8 +99,8 @@ class AuthRepository {
   Future<void> logout() async {
     try {
       await dio.post(ApiEndpoints.authLogout);
-    } catch (_) {
-      // Best-effort — always clear local storage
+    } catch (e) {
+      debugPrint('AuthRepository.logout failed: $e');
     } finally {
       await storage.clearAll();
     }

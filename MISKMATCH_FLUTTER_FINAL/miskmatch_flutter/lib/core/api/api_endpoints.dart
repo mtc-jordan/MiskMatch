@@ -76,6 +76,17 @@ abstract class ApiEndpoints {
   static String waliMatch(String id) => '/wali/matches/$id';
   static String waliDecide(String id) => '/wali/matches/$id/decide';
 
+  // ── Calls ────────────────────────────────────────────────────────────────
+  static const callInitiate = '/calls/initiate';
+  static String callJoin(String id)        => '/calls/$id/join';
+  static String callEnd(String id)         => '/calls/$id/end';
+  static String callById(String id)        => '/calls/$id';
+  static String callMatchHistory(String matchId) => '/calls/match/$matchId';
+  static String callWaliApprove(String id) => '/calls/$id/wali-approve';
+
+  // ── Message media ────────────────────────────────────────────────────────
+  static String messageAudio(String matchId) => '/messages/$matchId/audio';
+
   // ── Compatibility ─────────────────────────────────────────────────────────
   static String compatMatch(String matchId) => '/compatibility/$matchId';
   static String compatPreview(String userId) => '/compatibility/preview/$userId';

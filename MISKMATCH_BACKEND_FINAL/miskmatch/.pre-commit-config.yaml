@@ -1,0 +1,57 @@
+# MiskMatch — Pre-commit Configuration
+# Install: pre-commit install
+# Run all: pre-commit run --all-files
+
+repos:
+  # ── General ─────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # ── Secrets Detection ───────────────────────────────────────────
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: |
+          (?x)^(
+            .*\.lock$|
+            .*\.example$|
+            .*package-lock\.json$
+          )$
+
+  # ── Python: Ruff (lint + import sort) ───────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+        types_or: [python]
+
+  # ── Python: Black (formatting) ──────────────────────────────────
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        types_or: [python]
+
+  # ── Python: MyPy (type checking) ────────────────────────────────
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        args: ["--ignore-missing-imports"]
+        additional_dependencies:
+          - types-redis
+        pass_filenames: false
+        entry: mypy app/
+        types_or: [python]

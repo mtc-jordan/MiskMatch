@@ -7,6 +7,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Incoming call screen — full-screen takeover with
 /// nightGradient bg, concentric pulse rings, and

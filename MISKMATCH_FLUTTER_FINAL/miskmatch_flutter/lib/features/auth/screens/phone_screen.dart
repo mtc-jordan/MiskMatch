@@ -8,6 +8,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 /// Combined register / login screen.
@@ -188,9 +189,9 @@ class _HeroSection extends StatelessWidget {
               const Spacer(),
 
               // Headline
-              const Text(
-                'Find your\nother half.',
-                style: TextStyle(
+              Text(
+                S.of(context).findYourOtherHalf,
+                style: const TextStyle(
                   fontFamily: 'Georgia', fontSize: 36,
                   fontWeight: FontWeight.w700, color: AppColors.white,
                   height: 1.2,
@@ -204,7 +205,7 @@ class _HeroSection extends StatelessWidget {
               const SizedBox(height: 10),
 
               Text(
-                'The Islamic way — with your guardian\'s blessing.',
+                S.of(context).islamicWayTagline,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.neutral300, fontStyle: FontStyle.italic),
               )
@@ -283,14 +284,14 @@ class _ContentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text('Enter your number',
+              Text(S.of(context).enterYourNumber,
                 style: AppTypography.titleLarge.copyWith(
                   fontSize: 20, fontWeight: FontWeight.w700,
                   color: context.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
-              Text('We\'ll send a verification code via SMS',
+              Text(S.of(context).verificationCodeHint,
                 style: AppTypography.bodySmall.copyWith(
                   fontSize: 13, color: context.mutedText),
               ),
@@ -339,8 +340,8 @@ class _ContentCard extends StatelessWidget {
                   // Phone field
                   Expanded(
                     child: MiskTextField(
-                      label:        'Phone number',
-                      hint:         '79 123 4567',
+                      label:        S.of(context).phoneNumber,
+                      hint:         S.of(context).phoneHint,
                       controller:   phoneCtr,
                       keyboardType: TextInputType.phone,
                       autofocus:    true,
@@ -348,7 +349,7 @@ class _ContentCard extends StatelessWidget {
                       onChanged:    onPhoneChanged,
                       validator: (v) {
                         if (v == null || v.replaceAll(' ', '').trim().length < 8) {
-                          return 'Enter a valid phone number';
+                          return S.of(context).enterValidPhone;
                         }
                         return null;
                       },
@@ -361,8 +362,8 @@ class _ContentCard extends StatelessWidget {
 
               // Password field
               MiskTextField(
-                label:           'Password',
-                hint:            'At least 8 characters',
+                label:           S.of(context).password,
+                hint:            S.of(context).passwordHint,
                 controller:      passCtr,
                 obscureText:     obscure,
                 keyboardType:    TextInputType.visiblePassword,
@@ -377,7 +378,7 @@ class _ContentCard extends StatelessWidget {
                 ),
                 validator: (v) {
                   if (v == null || v.length < 8) {
-                    return 'Password must be at least 8 characters';
+                    return S.of(context).passwordMinLength;
                   }
                   return null;
                 },
@@ -402,7 +403,7 @@ class _ContentCard extends StatelessWidget {
 
               // Submit
               MiskButton(
-                label:     isRegister ? 'Create account' : 'Sign in',
+                label:     isRegister ? S.of(context).createAccount : S.of(context).signIn,
                 onPressed: phoneValid ? onSubmit : null,
                 loading:   isLoading,
                 icon:      isRegister
@@ -418,11 +419,11 @@ class _ContentCard extends StatelessWidget {
                   TextSpan(
                     style: AppTypography.caption.copyWith(color: context.mutedText),
                     children: [
-                      const TextSpan(text: 'By continuing you agree to our '),
-                      TextSpan(text: 'Terms',
+                      TextSpan(text: S.of(context).byContAgreement),
+                      TextSpan(text: S.of(context).terms,
                         style: TextStyle(color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                       const TextSpan(text: ' & '),
-                      TextSpan(text: 'Privacy Policy',
+                      TextSpan(text: S.of(context).privacyPolicy,
                         style: TextStyle(color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                     ],
                   ),
@@ -440,7 +441,7 @@ class _ContentCard extends StatelessWidget {
                     Icon(Icons.mosque_rounded,
                         size: 14, color: context.mutedText.withOpacity(0.7)),
                     const SizedBox(width: 6),
-                    Text('Your guardian will be kept informed',
+                    Text(S.of(context).guardianInformed,
                       style: AppTypography.caption.copyWith(
                         fontSize: 9, color: context.mutedText,
                         fontStyle: FontStyle.italic),
@@ -509,9 +510,9 @@ class _ModeTab extends StatelessWidget {
         unselectedLabelStyle: AppTypography.labelMedium.copyWith(
             fontWeight: FontWeight.w400),
         dividerColor:         Colors.transparent,
-        tabs: const [
-          Tab(text: 'New account'),
-          Tab(text: 'Sign in'),
+        tabs: [
+          Tab(text: S.of(context).newAccount),
+          Tab(text: S.of(context).signIn),
         ],
       ),
     );
@@ -532,17 +533,17 @@ class _GenderPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('I am a',
+        Text(S.of(context).iAmA,
           style: AppTypography.titleSmall.copyWith(color: context.subtleText)),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(child: _GenderOption(
-              label: 'Brother', labelAr: 'أخ', icon: Icons.man_rounded,
+              label: S.of(context).brother, labelAr: 'أخ', icon: Icons.man_rounded,
               selected: value == 'male', onTap: () => onChange('male'))),
             const SizedBox(width: 12),
             Expanded(child: _GenderOption(
-              label: 'Sister', labelAr: 'أخت', icon: Icons.woman_rounded,
+              label: S.of(context).sister, labelAr: 'أخت', icon: Icons.woman_rounded,
               selected: value == 'female', onTap: () => onChange('female'))),
           ],
         ),
@@ -674,15 +675,15 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             ),
             const SizedBox(height: 16),
 
-            Text('Select country',
+            Text(S.of(context).selectCountry,
               style: AppTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
 
             // Search field
             MiskTextField(
-              label: 'Search',
-              hint:  'Country name or code',
+              label: S.of(context).search,
+              hint:  S.of(context).countryNameOrCode,
               prefixIcon: const Icon(Icons.search_rounded),
               onChanged: (v) => setState(() => _query = v),
             ),

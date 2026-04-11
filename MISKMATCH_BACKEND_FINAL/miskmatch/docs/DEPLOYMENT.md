@@ -268,6 +268,92 @@ DATABASE_URL=<prod-url> alembic downgrade -1
 
 ---
 
+## Developer Setup: Pre-commit Hooks
+
+Pre-commit hooks enforce code quality and prevent accidental secret commits.
+
+```bash
+# Install (from MISKMATCH_BACKEND_FINAL/miskmatch/)
+pip install pre-commit
+pre-commit install
+
+# Run on all files (first time)
+pre-commit run --all-files
+
+# Generate secrets baseline (first time only)
+detect-secrets scan > .secrets.baseline
+```
+
+**Hooks configured:**
+- `trailing-whitespace`, `end-of-file-fixer` — formatting
+- `check-added-large-files` ��� prevents >500KB files
+- `detect-secrets` — catches API keys, passwords, tokens
+- `ruff` — Python linting + import sorting
+- `black` — Python formatting
+- `mypy` — type checking
+
+---
+
+## Secrets Rotation Policy
+
+| Secret | Rotation Frequency | How to Rotate |
+|---|---|---|
+| `SECRET_KEY` | Every 6 months | Generate new key, update SSM, deploy. Old JWTs invalidate — users re-login |
+| `ADMIN_PASSWORD` | Every 3 months | Update in SSM, redeploy |
+| `DATABASE_URL` | On credential compromise | Rotate RDS master password, update SSM, redeploy |
+| `OPENAI_API_KEY` | Annually or on compromise | Regenerate in OpenAI dashboard, update SSM |
+| `STRIPE_SECRET_KEY` | On compromise | Roll in Stripe dashboard, update SSM + webhook secret |
+| `TWILIO_AUTH_TOKEN` | On compromise | Rotate in Twilio console, update SSM |
+| `AGORA_APP_CERT` | Annually | Regenerate in Agora console, update SSM |
+| `ONFIDO_API_KEY` | On compromise | Regenerate in Onfido dashboard, update SSM |
+| `AWS_ACCESS_KEY_ID` | Every 90 days | Create new IAM key, update SSM, delete old key |
+
+**Process:**
+1. Generate new secret value
+2. Update AWS Systems Manager Parameter Store
+3. Redeploy ECS service (picks up new env)
+4. Verify health check passes
+5. Delete/revoke old secret
+
+---
+
+## Monitoring & Observability
+
+### Dashboards
+
+| Service | URL | Purpose |
+|---|---|---|
+| **Sentry** | `https://sentry.io/organizations/<org>/issues/` | Error tracking, exception alerts |
+| **Prometheus** | `http://<internal>:9090` | Metrics (request latency, DB pool, queue depth) |
+| **Flower** | `http://<internal>:5555` | Celery task monitoring |
+| **CloudWatch** | AWS Console → ECS | Container health, CPU/memory, auto-scaling events |
+| **RDS Performance Insights** | AWS Console → RDS | Slow queries, DB load, connections |
+
+### Key Alerts to Configure
+
+| Alert | Threshold | Channel |
+|---|---|---|
+| Error rate spike | >5% of requests returning 5xx | Slack #ops |
+| API latency | p95 > 2s for 5 minutes | Slack #ops |
+| Database connections | >80% pool utilization | Slack #ops |
+| Disk space (RDS) | <20% free storage | Email + Slack |
+| Failed Celery tasks | >10 failures in 5 minutes | Slack #ops |
+| Report queue | >20 pending reports | Slack #moderation |
+
+### Health Check Endpoint
+
+```
+GET /health → 200 OK
+{
+  "status": "healthy",
+  "database": "connected",
+  "redis": "connected",
+  "version": "1.0.0"
+}
+```
+
+---
+
 ## Checklist Before Go-Live
 
 - [ ] All environment variables set in production
@@ -285,3 +371,7 @@ DATABASE_URL=<prod-url> alembic downgrade -1
 - [ ] Rate limiting verified (Redis connected)
 - [ ] CORS origins set for production domains
 - [ ] Test login + OTP flow end-to-end
+- [ ] Pre-commit hooks installed for all developers
+- [ ] Secrets baseline generated (`detect-secrets scan`)
+- [ ] Monitoring alerts configured (Sentry, CloudWatch)
+- [ ] Secrets rotation schedule documented and calendar reminders set

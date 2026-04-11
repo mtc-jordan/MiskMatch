@@ -3,10 +3,13 @@ MiskMatch — Auth Router
 Registration, login, OTP verification, token refresh.
 """
 
+import logging
 import random
 import string
 from datetime import datetime, timezone
 from typing import Annotated
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -405,8 +408,8 @@ async def logout(
         if jti:
             ttl = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
             await blacklist_token(jti, ttl)
-    except Exception:
-        pass  # token already validated by get_current_user
+    except Exception as e:
+        logger.warning(f"Token blacklist failed during logout: {e}")
 
     current_user.fcm_token = None
     await db.commit()

@@ -13,6 +13,7 @@ import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/core/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
@@ -146,8 +147,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          const Text('Discover',
-            style: TextStyle(
+          Text(S.of(context).discover,
+            style: const TextStyle(
               fontFamily:  'Georgia',
               fontSize:    22,
               fontWeight:  FontWeight.w700,
@@ -163,6 +164,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             IconButton(
               icon:      const Icon(Icons.tune_rounded, size: 22),
               color:     context.mutedText,
+              tooltip:   'Filter profiles',
               onPressed: () {},
             ),
             Positioned(
@@ -180,6 +182,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         IconButton(
           icon:      const Icon(Icons.refresh_rounded, size: 22),
           color:     context.mutedText,
+          tooltip:   'Refresh feed',
           onPressed: () {
             HapticFeedback.lightImpact();
             ref.read(discoveryProvider.notifier).refresh();
@@ -206,9 +209,12 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         error:   (_, __) => const SizedBox.shrink(),
         data: (c) {
           if (c.percentage >= 80) return const SizedBox.shrink();
-          return GestureDetector(
-            onTap: () => context.push(AppRoutes.profileEdit),
-            child: Container(
+          return Semantics(
+            button: true,
+            label: 'Profile ${c.percentage} percent complete, tap to continue editing',
+            child: GestureDetector(
+              onTap: () => context.push(AppRoutes.profileEdit),
+              child: Container(
               margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -257,7 +263,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Complete profile — 3× more matches',
+                          S.of(context).completeProfileMoreMatches,
                           style: AppTypography.labelMedium.copyWith(
                             color:      AppColors.goldDark,
                             fontWeight: FontWeight.w700,
@@ -289,7 +295,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 ],
               ),
             ),
-          )
+          ),
+              )
               .animate()
               .slideY(begin: -0.3, end: 0, duration: 400.ms,
                       curve: Curves.easeOutCubic)
@@ -388,7 +395,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 color: context.mutedText)),
         const SizedBox(height: 24),
         MiskButton(
-          label:     'Try again',
+          label:     S.of(context).tryAgain,
           onPressed: () => ref.read(discoveryProvider.notifier).refresh(),
           variant:   MiskButtonVariant.outline,
           fullWidth: false,
@@ -430,7 +437,7 @@ class _FeedHeader extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            'Sorted by compatibility',
+            S.of(context).sortedByCompatibility,
             style: AppTypography.labelSmall.copyWith(
               color:    context.mutedText.withOpacity(0.6),
               fontSize: 10,
@@ -487,7 +494,7 @@ class _InterestSentCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'May Allah make it khayr 🤲',
+                S.of(context).mayAllahMakeItKhayr,
                 style: AppTypography.labelSmall.copyWith(
                   color:    AppColors.success.withOpacity(0.7),
                   fontSize: 10,
@@ -689,7 +696,7 @@ class _EmptyState extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          Text('No candidates yet',
+          Text(S.of(context).noMoreCandidates,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    26,

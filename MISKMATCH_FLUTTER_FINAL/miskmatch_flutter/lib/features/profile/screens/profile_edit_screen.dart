@@ -10,6 +10,7 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/features/auth/providers/auth_provider.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// 5-step profile creation / edit wizard.
 /// Steps: Basic → Islamic → Life Goals → Career → Bio & Voice
@@ -49,13 +50,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   String?   _educationLevel;
   bool      _isSaving = false;
 
-  static const _stepTitles = [
-    'Basic Info',
-    'Islamic Identity',
-    'Life Goals',
-    'Education & Career',
-    'About You',
-  ];
+  List<String> _stepTitles(BuildContext context) {
+    final l = S.of(context);
+    return [l.basicInfo, l.islamicIdentity, l.lifeGoals, l.educationAndCareer, l.aboutYou];
+  }
 
   @override
   void initState() {
@@ -98,7 +96,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   void _nextStep() {
-    if (_step < _stepTitles.length - 1) {
+    if (_step < 5 - 1) {
       setState(() => _step++);
       _pageCtrl.nextPage(
           duration: 350.ms, curve: Curves.easeOutCubic);
@@ -181,7 +179,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           icon: const Icon(Icons.close_rounded),
           onPressed: _prevStep,
         ),
-        title: Text(_stepTitles[_step],
+        title: Text(_stepTitles(context)[_step],
           style: AppTypography.titleMedium.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -209,7 +207,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           AnimatedContainer(
             duration: 350.ms,
             child: LinearProgressIndicator(
-              value:           (_step + 1) / _stepTitles.length,
+              value:           (_step + 1) / 5,
               backgroundColor: AppColors.roseLight.withOpacity(0.3),
               valueColor: const AlwaysStoppedAnimation(AppColors.roseDeep),
               minHeight: 3,
@@ -276,7 +274,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              child: _step < _stepTitles.length - 1
+              child: _step < 5 - 1
                   ? MiskButton(
                       label:     'Continue',
                       onPressed: _nextStep,
@@ -345,14 +343,12 @@ class _StepBasic extends StatelessWidget {
 
       // Date of birth
       MiskTextField(
-        label:    'Date of birth',
-        hint:     'Tap to select',
+        label:    S.of(context).dateOfBirth,
+        hint:     S.of(context).tapToSelect,
         readOnly: true,
-        controller: TextEditingController(
-          text: dateOfBirth != null
-              ? '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
-              : '',
-        ),
+        initialValue: dateOfBirth != null
+            ? '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
+            : '',
         prefixIcon: const Icon(Icons.cake_outlined),
         onTap: () async {
           final now = DateTime.now();
@@ -361,7 +357,7 @@ class _StepBasic extends StatelessWidget {
             initialDate: dateOfBirth ?? DateTime(now.year - 25),
             firstDate:   DateTime(1940),
             lastDate:    DateTime(now.year - 18, now.month, now.day),
-            helpText:    'You must be 18+',
+            helpText:    S.of(context).mustBe18,
           );
           if (picked != null) onDateOfBirth(picked);
         },
@@ -370,7 +366,7 @@ class _StepBasic extends StatelessWidget {
       const SizedBox(height: 14),
 
       MiskTextField(
-        label: 'City',
+        label: S.of(context).city,
         controller: cityCtrl,
         prefixIcon: const Icon(Icons.location_city_outlined),
         textInputAction: TextInputAction.next,
@@ -1128,10 +1124,9 @@ class _HijraToggle extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: MiskTextField(
-                    label: 'Hijra destination country',
-                    hint:  'e.g. Malaysia, Turkey, Jordan',
-                    controller: TextEditingController(
-                        text: hijraCountry ?? ''),
+                    label: S.of(context).hijraDestination,
+                    hint:  S.of(context).hijraHint,
+                    initialValue: hijraCountry ?? '',
                     prefixIcon: const Icon(Icons.public_rounded),
                     onChanged: onCountry,
                   ),

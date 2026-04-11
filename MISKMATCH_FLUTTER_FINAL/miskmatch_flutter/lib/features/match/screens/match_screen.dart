@@ -14,6 +14,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 class MatchScreen extends ConsumerWidget {
   const MatchScreen({super.key, required this.matchId});
@@ -48,7 +49,7 @@ class MatchScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 MiskButton(
-                  label:     'Retry',
+                  label:     S.of(context).retry,
                   onPressed: () =>
                       ref.refresh(matchDetailProvider(matchId)),
                   fullWidth: false,
@@ -94,8 +95,8 @@ class MatchScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       match.status.canChat
-                          ? 'Active'
-                          : 'Awaiting families',
+                          ? S.of(context).activeMatches
+                          : S.of(context).awaitingFamilies,
                       style: AppTypography.labelSmall.copyWith(
                         color: match.status.canChat
                             ? AppColors.success
@@ -352,7 +353,7 @@ class _QuickActions extends ConsumerWidget {
             // Chat button — rose
             Expanded(
               child: MiskButton(
-                label:     'Chat',
+                label:     S.of(context).chat,
                 onPressed: match.status.canChat
                     ? () => context.push(AppRoutes.chatPath(matchId))
                     : null,
@@ -363,7 +364,7 @@ class _QuickActions extends ConsumerWidget {
             // Games button — outline
             Expanded(
               child: MiskButton(
-                label:     'Games',
+                label:     S.of(context).games,
                 onPressed: match.status.canPlayGames
                     ? () => context.push(
                         AppRoutes.gameHubPath(matchId))
@@ -474,22 +475,22 @@ class _CompatibilityCard extends StatelessWidget {
           // 4 breakdown bars
           if (breakdown != null) ...[
             _BreakdownBar(
-              label: 'Deen',
+              label: S.of(context).deen,
               score: (breakdown['deen'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: 'Life Goals',
+              label: S.of(context).lifeGoals,
               score: (breakdown['life_goals'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: 'Personality',
+              label: S.of(context).personality,
               score: (breakdown['personality'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: 'Practical',
+              label: S.of(context).practical,
               score: (breakdown['practical'] as num?)?.toDouble() ?? 0,
             ),
           ],

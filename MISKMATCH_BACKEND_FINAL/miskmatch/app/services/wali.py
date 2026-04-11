@@ -178,7 +178,7 @@ async def setup_wali(
     db.add(wali_rel)
     await db.flush()
 
-    logger.info(f"Wali setup: ward={ward_id} wali={data.wali_phone}")
+    logger.info(f"Wali setup: ward={ward_id} wali={data.wali_phone[:6]}***")
     return wali_rel
 
 
@@ -224,7 +224,7 @@ async def send_wali_invitation(
     await db.flush()
 
     logger.info(
-        f"Wali invitation sent: ward={ward_id} wali_phone={wali_rel.wali_phone} "
+        f"Wali invitation sent: ward={ward_id} wali_phone={wali_rel.wali_phone[:6]}*** "
         f"sms_delivered={sms_sent}"
     )
 
@@ -298,7 +298,7 @@ async def accept_wali_invitation(
         "wali_accepted",
     )
 
-    logger.info(f"Wali accepted: ward={ward_id} wali={wali_rel.wali_phone}")
+    logger.info(f"Wali accepted: ward={ward_id} wali={wali_rel.wali_phone[:6]}***")
 
     return {
         "accepted":     True,

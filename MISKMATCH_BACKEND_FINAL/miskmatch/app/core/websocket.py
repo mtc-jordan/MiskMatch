@@ -74,12 +74,14 @@ class ConnectionManager:
         websocket: WebSocket,
         user_id: UUID,
         match_id: UUID,
+        already_accepted: bool = False,
     ) -> None:
         """
         Accept a WebSocket connection and register it.
         Publishes a presence event to the Redis channel.
         """
-        await websocket.accept()
+        if not already_accepted:
+            await websocket.accept()
 
         uid  = str(user_id)
         mid  = str(match_id)
@@ -127,8 +129,8 @@ class ConnectionManager:
                     "at":      datetime.now(timezone.utc).isoformat(),
                 },
             })
-        except Exception:
-            pass  # Presence on disconnect is best-effort
+        except Exception as e:
+            logger.debug(f"Presence broadcast on disconnect failed: {e}")
 
         logger.info(f"WS disconnected: user={uid} match={mid}")
 
@@ -186,7 +188,8 @@ class ConnectionManager:
         for uid, ws in local_connections.items():
             try:
                 await ws.send_json(event)
-            except Exception:
+            except Exception as e:
+                logger.debug(f"Local delivery failed for {uid}: {e}")
                 self._connections.get(match_id, {}).pop(uid, None)
 
     # ─────────────────────────────────────────
@@ -276,15 +279,16 @@ class ConnectionManager:
                 3600,  # 1 hour TTL
                 datetime.now(timezone.utc).isoformat(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"set_last_seen failed for {user_id}: {e}")
 
     async def get_last_seen(self, user_id: UUID) -> Optional[str]:
         """Retrieve last seen timestamp from Redis."""
         try:
             redis = await self.get_redis()
             return await redis.get(f"miskmatch:presence:{user_id}")
-        except Exception:
+        except Exception as e:
+            logger.debug(f"get_last_seen failed for {user_id}: {e}")
             return None
 
 

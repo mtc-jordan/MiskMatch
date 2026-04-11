@@ -292,7 +292,8 @@ class MatchTimelineCard extends StatelessWidget {
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
       ];
       return '${dt.day} ${months[dt.month]} ${dt.year}';
-    } catch (_) {
+    } catch (e) {
+      debugPrint('WaliStatusCard._formatDate parse failed: $e');
       return '';
     }
   }

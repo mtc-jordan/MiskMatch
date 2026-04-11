@@ -11,6 +11,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from tests.conftest import mock_db_result
 
+# Ensure 'stripe' module is available even if not installed
+_stripe_mock = MagicMock()
+_stripe_mock.SignatureVerificationError = type("SignatureVerificationError", (Exception,), {})
+_stripe_mock.Webhook = MagicMock()
+
+
+@pytest.fixture(autouse=True)
+def _mock_stripe_module():
+    """Make 'import stripe' succeed even without the package installed."""
+    import sys
+    with patch.dict(sys.modules, {"stripe": _stripe_mock}):
+        yield
+
 
 # ─────────────────────────────────────────────
 # STRIPE WEBHOOKS

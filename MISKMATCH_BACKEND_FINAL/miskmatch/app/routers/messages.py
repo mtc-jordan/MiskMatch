@@ -14,6 +14,7 @@ WebSocket:
     WS   /messages/ws/{match_id}      → Real-time bidirectional chat
 """
 
+import asyncio
 import json
 import logging
 from typing import Annotated, Optional
@@ -54,16 +55,20 @@ DB          = Annotated[AsyncSession, Depends(get_db)]
 async def websocket_chat(
     websocket: WebSocket,
     match_id: UUID,
-    token: str = Query(..., description="JWT access token"),
+    token: Optional[str] = Query(None, description="JWT access token (deprecated — use first-message auth)"),
 ):
     """
     WebSocket endpoint for real-time chat.
 
-    Authentication:
-        Pass the JWT access token as query param: ?token=<access_token>
-        (Headers not supported in WebSocket by most clients)
+    Authentication (two methods, in order of preference):
+        1. First-message auth (recommended):
+           Connect without token, then send:
+           { "type": "authenticate", "payload": { "token": "<access_token>" } }
+        2. Query param (deprecated — token visible in logs):
+           ?token=<access_token>
 
     Client sends events:
+        { "type": "authenticate", "payload": { "token": "..." } }  ← must be first msg if no query token
         { "type": "send_message", "payload": { "content": "...", "content_type": "text" } }
         { "type": "mark_read", "payload": { "message_ids": ["uuid1", "uuid2"] } }
         { "type": "typing_start", "payload": {} }
@@ -79,7 +84,30 @@ async def websocket_chat(
         { "type": "pong",         "payload": {} }
         { "type": "error",        "payload": { "message": "..." } }
     """
-    # ── Auth via query param ──────────────────
+    # ── Auth: prefer first-message, fall back to query param ──
+    _already_accepted = False
+    if token:
+        # Legacy query-param auth (backward compatible)
+        logger.debug("WS auth via query param (deprecated)")
+    else:
+        # First-message auth: accept connection, wait for authenticate event
+        _already_accepted = True
+        await websocket.accept()
+        try:
+            raw = await asyncio.wait_for(websocket.receive_text(), timeout=10.0)
+            event = json.loads(raw)
+            if event.get("type") != "authenticate" or not event.get("payload", {}).get("token"):
+                await websocket.send_json({
+                    "type": WSEventType.ERROR,
+                    "payload": {"message": "First message must be an authenticate event"},
+                })
+                await websocket.close(code=4001, reason="Authentication required")
+                return
+            token = event["payload"]["token"]
+        except (asyncio.TimeoutError, json.JSONDecodeError, Exception):
+            await websocket.close(code=4001, reason="Authentication timeout")
+            return
+
     try:
         payload = decode_token(token)
         if payload.get("type") != "access":
@@ -122,7 +150,7 @@ async def websocket_chat(
         display_name = profile.first_name if profile else "User"
 
     # ── Connect ───────────────────────────────
-    await manager.connect(websocket, user_id, match_id)
+    await manager.connect(websocket, user_id, match_id, already_accepted=_already_accepted)
     await manager.set_last_seen(user_id)
 
     # Send confirmation to the connecting client
@@ -574,6 +602,8 @@ async def wali_read_conversation(
             page=page,
             page_size=page_size,
         )
+        # Mark this conversation as read by the wali
+        await msg_svc.mark_wali_conversation_read(db, match_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
 

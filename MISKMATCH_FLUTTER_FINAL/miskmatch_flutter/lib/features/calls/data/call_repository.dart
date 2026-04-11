@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/core/api/api_client.dart';
+import 'package:miskmatch/core/api/api_endpoints.dart';
 import 'package:miskmatch/shared/models/api_response.dart';
 import 'call_models.dart';
 
@@ -11,7 +12,7 @@ class CallRepository {
   // ── Initiate call ─────────────────────────────────────────────────────────
   Future<ApiResult<CallModel>> initiateCall(InitiateCallRequest req) async {
     try {
-      final res = await _dio.post('/calls/initiate', data: req.toJson());
+      final res = await _dio.post(ApiEndpoints.callInitiate, data: req.toJson());
       if (res.statusCode == 200) {
         return ApiSuccess(CallModel.fromJson(res.data as Map<String, dynamic>));
       }
@@ -26,7 +27,7 @@ class CallRepository {
       String callId, String participantType) async {
     try {
       final res = await _dio.post(
-        '/calls/$callId/join',
+        ApiEndpoints.callJoin(callId),
         data: {'participant_type': participantType},
       );
       if (res.statusCode == 200) {
@@ -43,7 +44,7 @@ class CallRepository {
       {String? reason}) async {
     try {
       final res = await _dio.post(
-        '/calls/$callId/end',
+        ApiEndpoints.callEnd(callId),
         data: {'reason': reason ?? 'completed'},
       );
       if (res.statusCode == 200) {
@@ -58,7 +59,7 @@ class CallRepository {
   // ── Get call ──────────────────────────────────────────────────────────────
   Future<ApiResult<CallModel>> getCall(String callId) async {
     try {
-      final res = await _dio.get('/calls/$callId');
+      final res = await _dio.get(ApiEndpoints.callById(callId));
       if (res.statusCode == 200) {
         return ApiSuccess(CallModel.fromJson(res.data as Map<String, dynamic>));
       }
@@ -71,7 +72,7 @@ class CallRepository {
   // ── Call history for a match ──────────────────────────────────────────────
   Future<ApiResult<List<CallModel>>> getMatchHistory(String matchId) async {
     try {
-      final res = await _dio.get('/calls/match/$matchId');
+      final res = await _dio.get(ApiEndpoints.callMatchHistory(matchId));
       if (res.statusCode == 200) {
         final data  = res.data as Map<String, dynamic>;
         final calls = (data['calls'] as List<dynamic>? ?? [])
@@ -90,7 +91,7 @@ class CallRepository {
       String callId, bool approved) async {
     try {
       final res = await _dio.post(
-        '/calls/$callId/wali-approve',
+        ApiEndpoints.callWaliApprove(callId),
         queryParameters: {'approved': approved},
       );
       if (res.statusCode == 200) {

@@ -11,6 +11,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, required this.matchId});
@@ -276,7 +277,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
               Text(
-                isOnline ? 'Online' : 'Last seen recently',
+                isOnline ? S.of(context).online : S.of(context).lastSeenRecently,
                 style: AppTypography.labelSmall.copyWith(
                   color:    isOnline
                       ? AppColors.success
@@ -293,7 +294,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         IconButton(
           icon: const Icon(Icons.videocam_outlined, size: 22),
           color: context.mutedText,
-          tooltip: 'Chaperoned call',
+          tooltip: S.of(context).chaperonedCall,
           onPressed: () {},
         ),
         // More menu
@@ -327,7 +328,7 @@ class _MessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (groups.isEmpty) return const _EmptyChatState();
+    if (groups.isEmpty) return _EmptyChatState();
 
     final items = <_ChatItem>[];
     for (final group in groups) {
@@ -390,12 +391,12 @@ class _DateDivider extends StatelessWidget {
   const _DateDivider({required this.date});
   final DateTime date;
 
-  String get _label {
+  String _label(BuildContext context) {
     final now   = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final d     = DateTime(date.year, date.month, date.day);
-    if (d == today) return 'Today';
-    if (d == today.subtract(const Duration(days: 1))) return 'Yesterday';
+    if (d == today) return S.of(context).today;
+    if (d == today.subtract(const Duration(days: 1))) return S.of(context).yesterday;
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -416,7 +417,7 @@ class _DateDivider extends StatelessWidget {
               color:        context.subtleBg,
               borderRadius: BorderRadius.circular(100),
             ),
-            child: Text(_label,
+            child: Text(_label(context),
               style: AppTypography.labelSmall.copyWith(
                 color:    context.mutedText,
                 fontSize: 11,
@@ -438,7 +439,7 @@ class _DateDivider extends StatelessWidget {
 // ─────────────────────────────────────────────
 
 class _WaliApprovalBanner extends StatelessWidget {
-  const _WaliApprovalBanner();
+  _WaliApprovalBanner();
 
   @override
   Widget build(BuildContext context) {
@@ -457,7 +458,7 @@ class _WaliApprovalBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Waiting for family blessings',
+              S.of(context).waitingForFamilyBlessings,
               style: AppTypography.bodySmall.copyWith(
                 color:      AppColors.goldDark,
                 fontWeight: FontWeight.w500,
@@ -531,7 +532,7 @@ class _ChatLoading extends StatelessWidget {
 }
 
 class _EmptyChatState extends StatelessWidget {
-  const _EmptyChatState();
+  _EmptyChatState();
 
   @override
   Widget build(BuildContext context) {
@@ -543,7 +544,7 @@ class _EmptyChatState extends StatelessWidget {
           const Text('🌙', style: TextStyle(fontSize: 56)),
           const SizedBox(height: 20),
           Text(
-            'Bismillah — begin with the best',
+            S.of(context).bismillahBeginBest,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
@@ -554,8 +555,7 @@ class _EmptyChatState extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Start the conversation with a sincere greeting. '
-            'Your wali can see all messages.',
+            S.of(context).startConversation,
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
               color:  context.mutedText,

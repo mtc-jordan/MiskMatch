@@ -108,7 +108,7 @@ def process_profile_photo(
 
     try:
         img = Image.open(io.BytesIO(raw_bytes))
-    except Exception:
+    except (OSError, SyntaxError):  # PIL raises these for corrupt/invalid images
         raise ValueError("File is not a valid image")
 
     # Minimum resolution check
@@ -328,7 +328,7 @@ def _get_audio_duration(file_bytes: bytes) -> Optional[float]:
         audio = MutagenFile(io.BytesIO(file_bytes))
         if audio and hasattr(audio, "info") and hasattr(audio.info, "length"):
             return float(audio.info.length)
-    except Exception:
+    except (ImportError, OSError, ValueError):
         pass
     return None
 
@@ -344,6 +344,6 @@ def extract_s3_key_from_url(url: str) -> Optional[str]:
         parts = url.split(".amazonaws.com/")
         if len(parts) == 2:
             return parts[1]
-    except Exception:
+    except (AttributeError, ValueError):
         pass
     return None

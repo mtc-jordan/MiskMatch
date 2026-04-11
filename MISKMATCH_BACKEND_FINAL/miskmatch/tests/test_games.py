@@ -227,7 +227,7 @@ from app.routers.auth import get_current_active_user
 from tests.conftest import TEST_USER_ID
 
 
-@pytest.fixture(autouse=True, scope="class")
+@pytest.fixture(autouse=True)
 def _override_deps_http(test_user, mock_db):
     """Override FastAPI deps for HTTP endpoint tests."""
     from app.main import app

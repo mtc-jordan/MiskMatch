@@ -95,9 +95,9 @@ def _validate_production_config() -> None:
         missing.append("SENTRY_DSN (error tracking)")
     if not settings.STRIPE_SECRET_KEY:
         missing.append("STRIPE_SECRET_KEY")
-    if settings.ADMIN_PASSWORD in ("", "change-this-immediately"):
+    if settings.ADMIN_PASSWORD in ("", "change-this-immediately", "CHANGE_ME_for_production"):
         missing.append("ADMIN_PASSWORD (must be changed)")
-    if "localhost" in settings.DATABASE_URL:
+    if any(h in settings.DATABASE_URL for h in ("localhost", "127.0.0.1", "0.0.0.0", "::1")):
         missing.append("DATABASE_URL (still pointing to localhost)")
 
     if missing:
@@ -238,18 +238,38 @@ async def request_logging_middleware(request: Request, call_next):
 # ─────────────────────────────────────────────
 # Rate limiting middleware (Redis-backed)
 # ─────────────────────────────────────────────
+# Exact-path rate limits
 _RATE_LIMIT_ROUTES = {
     "/api/v1/auth/register":   (5,  60),   # 5 per minute
     "/api/v1/auth/login":      (10, 60),   # 10 per minute
     "/api/v1/auth/verify-otp": (10, 60),   # 10 per minute
     "/api/v1/auth/resend-otp": (3,  60),   # 3 per minute
+    "/api/v1/webhooks/stripe": (60, 60),   # 60 per minute (Stripe bursts)
+    "/api/v1/webhooks/onfido": (30, 60),   # 30 per minute
 }
+
+# Prefix-based rate limits (for parameterized routes)
+_RATE_LIMIT_PREFIXES = [
+    ("/api/v1/profiles/", (20, 60)),       # 20 per minute — prevent user enumeration
+]
+
+
+def _match_rate_limit(path: str):
+    """Return (max_requests, window) for a path, or None."""
+    if path in _RATE_LIMIT_ROUTES:
+        return _RATE_LIMIT_ROUTES[path]
+    for prefix, limit in _RATE_LIMIT_PREFIXES:
+        if path.startswith(prefix) and path != "/api/v1/profiles/me":
+            return limit
+    return None
+
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     path = request.url.path
-    if path in _RATE_LIMIT_ROUTES:
-        max_requests, window = _RATE_LIMIT_ROUTES[path]
+    limit = _match_rate_limit(path)
+    if limit:
+        max_requests, window = limit
         client_ip = request.client.host if request.client else "unknown"
         key = f"{client_ip}:{path}"
 
@@ -257,8 +277,15 @@ async def rate_limit_middleware(request: Request, call_next):
             from app.core.redis import check_rate_limit
             allowed = await check_rate_limit(key, max_requests, window)
         except Exception as e:
-            # If Redis is down, allow the request (fail-open) but log it
-            logger.warning(f"Rate limit check failed (fail-open): {e}")
+            logger.warning(f"Rate limit check failed: {e}")
+            # Fail-closed on auth endpoints (prevent brute force),
+            # fail-open elsewhere (preserve availability)
+            is_auth_path = path.startswith("/api/v1/auth/")
+            if is_auth_path:
+                return JSONResponse(
+                    status_code=503,
+                    content={"detail": "Service temporarily unavailable. Please try again."},
+                )
             allowed = True
 
         if not allowed:
@@ -346,7 +373,8 @@ async def health():
         async with AsyncSessionLocal() as db:
             await db.execute(text("SELECT 1"))
     except Exception as e:
-        checks["database"] = f"error: {e}"
+        logger.error(f"Health check — database error: {e}")
+        checks["database"] = "error"
 
     # Redis check
     try:
@@ -355,7 +383,8 @@ async def health():
         r = await get_redis()
         await r.ping()
     except Exception as e:
-        checks["redis"] = f"error: {e}"
+        logger.error(f"Health check — Redis error: {e}")
+        checks["redis"] = "error"
 
     all_ok = all(v == "ok" for v in checks.values())
 

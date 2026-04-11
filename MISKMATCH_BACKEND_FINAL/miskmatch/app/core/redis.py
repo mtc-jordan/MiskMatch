@@ -115,30 +115,31 @@ async def cache_get(key: str) -> Optional[str]:
     try:
         r = await get_redis()
         return await r.get(f"{_CACHE_PREFIX}{key}")
-    except Exception:
+    except Exception as e:
+        logger.debug(f"cache_get failed for '{key}': {e}")
         return None
 
 
 async def cache_set(key: str, value: str, ttl_seconds: int = 300) -> None:
-    """Set a cached value with TTL. Fails silently."""
+    """Set a cached value with TTL. Best-effort."""
     try:
         r = await get_redis()
         await r.setex(f"{_CACHE_PREFIX}{key}", ttl_seconds, value)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"cache_set failed for '{key}': {e}")
 
 
 async def cache_delete(key: str) -> None:
-    """Delete a cached key. Fails silently."""
+    """Delete a cached key. Best-effort."""
     try:
         r = await get_redis()
         await r.delete(f"{_CACHE_PREFIX}{key}")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"cache_delete failed for '{key}': {e}")
 
 
 async def cache_delete_pattern(pattern: str) -> None:
-    """Delete all keys matching a pattern. Fails silently."""
+    """Delete all keys matching a pattern. Best-effort."""
     try:
         r = await get_redis()
         cursor = 0
@@ -149,5 +150,5 @@ async def cache_delete_pattern(pattern: str) -> None:
                 await r.delete(*keys)
             if cursor == 0:
                 break
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"cache_delete_pattern failed for '{pattern}': {e}")

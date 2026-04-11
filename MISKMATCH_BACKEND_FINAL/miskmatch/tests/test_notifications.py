@@ -50,10 +50,10 @@ class TestSendSms:
         mock_settings.TWILIO_AUTH_TOKEN = "test_auth_token"
         mock_settings.TWILIO_PHONE = "+15551234567"
 
-        mock_client_instance = MagicMock()
-        mock_client_instance.messages.create.return_value = MagicMock(sid="SM123")
+        mock_client_cls = MagicMock()
 
-        with patch("app.services.notifications.asyncio.to_thread", new_callable=AsyncMock) as mock_thread:
+        with patch("app.services.notifications.asyncio.to_thread", new_callable=AsyncMock) as mock_thread, \
+             patch.dict("sys.modules", {"twilio": MagicMock(), "twilio.rest": MagicMock(Client=mock_client_cls)}):
             mock_thread.return_value = MagicMock(sid="SM123")
 
             from app.services.notifications import send_sms
@@ -72,7 +72,8 @@ class TestSendSms:
         mock_settings.TWILIO_AUTH_TOKEN = "test_auth_token"
         mock_settings.TWILIO_PHONE = "+15551234567"
 
-        with patch("app.services.notifications.asyncio.to_thread", new_callable=AsyncMock) as mock_thread:
+        with patch("app.services.notifications.asyncio.to_thread", new_callable=AsyncMock) as mock_thread, \
+             patch.dict("sys.modules", {"twilio": MagicMock(), "twilio.rest": MagicMock(Client=MagicMock())}):
             mock_thread.side_effect = Exception("Twilio connection failed")
 
             from app.services.notifications import send_sms

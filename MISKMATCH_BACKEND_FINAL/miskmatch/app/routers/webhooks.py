@@ -82,6 +82,16 @@ async def stripe_webhook(
     data = event["data"]["object"]
     logger.info(f"Stripe webhook received: {event_type}")
 
+    HANDLED_EVENTS = {
+        "invoice.paid",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "invoice.payment_failed",
+    }
+    if event_type not in HANDLED_EVENTS:
+        logger.info(f"Stripe webhook: ignoring unhandled event type '{event_type}'")
+        return {"received": True, "handled": False}
+
     # ── invoice.paid — activate or renew subscription ──
     if event_type == "invoice.paid":
         customer_id = data.get("customer")

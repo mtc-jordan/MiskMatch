@@ -8,6 +8,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Decision card for pending match approvals in the Wali Portal.
 ///
@@ -188,7 +189,7 @@ class DecisionCard extends ConsumerWidget {
                           Icon(Icons.chat_bubble_outline_rounded,
                             size: 14, color: context.mutedText),
                           const SizedBox(width: 6),
-                          Text('Their message:',
+                          Text(S.of(context).theirMessage,
                             style: AppTypography.labelSmall.copyWith(
                               color: context.mutedText),
                           ),
@@ -198,7 +199,7 @@ class DecisionCard extends ConsumerWidget {
                       Text(
                         decision.senderMessage.isNotEmpty
                             ? decision.senderMessage
-                            : 'No message provided.',
+                            : S.of(context).noMessageProvided,
                         style: AppTypography.bodySmall.copyWith(
                           color:  context.subtleText,
                           height: 1.6,
@@ -238,7 +239,7 @@ class DecisionCard extends ConsumerWidget {
                             context, ref, approved: false),
                         icon: const Icon(Icons.close_rounded,
                           color: AppColors.error, size: 18),
-                        label: const Text('Decline'),
+                        label: Text(S.of(context).decline),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.error,
                           side: const BorderSide(color: AppColors.error),
@@ -257,7 +258,7 @@ class DecisionCard extends ConsumerWidget {
                             context, ref, approved: true),
                         icon: const Icon(Icons.check_rounded,
                           color: AppColors.white, size: 18),
-                        label: const Text('Approve'),
+                        label: Text(S.of(context).approve),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
                           foregroundColor: AppColors.white,
@@ -414,8 +415,8 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
           SnackBar(
             content: Text(
               widget.approved
-                  ? 'Alhamdulillah — Match approved. Barakallah feekum.'
-                  : 'Match respectfully declined.',
+                  ? S.of(context).matchApprovedMsg
+                  : S.of(context).matchDeclinedMsg,
             ),
             backgroundColor: widget.approved
                 ? AppColors.success
@@ -471,8 +472,8 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
             // Title
             Text(
               isApprove
-                  ? 'Approve this match?'
-                  : 'Decline this match?',
+                  ? S.of(context).approveThisMatch
+                  : S.of(context).declineThisMatch,
               style: TextStyle(
                 fontFamily:  'Georgia',
                 fontSize:    22,
@@ -544,9 +545,9 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
               controller: _notesCtrl,
               maxLines:   3,
               decoration: InputDecoration(
-                labelText: 'Notes (optional)',
+                labelText: S.of(context).notesOptional,
                 hintText: isApprove
-                    ? 'Any conditions or guidance for this match...'
+                    ? S.of(context).approveGuidanceHint
                     : 'Reason for declining (private — not shared)...',
                 filled:    true,
                 fillColor: context.surfaceColor,
@@ -588,8 +589,8 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
                       )
                     : Text(
                         isApprove
-                            ? 'Yes — approve this match'
-                            : 'Yes — decline this match',
+                            ? S.of(context).yesApprove
+                            : S.of(context).yesDecline,
                         style: const TextStyle(
                           fontSize:   15,
                           fontWeight: FontWeight.w600,
@@ -604,7 +605,7 @@ class _DecisionSheetState extends ConsumerState<_DecisionSheet> {
             // Cancel — ghost button
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Go back — not yet decided',
+              child: Text(S.of(context).goBackNotDecided,
                 style: AppTypography.bodySmall.copyWith(
                   color: context.mutedText),
               ),

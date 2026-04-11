@@ -18,6 +18,7 @@ from app.models.models import (
     WaliRelationship, Profile, User, Notification,
 )
 from app.services.moderation import moderate_message, should_alert_wali
+from app.core.redis import get_redis
 
 logger = logging.getLogger(__name__)
 
@@ -350,6 +351,13 @@ async def get_wali_conversations(
             )
             stats = stats_result.one()
 
+            # Per-wali unread count: messages the wali hasn't seen yet.
+            # A message is "unread for the wali" if it was created after
+            # the wali's last read timestamp for this match.
+            unread_count = await _wali_unread_count(
+                db, match.id, wali_user_id, latest_msg,
+            )
+
             summaries.append({
                 "match_id":        str(match.id),
                 "ward_name":       ward_profile.first_name if ward_profile else "Ward",
@@ -359,10 +367,84 @@ async def get_wali_conversations(
                 "match_status":    match.status,
                 "message_count":   stats.total or 0,
                 "flagged_count":   stats.flagged or 0,
-                "unread_count":    0,  # TODO: per-wali read tracking
+                "unread_count":    unread_count,
             })
 
     return summaries
+
+
+_WALI_LASTREAD_PREFIX = "miskmatch:wali:lastread"
+
+
+async def _wali_unread_count(
+    db: AsyncSession,
+    match_id: UUID,
+    wali_user_id: UUID,
+    latest_msg: Optional[Message],
+) -> int:
+    """
+    Count messages the wali hasn't seen yet.
+    Uses Redis to store the timestamp of the wali's last read per match.
+    Falls back to counting all messages if Redis is unavailable.
+    """
+    if not latest_msg:
+        return 0
+
+    try:
+        r = await get_redis()
+        key = f"{_WALI_LASTREAD_PREFIX}:{wali_user_id}:{match_id}"
+        last_read = await r.get(key)
+
+        if not last_read:
+            # Wali has never read this conversation — all messages are unread
+            count_result = await db.execute(
+                select(func.count()).select_from(Message).where(
+                    Message.match_id == match_id,
+                )
+            )
+            return count_result.scalar() or 0
+
+        from datetime import datetime, timezone
+        last_read_dt = datetime.fromisoformat(last_read)
+
+        count_result = await db.execute(
+            select(func.count()).select_from(Message).where(
+                and_(
+                    Message.match_id == match_id,
+                    Message.created_at > last_read_dt,
+                )
+            )
+        )
+        return count_result.scalar() or 0
+
+    except (ConnectionError, OSError, TimeoutError, ValueError) as exc:
+        logger.debug(f"Redis unavailable for wali unread tracking ({exc}), returning 0")
+        return 0
+
+
+async def mark_wali_conversation_read(
+    db: AsyncSession,
+    match_id: UUID,
+    wali_user_id: UUID,
+) -> None:
+    """
+    Mark a wali conversation as read (store current timestamp in Redis).
+    Called when the wali opens/views a match's message history.
+    """
+    has_access = await _can_access_messages(db, match_id, wali_user_id)
+    if not has_access:
+        raise ValueError("You do not have guardian access to this conversation.")
+
+    try:
+        from datetime import datetime, timezone
+        r = await get_redis()
+        key = f"{_WALI_LASTREAD_PREFIX}:{wali_user_id}:{match_id}"
+        now = datetime.now(timezone.utc).isoformat()
+        await r.set(key, now)
+        # Expire after 90 days (matches rarely last longer)
+        await r.expire(key, 90 * 86400)
+    except (ConnectionError, OSError, TimeoutError) as exc:
+        logger.debug(f"Redis unavailable — wali read marker not persisted ({exc})")
 
 
 async def get_wali_messages(

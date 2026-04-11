@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/core/api/api_client.dart';
 import 'package:miskmatch/core/api/api_endpoints.dart';
@@ -46,6 +47,9 @@ class ChatRepository {
     String          contentType = 'text',
     String?         mediaUrl,
   }) async {
+    if (contentType == 'text' && content.trim().isEmpty) {
+      return ApiError(AppError(message: 'Message content cannot be empty'));
+    }
     try {
       final res = await _dio.post(
         ApiEndpoints.messages(matchId),
@@ -74,10 +78,8 @@ class ChatRepository {
           filename: 'voice_${DateTime.now().millisecondsSinceEpoch}.m4a',
         ),
       });
-      // Upload to profile voice endpoint for now; in prod use a dedicated
-      // message-media endpoint
       final res = await _dio.post(
-        '/messages/$matchId/audio',
+        ApiEndpoints.messageAudio(matchId),
         data:    formData,
         options: Options(contentType: 'multipart/form-data'),
       );
@@ -98,7 +100,9 @@ class ChatRepository {
         ApiEndpoints.messagesRead(matchId),
         data: {'message_ids': messageIds},
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('ChatRepository.markRead failed: $e');
+    }
   }
 
   // ── Report message ────────────────────────────────────────────────────────

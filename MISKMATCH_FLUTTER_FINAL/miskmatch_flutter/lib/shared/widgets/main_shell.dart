@@ -110,33 +110,38 @@ class _NavTab extends StatelessWidget {
         ? theme.colorScheme.primary
         : theme.colorScheme.onSurfaceVariant;
 
-    return GestureDetector(
-      onTap:     onTap,
-      behavior:  HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve:    Curves.easeOutCubic,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                selected ? tab.activeIcon : tab.icon,
-                key:   ValueKey(selected),
-                color: color,
-                size:  24,
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: tab.label,
+      child: GestureDetector(
+        onTap:     onTap,
+        behavior:  HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve:    Curves.easeOutCubic,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  selected ? tab.activeIcon : tab.icon,
+                  key:   ValueKey(selected),
+                  color: color,
+                  size:  24,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              tab.label,
-              style: AppTypography.labelSmall.copyWith(
-                color:      color,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              const SizedBox(height: 4),
+              Text(
+                tab.label,
+                style: AppTypography.labelSmall.copyWith(
+                  color:      color,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

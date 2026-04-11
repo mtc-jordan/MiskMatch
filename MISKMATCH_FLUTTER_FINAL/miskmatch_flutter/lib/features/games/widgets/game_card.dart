@@ -27,14 +27,17 @@ class GameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: game.unlocked
-          ? () {
-              HapticFeedback.lightImpact();
-              onTap();
-            }
-          : null,
-      child: AnimatedContainer(
+    return Semantics(
+      button: game.unlocked,
+      label: _semanticsLabel(),
+      child: GestureDetector(
+        onTap: game.unlocked
+            ? () {
+                HapticFeedback.lightImpact();
+                onTap();
+              }
+            : null,
+        child: AnimatedContainer(
         duration: 250.ms,
         decoration: BoxDecoration(
           color:        _bgColor(context),
@@ -109,11 +112,28 @@ class GameCard extends StatelessWidget {
           ),
         ),
       ),
+      ),
     )
         .animate(delay: Duration(milliseconds: index * 60))
         .fadeIn(duration: 350.ms)
         .slideY(begin: 0.05, end: 0, duration: 350.ms,
             curve: Curves.easeOutCubic);
+  }
+
+  String _semanticsLabel() {
+    if (!game.unlocked) {
+      return '${game.name}, locked, unlocks day ${game.unlockDay}';
+    }
+    if (game.status.isDone) {
+      return '${game.name}, complete';
+    }
+    if (game.status.isPlayable && !game.myTurn) {
+      return '${game.name}, in progress, waiting for partner';
+    }
+    if (game.status.isPlayable && game.myTurn) {
+      return '${game.name}, in progress, ${game.progress}';
+    }
+    return '${game.name}, tap to start';
   }
 
   Widget _buildBottom(BuildContext context) {

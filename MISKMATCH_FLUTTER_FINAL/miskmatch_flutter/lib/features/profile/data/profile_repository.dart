@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miskmatch/core/api/api_client.dart';
 import 'package:miskmatch/core/api/api_endpoints.dart';
@@ -19,11 +20,9 @@ class ProfileRepository {
       if (res.statusCode == 200) {
         return ApiSuccess(UserProfile.fromJson(res.data as Map<String, dynamic>));
       }
-      return ApiSuccess(_mockMyProfile);
-    } on DioException catch (_) {
-      return ApiSuccess(_mockMyProfile);
-    } catch (_) {
-      return ApiSuccess(_mockMyProfile);
+      return ApiError(AppError.fromResponse(res.statusCode, res.data));
+    } on DioException catch (e) {
+      return ApiError(AppError.fromDio(e));
     }
   }
 
@@ -81,11 +80,9 @@ class ProfileRepository {
         return ApiSuccess(
             ProfileCompletion.fromJson(res.data as Map<String, dynamic>));
       }
-      return ApiSuccess(_mockCompletion);
-    } on DioException catch (_) {
-      return ApiSuccess(_mockCompletion);
-    } catch (_) {
-      return ApiSuccess(_mockCompletion);
+      return ApiError(AppError.fromResponse(res.statusCode, res.data));
+    } on DioException catch (e) {
+      return ApiError(AppError.fromDio(e));
     }
   }
 
@@ -143,8 +140,8 @@ class ProfileRepository {
   Future<void> triggerReembed() async {
     try {
       await _dio.post(ApiEndpoints.compatEmbed);
-    } catch (_) {
-      // best-effort — non-critical
+    } catch (e) {
+      debugPrint('ProfileRepository.triggerReembed failed: $e');
     }
   }
 }
@@ -152,46 +149,4 @@ class ProfileRepository {
 // ── Provider ──────────────────────────────────────────────────────────────────
 final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepository(ref.watch(dioProvider)),
-);
-
-// ─────────────────────────────────────────────
-// MOCK DATA — used when backend is unreachable
-// ─────────────────────────────────────────────
-
-const _mockMyProfile = UserProfile(
-  userId:           'me-001',
-  firstName:        'Motasem',
-  lastName:         'Al-Rashid',
-  displayName:      'Motasem',
-  age:              28,
-  city:             'Amman',
-  country:          'Jordan',
-  nationality:      'Jordanian',
-  languages:        ['Arabic', 'English'],
-  bio:              'A practicing Muslim from Amman striving to build a life '
-                    'centred around deen and family. Software developer by '
-                    'profession, student of knowledge by heart. I believe '
-                    'the best of you are the best to their families.',
-  madhab:           Madhab.hanafi,
-  prayerFrequency:  PrayerFrequency.allFive,
-  quranLevel:       'memorising',
-  isRevert:         false,
-  educationLevel:   'masters',
-  occupation:       'Software Developer',
-  wantsChildren:    true,
-  numChildrenDesired: '3-4',
-  hajjTimeline:     'within_3_years',
-  wantsHijra:       false,
-  islamicFinanceStance: 'strict',
-  trustScore:       85,
-  mosqueVerified:   true,
-  idVerified:       true,
-  minAge:           22,
-  maxAge:           32,
-);
-
-const _mockCompletion = ProfileCompletion(
-  percentage:    72,
-  missingFields: ['photo', 'voice_intro', 'hijab_stance'],
-  nextStep:      'Add a photo to get 3× more matches',
 );

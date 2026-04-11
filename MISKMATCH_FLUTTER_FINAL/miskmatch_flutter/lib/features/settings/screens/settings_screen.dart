@@ -12,6 +12,7 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Settings screen — rosePale bg, Georgia "Settings" roseDeep appbar.
 ///
@@ -58,8 +59,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       backgroundColor: context.scaffoldColor,
       appBar: AppBar(
         leading: const BackButton(),
-        title: const Text('Settings',
-          style: TextStyle(
+        title: Text(S.of(context).settings,
+          style: const TextStyle(
             fontFamily:  'Georgia',
             fontSize:    20,
             color:       AppColors.roseDeep,
@@ -76,11 +77,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // ACCOUNT
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: '👤', label: 'Account'),
+          _SectionHeader(icon: Icons.person_outline_rounded, label: S.of(context).account),
 
           _SettingsTile(
             icon:     Icons.phone_outlined,
-            label:    'Phone number',
+            label:    S.of(context).phoneNumber,
             trailing: Text('+•••••••••••',
               style: AppTypography.bodySmall.copyWith(
                 color: context.mutedText)),
@@ -88,15 +89,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           _SwitchTile(
             icon:     Icons.notifications_outlined,
-            label:    'Push notifications',
-            subtitle: 'New matches, messages, game turns',
+            label:    S.of(context).pushNotifications,
+            subtitle: S.of(context).pushNotificationsDesc,
             value:    _notificationsEnabled,
             onChange: (v) => setState(() => _notificationsEnabled = v),
           ),
 
           _SwitchTile(
             icon:     Icons.fingerprint_rounded,
-            label:    'Biometric lock',
+            label:    S.of(context).biometricLock,
             subtitle: 'Require Face ID / fingerprint on open',
             value:    _biometricEnabled,
             onChange: (v) => setState(() => _biometricEnabled = v),
@@ -107,7 +108,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // GUARDIAN (WALI)
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: '🛡️', label: 'Guardian (Wali)'),
+          _SectionHeader(icon: Icons.shield_outlined, label: S.of(context).guardianWali),
 
           _GuardianStatusTile(
             waliStatus: waliStatus,
@@ -124,7 +125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // APPEARANCE
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: '🎨', label: 'Appearance'),
+          _SectionHeader(icon: Icons.palette_outlined, label: S.of(context).appearance),
 
           _ThemeSegmentTile(
             themeMode: _themeMode,
@@ -136,11 +137,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // PRIVACY
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: '🔒', label: 'Privacy'),
+          _SectionHeader(icon: Icons.lock_outline_rounded, label: S.of(context).privacy),
 
           _SwitchTile(
             icon:     Icons.photo_outlined,
-            label:    'Show photo before mutual interest',
+            label:    S.of(context).showPhotoBeforeMutual,
             subtitle: 'Off — photo revealed only after both sides show interest',
             value:    _photoVisible,
             onChange: (v) => setState(() => _photoVisible = v),
@@ -151,11 +152,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // ABOUT
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: 'ℹ️', label: 'About'),
+          _SectionHeader(icon: Icons.info_outline_rounded, label: S.of(context).about),
 
           _SettingsTile(
             icon:     Icons.info_outline_rounded,
-            label:    'Version',
+            label:    S.of(context).version,
             trailing: Text(_appVersion,
               style: AppTypography.bodySmall.copyWith(
                 color: context.mutedText)),
@@ -163,25 +164,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           _SettingsTile(
             icon:  Icons.description_outlined,
-            label: 'Terms of service',
+            label: S.of(context).termsOfService,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.privacy_tip_outlined,
-            label: 'Privacy policy',
+            label: S.of(context).privacyPolicy,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.email_outlined,
-            label: 'Contact support',
+            label: S.of(context).contactSupport,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.star_outline_rounded,
-            label: 'Rate MiskMatch',
+            label: S.of(context).rateMiskMatch,
             onTap: () {},
           ),
 
@@ -192,9 +193,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
             child: Center(
               child: Column(children: [
-                const Text(
-                  'ختامه مسك',
-                  style: TextStyle(
+                Text(
+                  S.of(context).sealIsMusk,
+                  style: const TextStyle(
                     fontFamily: 'Scheherazade',
                     fontSize:   18,
                     color:      AppColors.goldPrimary,
@@ -202,7 +203,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 Text(
-                  '"Its seal is musk." — Quran 83:26',
+                  S.of(context).sealIsMuskTranslation,
                   style: AppTypography.bodySmall.copyWith(
                     color:     context.mutedText,
                     fontStyle: FontStyle.italic,
@@ -217,18 +218,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // DANGER ZONE
           // ═══════════════════════════════════════════
-          const _SectionHeader(icon: '⚠️', label: 'Account actions'),
+          _SectionHeader(icon: Icons.warning_amber_rounded, label: S.of(context).accountActions),
 
           _SettingsTile(
             icon:      Icons.logout_rounded,
-            label:     'Sign out',
+            label:     S.of(context).signOut,
             textColor: AppColors.error,
             onTap:     () => _showLogoutSheet(context, ref),
           ),
 
           _SettingsTile(
             icon:      Icons.delete_forever_outlined,
-            label:     'Delete account',
+            label:     S.of(context).deleteAccount,
             textColor: AppColors.error,
             onTap:     () => _showDeleteSheet(context),
           ),
@@ -245,10 +246,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context:         context,
       backgroundColor: Colors.transparent,
       builder: (_) => _ConfirmSheet(
-        emoji:     '🚪',
-        title:     'Sign out?',
-        body:      'You can sign back in with your phone number at any time.',
-        confirm:   'Sign out',
+        icon:      Icons.logout_rounded,
+        title:     '${S.of(context).signOut}?',
+        body:      S.of(context).signOutBody,
+        confirm:   S.of(context).signOut,
         isDanger:  false,
         onConfirm: () async {
           Navigator.pop(context);
@@ -264,11 +265,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context:         context,
       backgroundColor: Colors.transparent,
       builder: (_) => _ConfirmSheet(
-        emoji:     '⚠️',
-        title:     'Delete account?',
-        body:      'This permanently deletes your profile, matches, and all '
-                   'conversation history. This cannot be undone.',
-        confirm:   'Delete my account',
+        icon:      Icons.warning_amber_rounded,
+        iconColor: AppColors.error,
+        title:     '${S.of(context).deleteAccount}?',
+        body:      S.of(context).deleteAccountWarning,
+        confirm:   S.of(context).deleteMyAccount,
         isDanger:  true,
         onConfirm: () async {
           Navigator.pop(context);
@@ -301,15 +302,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.icon, required this.label});
-  final String icon;
-  final String label;
+  final IconData icon;
+  final String   label;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 6),
       child: Row(children: [
-        Text(icon, style: const TextStyle(fontSize: 16)),
+        Icon(icon, size: 16, color: context.mutedText),
         const SizedBox(width: 8),
         Text(label.toUpperCase(),
           style: TextStyle(
@@ -523,15 +524,15 @@ class _ThemeSegmentTile extends StatelessWidget {
             segments: const [
               ButtonSegment(
                 value: ThemeMode.light,
-                label: Text('☀️', style: TextStyle(fontSize: 14)),
+                label: Icon(Icons.light_mode_outlined, size: 16),
               ),
               ButtonSegment(
                 value: ThemeMode.system,
-                label: Text('Auto', style: TextStyle(fontSize: 12)),
+                label: Icon(Icons.brightness_auto_outlined, size: 16),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
-                label: Text('🌙', style: TextStyle(fontSize: 14)),
+                label: Icon(Icons.dark_mode_outlined, size: 16),
               ),
             ],
             selected:            {themeMode},
@@ -665,7 +666,8 @@ class _GuardianStatusTile extends StatelessWidget {
 
 class _ConfirmSheet extends StatelessWidget {
   const _ConfirmSheet({
-    required this.emoji,
+    required this.icon,
+    this.iconColor,
     required this.title,
     required this.body,
     required this.confirm,
@@ -673,7 +675,8 @@ class _ConfirmSheet extends StatelessWidget {
     required this.isDanger,
   });
 
-  final String       emoji;
+  final IconData     icon;
+  final Color?       iconColor;
   final String       title;
   final String       body;
   final String       confirm;
@@ -702,8 +705,8 @@ class _ConfirmSheet extends StatelessWidget {
           ),
         ),
 
-        // Emoji — spring scale
-        Text(emoji, style: const TextStyle(fontSize: 44))
+        // Icon — spring scale
+        Icon(icon, size: 44, color: iconColor ?? context.onSurface)
             .animate()
             .scaleXY(begin: 0.5, end: 1.0,
                 duration: 500.ms,
@@ -762,7 +765,7 @@ class _ConfirmSheet extends StatelessWidget {
 
         // Cancel — ghost
         MiskButton(
-          label:     'Cancel',
+          label:     S.of(context).cancel,
           onPressed: () => Navigator.pop(context),
           variant:   MiskButtonVariant.ghost,
         ),

@@ -40,8 +40,16 @@ jobs:
       - name: Check formatting
         run: dart format --set-exit-if-changed lib/
 
-      - name: Run tests
-        run: flutter test --no-pub || echo "No tests yet — skipping"
+      - name: Run tests with coverage
+        run: flutter test --no-pub --coverage || echo "No tests yet — skipping"
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: MISKMATCH_FLUTTER_FINAL/miskmatch_flutter/coverage/lcov.info
+          retention-days: 30
 
   # ── Build APK ──────────────────────────────────────────────────────────────
   build-android:

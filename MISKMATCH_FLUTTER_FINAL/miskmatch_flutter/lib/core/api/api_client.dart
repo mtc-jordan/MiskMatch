@@ -63,19 +63,25 @@ class ApiClient {
 
   /// Pin the API server's SSL certificate by SHA-256 fingerprint.
   /// Update these fingerprints when certificates are rotated.
-  static void _applyCertificatePinning(Dio dio) {
-    // SHA-256 fingerprints of the API server's leaf certificate.
-    // To get your cert fingerprint:
-    //   openssl s_client -connect api.miskmatch.app:443 < /dev/null 2>/dev/null |
-    //     openssl x509 -fingerprint -sha256 -noout
-    const pinnedFingerprints = <String>{
-      // Primary cert (replace with your actual fingerprint before production)
-      // Format: 'AA:BB:CC:DD:...' (uppercase hex with colons)
-    };
+  ///
+  /// To get your cert fingerprint:
+  ///   openssl s_client -connect api.miskmatch.app:443 < /dev/null 2>/dev/null |
+  ///     openssl x509 -fingerprint -sha256 -noout
+  static const _pinnedFingerprints = <String>{
+    // ── ADD YOUR FINGERPRINTS HERE BEFORE PRODUCTION RELEASE ──
+    // Primary cert — format: 'AA:BB:CC:DD:...' (uppercase hex with colons)
+    // Backup cert — add a second fingerprint for rotation safety
+  };
 
-    if (pinnedFingerprints.isEmpty) {
-      // No fingerprints configured — skip pinning (log in debug)
-      debugPrint('Certificate pinning: no fingerprints configured, skipping');
+  static void _applyCertificatePinning(Dio dio) {
+    if (_pinnedFingerprints.isEmpty) {
+      // BLOCK production builds with no fingerprints — this is a security gate
+      assert(
+        !AppConfig.isProduction,
+        'Certificate pinning fingerprints MUST be configured before production release. '
+        'See api_client.dart _pinnedFingerprints.',
+      );
+      debugPrint('Certificate pinning: no fingerprints configured, skipping (non-production)');
       return;
     }
 
@@ -89,7 +95,11 @@ class ApiClient {
           (b) => b.toRadixString(16).padLeft(2, '0').toUpperCase(),
         ).join(':');
 
-        return pinnedFingerprints.contains(fingerprint);
+        final pinned = _pinnedFingerprints.contains(fingerprint);
+        if (!pinned) {
+          debugPrint('Certificate pinning FAILED for $host — fingerprint: $fingerprint');
+        }
+        return pinned;
       };
       return client;
     };

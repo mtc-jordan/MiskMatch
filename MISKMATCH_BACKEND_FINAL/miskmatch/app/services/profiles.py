@@ -10,7 +10,6 @@ from uuid import UUID
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.models.models import User, Profile, Family
 from app.schemas.profiles import (
@@ -30,17 +29,10 @@ logger = logging.getLogger(__name__)
 async def get_profile_by_user_id(
     db: AsyncSession,
     user_id: UUID,
-    include_family: bool = True,
+    include_family: bool = True,  # kept for API compat; family is fetched separately
 ) -> Optional[Profile]:
-    """
-    Fetch a user's profile, optionally including family.
-    Uses eager loading to avoid N+1 queries.
-    """
+    """Fetch a user's profile by user_id."""
     stmt = select(Profile).where(Profile.user_id == user_id)
-
-    if include_family:
-        stmt = stmt.options(selectinload(Profile.user))
-
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 

@@ -30,8 +30,8 @@ def _get_firebase_app():
         _firebase_app = firebase_admin.initialize_app(cred)
         logger.info("Firebase Admin SDK initialised")
         return _firebase_app
-    except Exception as e:
-        logger.error(f"Firebase Admin SDK init failed: {e}")
+    except (ImportError, ValueError, OSError) as e:
+        logger.error(f"Firebase Admin SDK init failed ({type(e).__name__}): {e}")
         return None
 
 
@@ -42,7 +42,7 @@ def _get_firebase_app():
 async def send_otp_sms(phone: str, otp: str) -> None:
     """Send OTP via Twilio SMS."""
     if settings.is_development:
-        logger.info(f"[DEV] OTP for {phone}: {otp}")
+        logger.info(f"[DEV] OTP sent to {phone[:6]}***")
         return
 
     if not settings.TWILIO_ACCOUNT_SID or not settings.TWILIO_AUTH_TOKEN:
@@ -59,8 +59,10 @@ async def send_otp_sms(phone: str, otp: str) -> None:
             to=phone,
         )
         logger.info(f"OTP SMS sent to {phone[:6]}***")
-    except Exception as e:
-        logger.error(f"SMS failed for {phone[:6]}***: {e}")
+    except ImportError:
+        logger.error(f"SMS failed for {phone[:6]}***: twilio package not installed")
+    except Exception as e:  # TwilioRestException and network errors
+        logger.error(f"SMS failed for {phone[:6]}*** ({type(e).__name__}): {e}")
 
 
 async def send_sms(phone: str, body: str) -> bool:
@@ -84,8 +86,11 @@ async def send_sms(phone: str, body: str) -> bool:
         )
         logger.info(f"SMS sent to {phone[:6]}***")
         return True
-    except Exception as e:
-        logger.error(f"SMS failed for {phone[:6]}***: {e}")
+    except ImportError:
+        logger.error(f"SMS failed for {phone[:6]}***: twilio package not installed")
+        return False
+    except Exception as e:  # TwilioRestException and network errors
+        logger.error(f"SMS failed for {phone[:6]}*** ({type(e).__name__}): {e}")
         return False
 
 
@@ -150,7 +155,7 @@ async def send_push_notification(
         logger.info(f"Push sent: {title} → {response}")
         return True
 
-    except Exception as e:
+    except Exception as e:  # firebase_admin.messaging errors + network
         error_msg = str(e)
         if "UNREGISTERED" in error_msg or "INVALID_ARGUMENT" in error_msg:
             logger.warning(f"FCM token invalid/expired for push: {title}")

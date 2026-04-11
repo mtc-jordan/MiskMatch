@@ -492,7 +492,7 @@ from app.models.models import Match, MatchStatus, User, UserRole
 from tests.conftest import TEST_USER_ID
 
 
-@pytest.fixture(autouse=True, scope="class")
+@pytest.fixture(autouse=True)
 def _override_compat_deps(test_user, mock_db):
     async def _fake_get_db():
         yield mock_db
@@ -640,3 +640,133 @@ class TestCompatibilityHTTP:
     async def test_admin_reembed_forbidden_for_non_admin(self, client):
         resp = await client.post("/api/v1/compatibility/admin/reembed")
         assert resp.status_code == 403
+
+
+# ─────────────────────────────────────────────
+# EDGE CASES & BOUNDARY TESTS
+# ─────────────────────────────────────────────
+
+class TestCompatibilityEdgeCases:
+
+    def test_dealbreaker_children_mismatch_scores_zero(self):
+        a = make_profile(wants_children=True)
+        b = make_profile(wants_children=False)
+        result = compute_hybrid_score(a, b)
+        assert result.final_score == 0.0
+        assert result.dealbreaker is True
+
+    def test_dealbreaker_extreme_prayer_gap(self):
+        a = make_profile(prayer_frequency="all_five", wants_children=True)
+        b = make_profile(prayer_frequency="friday_only", wants_children=True)
+        score, _, is_db, _ = _rule_score(a, b)
+        assert is_db is True
+
+    def test_empty_embeddings_produce_valid_result(self):
+        a = make_profile(compatibility_embedding=None, wants_children=True)
+        b = make_profile(compatibility_embedding=None, wants_children=True)
+        result = compute_hybrid_score(a, b)
+        assert result.has_ai is False
+        assert 0 <= result.final_score <= 100
+
+    def test_zero_vector_embeddings(self):
+        zero_vec = [0.0] * EMBEDDING_DIMS
+        a = make_profile(compatibility_embedding=zero_vec, wants_children=True)
+        b = make_profile(compatibility_embedding=zero_vec, wants_children=True)
+        result = compute_hybrid_score(a, b)
+        assert 0 <= result.final_score <= 100
+
+    def test_one_sided_embedding(self):
+        vec = [0.1] * EMBEDDING_DIMS
+        a = make_profile(compatibility_embedding=vec, wants_children=True)
+        b = make_profile(compatibility_embedding=None, wants_children=True)
+        result = compute_hybrid_score(a, b)
+        # Should still work — falls back to rule-only scoring
+        assert 0 <= result.final_score <= 100
+
+    def test_identical_profiles_score_high(self):
+        kwargs = dict(
+            prayer_frequency="all_five", madhab="hanbali",
+            quran_level="hafiz", wants_children=True,
+            hajj_timeline="within_5_years", trust_score=90,
+            mosque_verified=True,
+        )
+        a = make_profile(**kwargs)
+        b = make_profile(**kwargs)
+        result = compute_hybrid_score(a, b)
+        assert result.final_score >= 70
+
+    def test_opposite_profiles_score_low(self):
+        a = make_profile(
+            prayer_frequency="all_five", madhab="hanbali",
+            wants_children=True, trust_score=90,
+            mosque_verified=True,
+        )
+        b = make_profile(
+            prayer_frequency="working_on", madhab="hanafi",
+            wants_children=True, trust_score=30,
+            mosque_verified=False,
+        )
+        result_low = compute_hybrid_score(a, b)
+        result_high = compute_hybrid_score(a, a)
+        assert result_high.final_score > result_low.final_score
+
+    def test_age_range_symmetric(self):
+        old = make_profile(
+            date_of_birth=datetime(1985, 1, 1, tzinfo=timezone.utc),
+            min_age=20, max_age=45,
+        )
+        young = make_profile(
+            date_of_birth=datetime(2000, 1, 1, tzinfo=timezone.utc),
+            min_age=20, max_age=45,
+        )
+        assert _age_range_compatible(old, young) == _age_range_compatible(young, old)
+
+    def test_age_boundary_exact_min(self):
+        """Candidate is exactly at seeker's minimum age."""
+        seeker = make_profile(
+            date_of_birth=datetime(1990, 1, 1, tzinfo=timezone.utc),
+            min_age=25, max_age=40,
+        )
+        candidate = make_profile(
+            date_of_birth=datetime(2001, 1, 1, tzinfo=timezone.utc),  # ~25 years old
+            min_age=20, max_age=45,
+        )
+        assert _age_range_compatible(seeker, candidate) is True
+
+    def test_explanation_tier_incompatible_for_dealbreaker(self):
+        a = make_profile(wants_children=True)
+        b = make_profile(wants_children=False)
+        result = compute_hybrid_score(a, b)
+        explanation = explain_compatibility(result, "male")
+        assert explanation["tier"] == "incompatible"
+        assert explanation["insights"] == []
+
+    def test_explanation_insights_non_empty_for_good_match(self):
+        a = make_profile(wants_children=True, prayer_frequency="all_five")
+        b = make_profile(wants_children=True, prayer_frequency="all_five")
+        result = compute_hybrid_score(a, b)
+        explanation = explain_compatibility(result, "female")
+        assert len(explanation["insights"]) > 0
+
+    def test_to_dict_contains_all_keys(self):
+        a = make_profile(wants_children=True)
+        b = make_profile(wants_children=True)
+        result = compute_hybrid_score(a, b)
+        d = result.to_dict()
+        assert "final_score" in d
+        assert "rule_score" in d
+        assert "ai_score" in d
+        assert "breakdown" in d
+        assert "dealbreaker_reason" in d
+
+    def test_mock_embedding_encodes_madhab(self):
+        p1 = make_profile(madhab="hanbali")
+        p2 = make_profile(madhab="maliki")
+        v1 = mock_embedding_from_profile(p1)
+        v2 = mock_embedding_from_profile(p2)
+        assert v1 != v2
+
+    def test_similarity_to_score_clamps_to_0_100(self):
+        assert 0 <= similarity_to_score(-1.0) <= 100
+        assert 0 <= similarity_to_score(1.0) <= 100
+        assert 0 <= similarity_to_score(0.0) <= 100

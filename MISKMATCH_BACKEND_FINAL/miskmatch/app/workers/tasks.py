@@ -65,9 +65,11 @@ def _run_async(coro):
         if loop.is_running():
             import nest_asyncio
             nest_asyncio.apply()
+            logger.debug("nest_asyncio: patching running event loop for Celery task")
             return loop.run_until_complete(coro)
         return loop.run_until_complete(coro)
-    except RuntimeError:
+    except RuntimeError as exc:
+        logger.warning(f"Event loop unavailable ({exc}), falling back to asyncio.run()")
         return asyncio.run(coro)
 
 

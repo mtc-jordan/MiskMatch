@@ -7,6 +7,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// In-call screen — full-screen active call with
 /// top gradient bar, video/audio areas, wali indicator,
@@ -370,8 +371,8 @@ class _AudioArea extends StatelessWidget {
               callState.isActive
                   ? callState.elapsedFormatted
                   : callState.isRinging
-                      ? 'Ringing...'
-                      : 'Connecting...',
+                      ? S.of(context).ringing
+                      : S.of(context).connecting,
               style: AppTypography.bodyMedium.copyWith(
                 color: const Color(0xFFAAAAAA)),
             ),
@@ -439,7 +440,7 @@ class _VideoPlaceholder extends StatelessWidget {
           ),
           if (!isSmall) ...[
             const SizedBox(height: 12),
-            Text(isMuted ? '(Camera off)' : name,
+            Text(isMuted ? S.of(context).cameraOff : name,
               style: AppTypography.bodySmall.copyWith(
                 color: const Color(0xFFAAAAAA)),
             ),
@@ -496,7 +497,7 @@ class _WaliIndicator extends StatelessWidget {
         const Text('🛡️', style: TextStyle(fontSize: 13)),
         const SizedBox(width: 5),
         Text(
-          joined ? 'Guardian present' : 'Guardian invited',
+          joined ? S.of(context).guardianPresent : S.of(context).guardianInvited,
           style: AppTypography.labelSmall.copyWith(
             color: joined
                 ? AppColors.success
@@ -579,7 +580,7 @@ class _ControlBar extends StatelessWidget {
             icon:   callState.myAudioMuted
                 ? Icons.mic_off_rounded
                 : Icons.mic_rounded,
-            label:  callState.myAudioMuted ? 'Unmute' : 'Mute',
+            label:  callState.myAudioMuted ? S.of(context).unmute : S.of(context).mute,
             active: !callState.myAudioMuted,
             onTap:  onMic,
             danger: callState.myAudioMuted,
@@ -591,7 +592,7 @@ class _ControlBar extends StatelessWidget {
               icon:   callState.myVideoMuted
                   ? Icons.videocam_off_rounded
                   : Icons.videocam_rounded,
-              label:  callState.myVideoMuted ? 'Start cam' : 'Stop cam',
+              label:  callState.myVideoMuted ? S.of(context).startCam : S.of(context).stopCam,
               active: !callState.myVideoMuted,
               onTap:  onVideo,
               danger: callState.myVideoMuted,
@@ -602,7 +603,7 @@ class _ControlBar extends StatelessWidget {
             icon:   callState.speakerOn
                 ? Icons.volume_up_rounded
                 : Icons.volume_off_rounded,
-            label:  callState.speakerOn ? 'Speaker' : 'Earpiece',
+            label:  callState.speakerOn ? S.of(context).speaker : S.of(context).earpiece,
             active: callState.speakerOn,
             onTap:  onSpeaker,
           ),
@@ -611,7 +612,7 @@ class _ControlBar extends StatelessWidget {
           if (callType.isVideo)
             _ControlBtn(
               icon:   Icons.flip_camera_ios_rounded,
-              label:  'Flip',
+              label:  S.of(context).flip,
               active: true,
               onTap:  onFlip,
             ),
@@ -619,7 +620,7 @@ class _ControlBar extends StatelessWidget {
           // ── End call (72px) ────────────
           _ControlBtn(
             icon:  Icons.call_end_rounded,
-            label: 'End',
+            label: S.of(context).endCall,
             active: true,
             onTap:  onEnd,
             isEnd:  true,
@@ -754,8 +755,8 @@ class _EndCallSheet extends StatelessWidget {
         ),
 
         // Title
-        const Text('End this call?',
-          style: TextStyle(
+        Text(S.of(context).endThisCall,
+          style: const TextStyle(
             fontFamily:  'Georgia',
             fontSize:    24,
             color:       AppColors.white,
@@ -765,7 +766,7 @@ class _EndCallSheet extends StatelessWidget {
         const SizedBox(height: 8),
 
         Text(
-          'All participants will be disconnected.',
+          S.of(context).allParticipantsDisconnected,
           style: AppTypography.bodyMedium.copyWith(
             color: const Color(0xFFAAAAAA)),
         ),
@@ -784,7 +785,7 @@ class _EndCallSheet extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Stay in call'),
+              child: Text(S.of(context).stayInCall),
             ),
           ),
           const SizedBox(width: 12),
@@ -799,7 +800,7 @@ class _EndCallSheet extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('End call'),
+              child: Text(S.of(context).endCall),
             ),
           ),
         ]),

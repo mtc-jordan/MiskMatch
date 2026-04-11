@@ -14,6 +14,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
     # ─── App ───────────────────────────────────
@@ -82,7 +83,6 @@ class Settings(BaseSettings):
 
     # ─── AI ────────────────────────────────────
     OPENAI_API_KEY: str = ""
-    ANTHROPIC_API_KEY: str = ""
 
     # ─── Firebase ──────────────────────────────
     FIREBASE_CREDENTIALS_PATH: str = ""  # path to service-account JSON
@@ -105,7 +105,7 @@ class Settings(BaseSettings):
     @classmethod
     def admin_password_not_default(cls, v: str, info) -> str:
         env = info.data.get("ENVIRONMENT", "development")
-        if env == "production" and v in ("", "change-this-immediately"):
+        if env == "production" and v in ("", "change-this-immediately", "CHANGE_ME_for_production"):
             raise ValueError("ADMIN_PASSWORD must be changed for production")
         return v
 

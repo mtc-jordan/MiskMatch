@@ -6,6 +6,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 // ═══════════════════════════════════════════════════════════
 // FLAGGED MESSAGE CARD
@@ -53,7 +54,7 @@ class FlaggedMessageCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Flagged${message.wardName != null ? " in ${message.wardName}'s chat" : ''}',
+                    message.wardName != null ? S.of(context).flaggedInChat(message.wardName!) : S.of(context).flagged,
                     style: AppTypography.labelMedium.copyWith(
                       color:      AppColors.error,
                       fontWeight: FontWeight.w600,
@@ -80,7 +81,7 @@ class FlaggedMessageCard extends StatelessWidget {
                     Icon(Icons.person_outline_rounded,
                       size: 14, color: context.mutedText),
                     const SizedBox(width: 6),
-                    Text('From: ${message.senderName}',
+                    Text(S.of(context).fromSender(message.senderName),
                       style: AppTypography.labelMedium.copyWith(
                         color: context.subtleText),
                     ),
@@ -118,7 +119,7 @@ class FlaggedMessageCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Flagged: ${message.moderationReason}',
+                        S.of(context).flaggedReason(message.moderationReason),
                         style: AppTypography.bodySmall.copyWith(
                           color:     context.mutedText,
                           fontStyle: FontStyle.italic,
@@ -145,9 +146,7 @@ class FlaggedMessageCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'This message was blocked before delivery. '
-                          'Your ward was not harmed. If you have concerns, '
-                          'you may close this match from the match screen.',
+                          S.of(context).messageBlockedNotice,
                           style: AppTypography.bodySmall.copyWith(
                             color:  context.mutedText,
                             height: 1.5,
@@ -284,8 +283,8 @@ class WardSummaryCard extends StatelessWidget {
                       ],
                       Text(
                         ward.activeMatches > 0
-                            ? '${ward.activeMatches} active match${ward.activeMatches == 1 ? '' : 'es'}'
-                            : 'No active matches',
+                            ? S.of(context).activeMatchesCount('${ward.activeMatches}')
+                            : S.of(context).noActiveMatches,
                         style: AppTypography.bodySmall.copyWith(
                           color: context.mutedText),
                       ),

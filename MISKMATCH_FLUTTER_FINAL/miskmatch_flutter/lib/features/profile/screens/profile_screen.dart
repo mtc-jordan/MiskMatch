@@ -15,6 +15,7 @@ import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/shared/models/api_response.dart';
 import 'package:miskmatch/features/profile/data/profile_models.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -58,8 +59,8 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: context.scaffoldColor,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
-      title: const Text('My Profile',
-        style: TextStyle(
+      title: Text(S.of(context).myProfile,
+        style: const TextStyle(
           fontFamily:  'Georgia',
           fontSize:    22,
           fontWeight:  FontWeight.w700,
@@ -71,13 +72,13 @@ class ProfileScreen extends ConsumerWidget {
           icon:    const Icon(Icons.edit_outlined, size: 20),
           color:   AppColors.roseDeep,
           onPressed: () => context.push(AppRoutes.profileEdit),
-          tooltip: 'Edit profile',
+          tooltip: S.of(context).editProfile,
         ),
         IconButton(
           icon:    const Icon(Icons.settings_outlined, size: 20),
           color:   context.mutedText,
           onPressed: () => context.push(AppRoutes.settings),
-          tooltip: 'Settings',
+          tooltip: S.of(context).settings,
         ),
         const SizedBox(width: 4),
       ],
@@ -144,17 +145,17 @@ class _HeroSection extends ConsumerWidget {
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            const Text('Update profile photo',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            Text(S.of(context).updateProfilePhoto,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded, color: AppColors.roseDeep),
-              title: const Text('Take a photo'),
+              title: Text(S.of(context).takePhoto),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: AppColors.roseDeep),
-              title: const Text('Choose from gallery'),
+              title: Text(S.of(context).chooseFromGallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
             const SizedBox(height: 16),
@@ -199,8 +200,8 @@ class _HeroSection extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-            ? 'Photo updated successfully'
-            : 'Failed to upload photo. Please try again.'),
+            ? S.of(context).photoUpdated
+            : S.of(context).photoUploadFailed),
         ),
       );
     }
@@ -369,7 +370,7 @@ class _ProfileStrengthBar extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('Profile strength',
+                  Text(S.of(context).profileStrength,
                     style: AppTypography.titleSmall.copyWith(
                       color: AppColors.goldDark,
                     ),
@@ -443,7 +444,7 @@ class _VoiceIntroCard extends StatelessWidget {
       ),
       child: VoicePlayerWidget(
         audioUrl: profile.voiceIntroUrl!,
-        label:    'My voice intro',
+        label:    S.of(context).myVoiceIntro,
       ),
     )
         .animate()
@@ -484,7 +485,7 @@ class _IslamicPracticeGrid extends StatelessWidget {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: 'Islamic Practice',
+      title: S.of(context).islamicPractice,
       child: GridView.count(
         crossAxisCount:  2,
         shrinkWrap:      true,
@@ -586,7 +587,7 @@ class _LifeGoalsChips extends StatelessWidget {
     if (goals.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: 'Life Goals',
+      title: S.of(context).lifeGoals,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -635,7 +636,7 @@ class _BioSectionState extends State<_BioSection> {
     if (bio == null || bio.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: 'About me',
+      title: S.of(context).aboutMe,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -655,7 +656,7 @@ class _BioSectionState extends State<_BioSection> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  _expanded ? 'Show less' : 'Read more',
+                  _expanded ? S.of(context).showLess : S.of(context).readMore,
                   style: AppTypography.labelSmall.copyWith(
                     color:      AppColors.roseDeep,
                     fontSize:   11,
@@ -799,22 +800,21 @@ class _CreateProfilePrompt extends StatelessWidget {
                 size: 36, color: AppColors.roseDeep),
           ),
           const SizedBox(height: 20),
-          Text('Complete your profile',
+          Text(S.of(context).completeYourProfile,
             style: AppTypography.titleLarge.copyWith(
               color: context.onSurface, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Tell potential matches about yourself.\n'
-            'A complete profile gets 3x more interest.',
+            S.of(context).completeProfileHint,
             style: AppTypography.bodyMedium.copyWith(
               color: context.mutedText, height: 1.5),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
           MiskButton(
-            label:     'Set up my profile',
+            label:     S.of(context).setUpMyProfile,
             onPressed: onTap,
             icon:      Icons.arrow_forward_rounded,
           ),
@@ -849,7 +849,7 @@ class _ProfileErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           MiskButton(
-            label:     'Try again',
+            label:     S.of(context).tryAgain,
             onPressed: onRetry,
             variant:   MiskButtonVariant.outline,
             fullWidth: false,

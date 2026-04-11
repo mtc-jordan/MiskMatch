@@ -6,6 +6,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Renders the correct input UI for every question type:
 ///
@@ -185,7 +186,7 @@ class _QuestionViewState extends State<QuestionView> {
       default:
         return _OpenTextInput(
           hint:         widget.question['placeholder']?.toString() ??
-                        'Write your answer...',
+                        S.of(context).writeYourAnswer,
           controller:   _textCtrl,
           maxLines:     _questionType == 'letter_prompt' ? 8 : 5,
           isSubmitting: widget.isSubmitting || _submitted,

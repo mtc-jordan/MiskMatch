@@ -8,6 +8,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/notifications/notification_service.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'l10n/generated/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,18 +80,14 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
       scrollBehavior:             const _MiskScrollBehavior(),
       locale:                     const Locale('en', 'US'),
       builder: (context, child) => child!,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: S.localizationsDelegates,
       supportedLocales: const [
-        Locale('en', 'US'),
+        Locale('en'),
+        Locale('ar'),
         Locale('ar', 'JO'),
         Locale('ar', 'SA'),
         Locale('ar', 'AE'),
         Locale('ar', 'GB'),
-        Locale('ar'),
       ],
     );
   }

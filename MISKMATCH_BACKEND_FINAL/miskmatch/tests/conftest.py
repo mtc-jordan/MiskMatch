@@ -5,6 +5,7 @@ MiskMatch — Test Configuration & Shared Fixtures
 import os
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import UUID
 from httpx import AsyncClient, ASGITransport
 
 # Force test environment before any app imports
@@ -47,7 +48,7 @@ TEST_PASSWORD_HASH = hash_password(TEST_PASSWORD)
 def test_user():
     """Mock User ORM object."""
     user = MagicMock()
-    user.id = TEST_USER_ID
+    user.id = UUID(TEST_USER_ID)
     user.phone = TEST_USER_PHONE
     user.email = "test@miskmatch.app"
     user.hashed_password = TEST_PASSWORD_HASH
