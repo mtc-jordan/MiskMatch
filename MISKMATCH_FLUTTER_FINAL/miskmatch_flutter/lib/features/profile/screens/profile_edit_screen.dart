@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -51,7 +52,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   bool      _isSaving = false;
 
   List<String> _stepTitles(BuildContext context) {
-    final l = S.of(context);
+    final l = S.of(context)!;
     return [l.basicInfo, l.islamicIdentity, l.lifeGoals, l.educationAndCareer, l.aboutYou];
   }
 
@@ -96,6 +97,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   void _nextStep() {
+    // Validate required fields on Step 0 (Basic Info)
+    if (_step == 0) {
+      if (_firstNameCtrl.text.trim().isEmpty || _lastNameCtrl.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(S.of(context)!.pleaseFillRequired),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+    }
+
     if (_step < 5 - 1) {
       setState(() => _step++);
       _pageCtrl.nextPage(
@@ -154,15 +168,15 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         HapticFeedback.mediumImpact();
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile saved. JazakAllah Khair 🌙'),
+          SnackBar(
+            content: Text(S.of(context)!.profileSaved),
             backgroundColor: AppColors.success,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not save profile. Please try again.'),
+          SnackBar(
+            content: Text(S.of(context)!.profileSaveFailed),
             backgroundColor: AppColors.error,
           ),
         );
@@ -193,7 +207,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             padding: const EdgeInsetsDirectional.only(end: 16),
             child: Center(
               child: Text(
-                'Step ${_step + 1}/5',
+                S.of(context)!.stepOf('${_step + 1}', '5'),
                 style: AppTypography.bodySmall.copyWith(
                   color: context.mutedText),
               ),
@@ -276,7 +290,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
               child: _step < 5 - 1
                   ? MiskButton(
-                      label:     'Continue',
+                      label:     S.of(context)!.continueBtn,
                       onPressed: _nextStep,
                       icon:      Icons.arrow_forward_rounded,
                     )
@@ -285,7 +299,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                               curve: Curves.easeOutCubic)
                       .fadeIn(duration: 200.ms)
                   : MiskButton(
-                      label:     'Save my profile — Bismillah',
+                      label:     S.of(context)!.saveProfileBismillah,
                       onPressed: _save,
                       loading:   _isSaving,
                       variant:   MiskButtonVariant.gold,
@@ -318,33 +332,35 @@ class _StepBasic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScroll(children: [
-      const _StepHeader(
+      _StepHeader(
         emoji:    '👤',
-        title:    'Tell us about yourself',
-        subtitle: 'This is how others will see you on MiskMatch.',
+        title:    S.of(context)!.tellUsAboutYourself,
+        subtitle: S.of(context)!.howOthersSeeYou,
       ),
 
       // Fields animate in staggered 80ms
       MiskTextField(
-        label: 'First name',
+        label: S.of(context)!.firstName,
         controller: firstNameCtrl,
         textInputAction: TextInputAction.next,
+        validator: (v) => (v == null || v.trim().isEmpty) ? S.of(context)!.firstNameRequired : null,
       ),
 
       const SizedBox(height: 14),
 
       MiskTextField(
-        label: 'Last name',
+        label: S.of(context)!.lastName,
         controller: lastNameCtrl,
         textInputAction: TextInputAction.next,
+        validator: (v) => (v == null || v.trim().isEmpty) ? S.of(context)!.lastNameRequired : null,
       ),
 
       const SizedBox(height: 14),
 
       // Date of birth
       MiskTextField(
-        label:    S.of(context).dateOfBirth,
-        hint:     S.of(context).tapToSelect,
+        label:    S.of(context)!.dateOfBirth,
+        hint:     S.of(context)!.tapToSelect,
         readOnly: true,
         initialValue: dateOfBirth != null
             ? '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
@@ -357,7 +373,7 @@ class _StepBasic extends StatelessWidget {
             initialDate: dateOfBirth ?? DateTime(now.year - 25),
             firstDate:   DateTime(1940),
             lastDate:    DateTime(now.year - 18, now.month, now.day),
-            helpText:    S.of(context).mustBe18,
+            helpText:    S.of(context)!.mustBe18,
           );
           if (picked != null) onDateOfBirth(picked);
         },
@@ -366,7 +382,7 @@ class _StepBasic extends StatelessWidget {
       const SizedBox(height: 14),
 
       MiskTextField(
-        label: S.of(context).city,
+        label: S.of(context)!.city,
         controller: cityCtrl,
         prefixIcon: const Icon(Icons.location_city_outlined),
         textInputAction: TextInputAction.next,
@@ -375,7 +391,7 @@ class _StepBasic extends StatelessWidget {
       const SizedBox(height: 14),
 
       _DropdownField(
-        label:    'Country',
+        label:    S.of(context)!.country,
         value:    country,
         items:    const {
           'JO': '🇯🇴 Jordan',    'SA': '🇸🇦 Saudi Arabia',
@@ -422,15 +438,15 @@ class _StepIslamic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScroll(children: [
-      const _StepHeader(
+      _StepHeader(
         emoji:    '🕌',
-        title:    'Your deen, your identity',
-        subtitle: 'Share your Islamic practice — the foundation of compatibility.',
+        title:    S.of(context)!.islamicIdentity,
+        subtitle: S.of(context)!.islamicPracticeSubtitle,
       ),
 
       // Prayer frequency — choice chips
       _ChoiceChipGroup<PrayerFrequency>(
-        label:    'Prayer frequency',
+        label:    S.of(context)!.prayerFrequency,
         options:  PrayerFrequency.values,
         selected: prayer,
         labelOf:  (v) => '${v.emoji} ${v.label}',
@@ -441,7 +457,7 @@ class _StepIslamic extends StatelessWidget {
 
       // Madhab — choice chips
       _ChoiceChipGroup<Madhab>(
-        label:    'Madhab',
+        label:    S.of(context)!.madhab,
         options:  Madhab.values,
         selected: madhab,
         labelOf:  (v) => v.label,
@@ -452,7 +468,7 @@ class _StepIslamic extends StatelessWidget {
 
       // Quran level — dropdown with checkmark
       _DropdownField(
-        label:    'Quran level',
+        label:    S.of(context)!.quranLevel,
         value:    quranLevel,
         items:    const {
           'hafiz':           '📖 Full Hafiz',
@@ -470,7 +486,7 @@ class _StepIslamic extends StatelessWidget {
       if (isFemale) ...[
         const SizedBox(height: 20),
         _ChoiceChipGroup<HijabStance>(
-          label:    'Hijab',
+          label:    S.of(context)!.hijab,
           options:  HijabStance.values.where((v) => v != HijabStance.na).toList(),
           selected: hijab,
           labelOf:  (v) => v.label,
@@ -520,14 +536,14 @@ class _StepLifeGoals extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScroll(children: [
-      const _StepHeader(
+      _StepHeader(
         emoji:    '🌙',
-        title:    'Life goals',
-        subtitle: 'Shared life goals are a strong compatibility signal.',
+        title:    S.of(context)!.lifeGoals,
+        subtitle: S.of(context)!.lifeGoalsSubtitle,
       ),
 
       // Children — 3 toggle buttons side by side
-      Text('Children', style: AppTypography.titleSmall),
+      Text(S.of(context)!.children, style: AppTypography.titleSmall),
       const SizedBox(height: 10),
       Row(
         children: [
@@ -561,7 +577,7 @@ class _StepLifeGoals extends StatelessWidget {
 
       // Hajj timeline
       _DropdownField(
-        label:    'Hajj timeline',
+        label:    S.of(context)!.hajjTimeline,
         value:    hajjTimeline,
         items:    const {
           'within_1_year':  '🕋 This year',
@@ -577,7 +593,7 @@ class _StepLifeGoals extends StatelessWidget {
 
       // Islamic finance
       _DropdownField(
-        label:    'Islamic finance stance',
+        label:    S.of(context)!.islamicFinanceStance,
         value:    financeStance,
         items:    const {
           'strict':   '💚 Strictly Islamic finance only',
@@ -618,14 +634,14 @@ class _StepCareer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StepScroll(children: [
-      const _StepHeader(
+      _StepHeader(
         emoji:    '🎓',
-        title:    'Education & Career',
-        subtitle: 'Optional — helps find compatible life trajectories.',
+        title:    S.of(context)!.educationAndCareer,
+        subtitle: S.of(context)!.educationCareerSubtitle,
       ),
 
       _DropdownField(
-        label:    'Education level',
+        label:    S.of(context)!.educationLevel,
         value:    educationLevel,
         items:    const {
           'high_school':  'High school',
@@ -641,7 +657,7 @@ class _StepCareer extends StatelessWidget {
       const SizedBox(height: 16),
 
       MiskTextField(
-        label:      'Occupation',
+        label:      S.of(context)!.occupation,
         hint:       'e.g. Software Engineer, Doctor, Teacher',
         controller: occCtrl,
         prefixIcon: const Icon(Icons.work_outline_rounded),
@@ -676,71 +692,14 @@ class _StepBioState extends State<_StepBio> {
     final charCount = widget.bioCtrl.text.length;
 
     return _StepScroll(children: [
-      const _StepHeader(
+      _StepHeader(
         emoji:    '✍️',
-        title:    'About you',
-        subtitle: 'This is the richest signal for AI compatibility matching.',
+        title:    S.of(context)!.aboutYou,
+        subtitle: S.of(context)!.aboutYouSubtitle,
       ),
 
       // ── Voice intro section ─────────────────────────────────
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.roseDeep.withOpacity(0.3),
-            style: BorderStyle.solid,
-          ),
-        ),
-        child: Column(
-          children: [
-            const Text('🎙️', style: TextStyle(fontSize: 36)),
-            const SizedBox(height: 12),
-            Text('Record your voice introduction',
-              textAlign: TextAlign.center,
-              style: AppTypography.titleSmall.copyWith(
-                color:      context.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              '60 seconds maximum. Let them hear you before they see you.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySmall.copyWith(
-                color:  context.mutedText,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Record button — large rose circle 80px
-            Container(
-              width: 80, height: 80,
-              decoration: BoxDecoration(
-                gradient: AppColors.roseGradient,
-                shape:    BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color:      AppColors.roseDeep.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset:     const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.mic_rounded,
-                  color: AppColors.white, size: 36),
-            ),
-            const SizedBox(height: 10),
-            Text('Tap to record',
-              style: AppTypography.bodySmall.copyWith(
-                color: context.mutedText),
-            ),
-          ],
-        ),
-      )
-          .animate()
-          .fadeIn(duration: 400.ms)
-          .slideY(begin: 0.05, end: 0, duration: 400.ms),
+      _VoiceRecordSection(),
 
       const SizedBox(height: 24),
 
@@ -764,8 +723,7 @@ class _StepBioState extends State<_StepBio> {
                 height: 1.6,
               ),
               decoration: InputDecoration(
-                hintText: 'A practicing Muslim from Amman. I value family '
-                    'deeply and strive to make Islam central to every day...',
+                hintText: S.of(context)!.bioHint,
                 hintStyle: AppTypography.bodyMedium.copyWith(
                   color: context.mutedText.withOpacity(0.5)),
                 hintMaxLines: 3,
@@ -806,7 +764,7 @@ class _StepBioState extends State<_StepBio> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Your bio is read by our AI to find deeper matches',
+              S.of(context)!.aiMatchTip,
               style: AppTypography.bodySmall.copyWith(
                 color:  AppColors.goldDark,
                 height: 1.5,
@@ -840,6 +798,175 @@ class _StepScroll extends StatelessWidget {
         children: children,
       ),
     );
+  }
+}
+
+// ─────────────────────────────────────────────
+// VOICE RECORD SECTION — idle / recording / recorded states
+// ─────────────────────────────────────────────
+
+enum _VoiceState { idle, recording, recorded }
+
+class _VoiceRecordSection extends StatefulWidget {
+  @override
+  State<_VoiceRecordSection> createState() => _VoiceRecordSectionState();
+}
+
+class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
+  _VoiceState _state = _VoiceState.idle;
+  int _elapsed = 0;
+
+  void _toggleRecording() {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      if (_state == _VoiceState.idle) {
+        _state = _VoiceState.recording;
+        _elapsed = 0;
+        _startTimer();
+      } else if (_state == _VoiceState.recording) {
+        _state = _VoiceState.recorded;
+      }
+    });
+  }
+
+  void _startTimer() {
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted || _state != _VoiceState.recording) return false;
+      setState(() => _elapsed++);
+      if (_elapsed >= 60) {
+        setState(() => _state = _VoiceState.recorded);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  void _deleteRecording() {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _state = _VoiceState.idle;
+      _elapsed = 0;
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _state == _VoiceState.recording
+              ? AppColors.roseDeep.withOpacity(0.6)
+              : AppColors.roseDeep.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            _state == _VoiceState.recorded ? Icons.check_circle_rounded : Icons.mic_rounded,
+            size: 36,
+            color: _state == _VoiceState.recorded ? AppColors.success : AppColors.roseDeep,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _state == _VoiceState.recorded ? l.voiceRecorded : l.recordVoiceIntro,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleSmall.copyWith(
+              color: context.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (_state == _VoiceState.idle)
+            Text(l.voiceIntroLimit,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(color: context.mutedText, height: 1.5),
+            ),
+          if (_state == _VoiceState.recording)
+            Text(_formatTime(_elapsed),
+              style: AppTypography.titleMedium.copyWith(
+                color: AppColors.roseDeep,
+                fontWeight: FontWeight.w700,
+                fontFeatures: [const FontFeature.tabularFigures()],
+              ),
+            ),
+          const SizedBox(height: 20),
+          // Record / Stop button
+          if (_state != _VoiceState.recorded)
+            GestureDetector(
+              onTap: _toggleRecording,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 80, height: 80,
+                decoration: BoxDecoration(
+                  gradient: _state == _VoiceState.recording ? null : AppColors.roseGradient,
+                  color: _state == _VoiceState.recording ? AppColors.error : null,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_state == _VoiceState.recording ? AppColors.error : AppColors.roseDeep)
+                          .withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  _state == _VoiceState.recording ? Icons.stop_rounded : Icons.mic_rounded,
+                  color: AppColors.white,
+                  size: 36,
+                ),
+              ),
+            ),
+          if (_state != _VoiceState.recorded)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text(
+                _state == _VoiceState.recording ? l.tapToStop : l.tapToRecord,
+                style: AppTypography.bodySmall.copyWith(color: context.mutedText),
+              ),
+            ),
+          // Recorded — play & delete row
+          if (_state == _VoiceState.recorded)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: () { /* TODO: playback */ },
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: Text(l.playRecording),
+                ),
+                const SizedBox(width: 16),
+                TextButton.icon(
+                  onPressed: _deleteRecording,
+                  icon: Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                  label: Text(l.deleteRecording,
+                    style: TextStyle(color: AppColors.error)),
+                ),
+              ],
+            ),
+          if (_state == _VoiceState.recorded)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(_formatTime(_elapsed),
+                style: AppTypography.bodySmall.copyWith(color: context.mutedText),
+              ),
+            ),
+        ],
+      ),
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideY(begin: 0.05, end: 0, duration: 400.ms);
   }
 }
 
@@ -1007,7 +1134,7 @@ class _RevertToggle extends StatelessWidget {
                   size: 22),
               const SizedBox(width: 12),
               Expanded(
-                child: Text('I am a Muslim revert',
+                child: Text(S.of(context)!.iAmRevert,
                   style: AppTypography.bodyMedium.copyWith(
                     color: isRevert
                         ? context.onSurface
@@ -1036,7 +1163,7 @@ class _RevertToggle extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: _DropdownField(
-                    label: 'Year of reversion',
+                    label: S.of(context)!.yearOfReversion,
                     value: revertYear?.toString(),
                     items: {
                       for (int y = DateTime.now().year; y >= 1950; y--)
@@ -1096,7 +1223,7 @@ class _HijraToggle extends StatelessWidget {
                   size: 22),
               const SizedBox(width: 12),
               Expanded(
-                child: Text('I want to make hijra',
+                child: Text(S.of(context)!.iWantHijra,
                   style: AppTypography.bodyMedium.copyWith(
                     color: wantsHijra
                         ? context.onSurface
@@ -1124,8 +1251,8 @@ class _HijraToggle extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: MiskTextField(
-                    label: S.of(context).hijraDestination,
-                    hint:  S.of(context).hijraHint,
+                    label: S.of(context)!.hijraDestination,
+                    hint:  S.of(context)!.hijraHint,
                     initialValue: hijraCountry ?? '',
                     prefixIcon: const Icon(Icons.public_rounded),
                     onChanged: onCountry,

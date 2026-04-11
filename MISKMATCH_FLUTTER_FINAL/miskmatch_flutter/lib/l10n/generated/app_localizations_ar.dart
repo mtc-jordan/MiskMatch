@@ -1,213 +1,890 @@
-// GENERATED FILE — DO NOT EDIT.
-// Regenerate with: flutter gen-l10n
-
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
-/// Arabic translations.
-class SAr extends S {
-  SAr([super.locale = 'ar']);
+// ignore_for_file: type=lint
 
-  @override String get appName => '\u0645\u0633\u0643 \u0645\u0627\u062a\u0634';
-  @override String get appTagline => '\u062e\u062a\u0627\u0645\u0647 \u0645\u0633\u0643';
-  @override String get quranRef => '\u0627\u0644\u0642\u0631\u0622\u0646 \u0668\u0663:\u0662\u0666';
-  @override String get findYourOtherHalf => '\u0627\u0639\u062b\u0631 \u0639\u0644\u0649\n\u0646\u0635\u0641\u0643 \u0627\u0644\u0622\u062e\u0631';
-  @override String get islamicWayTagline => '\u0628\u0627\u0644\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064a\u0629 \u2014 \u0628\u0645\u0628\u0627\u0631\u0643\u0629 \u0648\u0644\u064a\u0651\u0643.';
-  @override String get enterYourNumber => '\u0623\u062f\u062e\u0644 \u0631\u0642\u0645\u0643';
-  @override String get verificationCodeHint => '\u0633\u0646\u0631\u0633\u0644 \u0631\u0645\u0632 \u062a\u062d\u0642\u0642 \u0639\u0628\u0631 \u0631\u0633\u0627\u0644\u0629 \u0646\u0635\u064a\u0629';
-  @override String get phoneNumber => '\u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062a\u0641';
-  @override String get phoneHint => '\u0667\u0669 \u0661\u0662\u0663 \u0664\u0665\u0666\u0667';
-  @override String get enterValidPhone => '\u0623\u062f\u062e\u0644 \u0631\u0642\u0645 \u0647\u0627\u062a\u0641 \u0635\u062d\u064a\u062d';
-  @override String get password => '\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631';
-  @override String get passwordHint => '\u0668 \u0623\u062d\u0631\u0641 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644';
-  @override String get passwordMinLength => '\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u064a\u062c\u0628 \u0623\u0646 \u062a\u0643\u0648\u0646 \u0668 \u0623\u062d\u0631\u0641 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644';
-  @override String get createAccount => '\u0625\u0646\u0634\u0627\u0621 \u062d\u0633\u0627\u0628';
-  @override String get signIn => '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644';
-  @override String get newAccount => '\u062d\u0633\u0627\u0628 \u062c\u062f\u064a\u062f';
-  @override String get byContAgreement => '\u0628\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0623\u0646\u062a \u062a\u0648\u0627\u0641\u0642 \u0639\u0644\u0649 ';
-  @override String get terms => '\u0627\u0644\u0634\u0631\u0648\u0637';
-  @override String get privacyPolicy => '\u0633\u064a\u0627\u0633\u0629 \u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629';
-  @override String get guardianInformed => '\u0633\u064a\u062a\u0645 \u0625\u0628\u0644\u0627\u063a \u0648\u0644\u064a\u0651\u0643';
-  @override String get iAmA => '\u0623\u0646\u0627';
-  @override String get brother => '\u0623\u062e';
-  @override String get sister => '\u0623\u062e\u062a';
-  @override String get selectCountry => '\u0627\u062e\u062a\u0631 \u0627\u0644\u062f\u0648\u0644\u0629';
-  @override String get search => '\u0628\u062d\u062b';
-  @override String get countryNameOrCode => '\u0627\u0633\u0645 \u0627\u0644\u062f\u0648\u0644\u0629 \u0623\u0648 \u0627\u0644\u0631\u0645\u0632';
-  @override String get enterVerificationCode => '\u0623\u062f\u062e\u0644 \u0631\u0645\u0632 \u0627\u0644\u062a\u062d\u0642\u0642';
-  @override String get otpSentHint => '\u0631\u0645\u0632 \u0645\u0646 \u0666 \u0623\u0631\u0642\u0627\u0645 \u0623\u064f\u0631\u0633\u0644 \u0625\u0644\u0649 \u0647\u0627\u062a\u0641\u0643';
-  @override String get verifyAndContinue => '\u062a\u062d\u0642\u0642 \u0648\u062a\u0627\u0628\u0639';
-  @override String get resendCode => '\u0625\u0639\u0627\u062f\u0629 \u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0631\u0645\u0632';
-  @override String get otpPrivacyNote => '\u0631\u0645\u0632 \u0627\u0644\u062a\u062d\u0642\u0642 \u062e\u0627\u0635 \u0628\u0643. \u0644\u0646 \u0646\u0637\u0644\u0628\u0647 \u0645\u0646\u0643 \u0623\u0628\u062f\u0627\u064b.';
-  @override String get verifyYourNumber => '\u062a\u062d\u0642\u0642 \u0645\u0646\n\u0631\u0642\u0645\u0643';
-  @override String get change => '\u062a\u063a\u064a\u064a\u0631';
-  @override String get bismillahDua => '\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064e\u0647\u0650 \u0648\u064e\u0639\u064e\u0644\u064e\u0649 \u0633\u064f\u0646\u0651\u064e\u0629\u0650 \u0631\u064e\u0633\u064f\u0648\u0644\u0650 \u0627\u0644\u0644\u0651\u064e\u0647\u0650';
-  @override String get bismillahTranslation => '"\u0628\u0633\u0645 \u0627\u0644\u0644\u0647 \u0648\u0639\u0644\u0649 \u0633\u0646\u0629 \u0631\u0633\u0648\u0644 \u0627\u0644\u0644\u0647"';
-  @override String get setYourNiyyah => '\u062d\u062f\u0651\u062f \u0646\u064a\u0651\u062a\u0643';
-  @override String get niyyahDescription => '\u0646\u064a\u0651\u062a\u0643 \u0623\u0647\u0645 \u0645\u0646 \u0623\u064a \u0634\u064a\u0621 \u0622\u062e\u0631 \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0631\u062d\u0644\u0629. \u0639\u0628\u0651\u0631 \u0639\u0646\u0647\u0627 \u0628\u0648\u0636\u0648\u062d \u0648\u0625\u062e\u0644\u0627\u0635 \u0648\u062a\u0642\u0648\u0649 \u2014 \u0641\u0625\u0646 \u0627\u0644\u0644\u0647 \u064a\u0631\u0649 \u0645\u0627 \u0644\u0627 \u062a\u0631\u0627\u0647 \u0627\u0644\u0639\u064a\u0648\u0646.';
-  @override String get niyyahMarriage => '\u0623\u0646\u0648\u064a \u0627\u0644\u0632\u0648\u0627\u062c \u0627\u0628\u062a\u063a\u0627\u0621 \u0645\u0631\u0636\u0627\u0629 \u0627\u0644\u0644\u0647';
-  @override String get niyyahRighteous => '\u0623\u0646\u0648\u064a \u0625\u064a\u062c\u0627\u062f \u0632\u0648\u062c \u0635\u0627\u0644\u062d';
-  @override String get niyyahDeen => '\u0623\u0646\u0648\u064a \u062d\u0641\u0638 \u062f\u064a\u0646\u064a \u0628\u0627\u0644\u0632\u0648\u0627\u062c';
-  @override String get writeOwnNiyyah => '\u0623\u0648 \u0627\u0643\u062a\u0628 \u0646\u064a\u0651\u062a\u0643 \u0627\u0644\u062e\u0627\u0635\u0629...';
-  @override String get declareNiyyah => '\u0623\u0639\u0644\u0646 \u0646\u064a\u0651\u062a\u064a';
-  @override String get setNiyyahLater => '\u0633\u0623\u062d\u062f\u062f \u0647\u0630\u0627 \u0644\u0627\u062d\u0642\u0627\u064b';
-  @override String get yourGuardian => '\u0648\u0644\u064a\u0651\u0643';
-  @override String get noMarriageWithoutGuardian => '\u0644\u064e\u0627 \u0646\u0650\u0643\u064e\u0627\u062d\u064e \u0625\u0650\u0644\u0651\u064e\u0627 \u0628\u0650\u0648\u064e\u0644\u0650\u064a\u0651\u064d';
-  @override String get noMarriageTranslation => '"\u0644\u0627 \u0646\u0643\u0627\u062d \u0625\u0644\u0627 \u0628\u0648\u0644\u064a"';
-  @override String get whoIsGuardian => '\u0645\u0646 \u0647\u0648 \u0648\u0644\u064a\u0651\u0643\u061f';
-  @override String get selectRelationship => '\u0627\u062e\u062a\u0631 \u0646\u0648\u0639 \u0627\u0644\u0642\u0631\u0627\u0628\u0629';
-  @override String get enterTheirDetails => '\u0623\u062f\u062e\u0644 \u0628\u064a\u0627\u0646\u0627\u062a\u0647\u0645';
-  @override String get smsInvitationHint => '\u0633\u0646\u0631\u0633\u0644 \u0644\u0647\u0645 \u062f\u0639\u0648\u0629 \u0639\u0628\u0631 \u0631\u0633\u0627\u0644\u0629 \u0646\u0635\u064a\u0629';
-  @override String get guardianFullName => '\u0627\u0644\u0627\u0633\u0645 \u0627\u0644\u0643\u0627\u0645\u0644 \u0644\u0644\u0648\u0644\u064a\u0651';
-  @override String get guardianNameHint => '\u0645\u062b\u0627\u0644: \u0623\u062d\u0645\u062f \u0627\u0644\u0631\u0627\u0634\u062f\u064a';
-  @override String get pleaseEnterGuardianName => '\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0627\u0644 \u0627\u0633\u0645 \u0627\u0644\u0648\u0644\u064a\u0651';
-  @override String get next => '\u0627\u0644\u062a\u0627\u0644\u064a';
-  @override String get completeSetup => '\u0625\u0643\u0645\u0627\u0644 \u0627\u0644\u0625\u0639\u062f\u0627\u062f';
-  @override String get skipGuardianSetup => '\u062a\u062e\u0637\u064a \u2014 \u0625\u0639\u062f\u0627\u062f \u0627\u0644\u0648\u0644\u064a\u0651 \u0644\u0627\u062d\u0642\u0627\u064b';
-  @override String get chooseInvolvement => '\u0627\u062e\u062a\u0631 \u0645\u0633\u062a\u0648\u0649 \u0645\u0634\u0627\u0631\u0643\u062a\u0647\u0645';
-  @override String get changeSettingsLater => '\u064a\u0645\u0643\u0646\u0643 \u062a\u063a\u064a\u064a\u0631 \u0647\u0630\u0647 \u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0644\u0627\u062d\u0642\u0627\u064b';
-  @override String get mustApproveMatches => '\u064a\u062c\u0628 \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u062c\u0645\u064a\u0639 \u0627\u0644\u062a\u0648\u0627\u0641\u0642\u0627\u062a';
-  @override String get mustApproveDesc => '\u0645\u0637\u0644\u0648\u0628 \u2014 \u0648\u0644\u064a\u0651\u0643 \u064a\u0648\u0627\u0641\u0642 \u0639\u0644\u0649 \u0643\u0644 \u062a\u0648\u0627\u0641\u0642';
-  @override String get canReadConversations => '\u064a\u0645\u0643\u0646\u0647 \u0642\u0631\u0627\u0621\u0629 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0627\u062a';
-  @override String get canReadDesc => '\u0648\u0644\u064a\u0651\u0643 \u064a\u0645\u0643\u0646\u0647 \u0645\u0634\u0627\u0647\u062f\u0629 \u0631\u0633\u0627\u0626\u0644 \u0627\u0644\u062f\u0631\u062f\u0634\u0629';
-  @override String get receivesNotifications => '\u064a\u062a\u0644\u0642\u0649 \u0625\u0634\u0639\u0627\u0631\u0627\u062a';
-  @override String get receivesNotifDesc => '\u064a\u064f\u0628\u0644\u0651\u063a \u0628\u0627\u0644\u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0627\u0644\u062c\u062f\u064a\u062f\u0629 \u0648\u0627\u0644\u0646\u0634\u0627\u0637';
-  @override String get canJoinCalls => '\u064a\u0645\u0643\u0646\u0647 \u0627\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0644\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062a \u0627\u0644\u0645\u0631\u0627\u0641\u0642\u0629';
-  @override String get canJoinCallsDesc => '\u064a\u0645\u0643\u0646\u0647 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639 \u0644\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062a \u0627\u0644\u0635\u0648\u062a\u064a\u0629 \u0648\u0627\u0644\u0645\u0631\u0626\u064a\u0629';
-  @override String get required => '\u0645\u0637\u0644\u0648\u0628';
-  @override String get myProfile => '\u0645\u0644\u0641\u064a \u0627\u0644\u0634\u062e\u0635\u064a';
-  @override String get editProfile => '\u062a\u0639\u062f\u064a\u0644 \u0627\u0644\u0645\u0644\u0641';
-  @override String get settings => '\u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a';
-  @override String get updateProfilePhoto => '\u062a\u062d\u062f\u064a\u062b \u0635\u0648\u0631\u0629 \u0627\u0644\u0645\u0644\u0641';
-  @override String get takePhoto => '\u0627\u0644\u062a\u0642\u0627\u0637 \u0635\u0648\u0631\u0629';
-  @override String get chooseFromGallery => '\u0627\u062e\u062a\u064a\u0627\u0631 \u0645\u0646 \u0627\u0644\u0645\u0639\u0631\u0636';
-  @override String get photoUpdated => '\u062a\u0645 \u062a\u062d\u062f\u064a\u062b \u0627\u0644\u0635\u0648\u0631\u0629 \u0628\u0646\u062c\u0627\u062d';
-  @override String get photoUploadFailed => '\u0641\u0634\u0644 \u0631\u0641\u0639 \u0627\u0644\u0635\u0648\u0631\u0629';
-  @override String get profileStrength => '\u0642\u0648\u0629 \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0634\u062e\u0635\u064a';
-  @override String get myVoiceIntro => '\u062a\u0639\u0631\u064a\u0641\u064a \u0627\u0644\u0635\u0648\u062a\u064a';
-  @override String get islamicPractice => '\u0627\u0644\u0645\u0645\u0627\u0631\u0633\u0629 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064a\u0629';
-  @override String get lifeGoals => '\u0623\u0647\u062f\u0627\u0641 \u0627\u0644\u062d\u064a\u0627\u0629';
-  @override String get aboutMe => '\u0639\u0646\u0651\u064a';
-  @override String get readMore => '\u0627\u0642\u0631\u0623 \u0627\u0644\u0645\u0632\u064a\u062f';
-  @override String get showLess => '\u0639\u0631\u0636 \u0623\u0642\u0644';
-  @override String get completeYourProfile => '\u0623\u0643\u0645\u0644 \u0645\u0644\u0641\u0643 \u0627\u0644\u0634\u062e\u0635\u064a';
-  @override String get completeProfileHint => '\u0639\u0631\u0651\u0641 \u0627\u0644\u0645\u062a\u0642\u062f\u0645\u064a\u0646 \u0639\u0646 \u0646\u0641\u0633\u0643.\n\u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0643\u062a\u0645\u0644 \u064a\u062d\u0635\u0644 \u0639\u0644\u0649 \u0627\u0647\u062a\u0645\u0627\u0645 \u0623\u0643\u062b\u0631 \u0628\u062b\u0644\u0627\u062b \u0645\u0631\u0627\u062a.';
-  @override String get setUpMyProfile => '\u0625\u0639\u062f\u0627\u062f \u0645\u0644\u0641\u064a';
-  @override String get tryAgain => '\u062d\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649';
-  @override String get basicInfo => '\u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0644\u0623\u0633\u0627\u0633\u064a\u0629';
-  @override String get islamicIdentity => '\u0627\u0644\u0647\u0648\u064a\u0629 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064a\u0629';
-  @override String get educationAndCareer => '\u0627\u0644\u062a\u0639\u0644\u064a\u0645 \u0648\u0627\u0644\u0645\u0647\u0646\u0629';
-  @override String get aboutYou => '\u0639\u0646\u0643';
-  @override String get dateOfBirth => '\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0645\u064a\u0644\u0627\u062f';
-  @override String get tapToSelect => '\u0627\u0636\u063a\u0637 \u0644\u0644\u0627\u062e\u062a\u064a\u0627\u0631';
-  @override String get mustBe18 => '\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0639\u0645\u0631\u0643 \u0661\u0668 \u0633\u0646\u0629 \u0623\u0648 \u0623\u0643\u062b\u0631';
-  @override String get city => '\u0627\u0644\u0645\u062f\u064a\u0646\u0629';
-  @override String get hijraDestination => '\u0628\u0644\u062f \u0627\u0644\u0647\u062c\u0631\u0629 \u0627\u0644\u0645\u0642\u0635\u0648\u062f';
-  @override String get hijraHint => '\u0645\u062b\u0627\u0644: \u0645\u0627\u0644\u064a\u0632\u064a\u0627\u060c \u062a\u0631\u0643\u064a\u0627\u060c \u0627\u0644\u0623\u0631\u062f\u0646';
-  @override String get games => '\u0627\u0644\u0623\u0644\u0639\u0627\u0628';
-  @override String get matchMemory => '\u0630\u0627\u0643\u0631\u0629 \u0627\u0644\u062a\u0648\u0627\u0641\u0642';
-  @override String get readyToBegin => '\u0645\u0633\u062a\u0639\u062f \u0644\u0644\u0628\u062f\u0621\u061f';
-  @override String get startBismillah => '\u0627\u0628\u062f\u0623 \u2014 \u0628\u0633\u0645 \u0627\u0644\u0644\u0647';
-  @override String get waitingForMatch => '\u0641\u064a \u0627\u0646\u062a\u0638\u0627\u0631 \u0634\u0631\u064a\u0643\u0643';
-  @override String get matchNotified => '\u062a\u0645 \u0625\u0628\u0644\u0627\u063a\u0647\u0645';
-  @override String get mashAllahComplete => '\u0645\u0627 \u0634\u0627\u0621 \u0627\u0644\u0644\u0647 \u2014 \u0627\u0643\u062a\u0645\u0644!';
-  @override String get addedToMatchMemory => '\u062a\u0645\u062a \u0627\u0644\u0625\u0636\u0627\u0641\u0629 \u0625\u0644\u0649 \u0630\u0627\u0643\u0631\u0629 \u0627\u0644\u062a\u0648\u0627\u0641\u0642.';
-  @override String get turnHistory => '\u0633\u062c\u0644 \u0627\u0644\u0623\u062f\u0648\u0627\u0631';
-  @override String get waitingForMatchAnswer => '\u0641\u064a \u0627\u0646\u062a\u0638\u0627\u0631 \u0625\u062c\u0627\u0628\u0629 \u0634\u0631\u064a\u0643\u0643...';
-  @override String get answersHiddenUntil => '\u0627\u0644\u0625\u062c\u0627\u0628\u0627\u062a \u0645\u062e\u0641\u064a\u0629 \u062d\u062a\u0649 \u064a\u0631\u062f \u0627\u0644\u0637\u0631\u0641\u0627\u0646';
-  @override String get retry => '\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629';
-  @override String get noMoreQuestions => '\u0644\u0627 \u0645\u0632\u064a\u062f \u0645\u0646 \u0627\u0644\u0623\u0633\u0626\u0644\u0629';
-  @override String get gameWrappingUp => '\u0647\u0630\u0647 \u0627\u0644\u0644\u0639\u0628\u0629 \u0639\u0644\u0649 \u0648\u0634\u0643 \u0627\u0644\u0627\u0646\u062a\u0647\u0627\u0621!';
-  @override String get online => '\u0645\u062a\u0635\u0644';
-  @override String get lastSeenRecently => '\u0634\u0648\u0647\u062f \u0645\u0624\u062e\u0631\u0627\u064b';
-  @override String get chaperonedCall => '\u0645\u0643\u0627\u0644\u0645\u0629 \u0645\u0631\u0627\u0641\u0642\u0629';
-  @override String get today => '\u0627\u0644\u064a\u0648\u0645';
-  @override String get yesterday => '\u0623\u0645\u0633';
-  @override String get waitingForFamilyBlessings => '\u0641\u064a \u0627\u0646\u062a\u0638\u0627\u0631 \u0645\u0628\u0627\u0631\u0643\u0629 \u0627\u0644\u0639\u0627\u0626\u0644\u0629';
-  @override String get bismillahBeginBest => '\u0628\u0633\u0645 \u0627\u0644\u0644\u0647 \u2014 \u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0623\u0641\u0636\u0644';
-  @override String get startConversation => '\u0627\u0628\u062f\u0623 \u0627\u0644\u0645\u062d\u0627\u062f\u062b\u0629...';
-  @override String get salamGreeting => '\u0627\u0644\u0633\u0651\u064e\u0644\u064e\u0627\u0645\u064f \u0639\u064e\u0644\u064e\u064a\u0652\u0643\u064f\u0645\u0652 \u0648\u064e\u0631\u064e\u062d\u0652\u0645\u064e\u0629\u064f \u0627\u0644\u0644\u0651\u064e\u0647\u0650 \u0648\u064e\u0628\u064e\u0631\u064e\u0643\u064e\u0627\u062a\u064f\u0647\u064f';
-  @override String get ringing => '\u064a\u0631\u0646\u0651...';
-  @override String get connecting => '\u062c\u0627\u0631\u064d \u0627\u0644\u0627\u062a\u0635\u0627\u0644...';
-  @override String get cameraOff => '(\u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627 \u0645\u063a\u0644\u0642\u0629)';
-  @override String get guardianPresent => '\u0627\u0644\u0648\u0644\u064a\u0651 \u0645\u0648\u062c\u0648\u062f';
-  @override String get guardianInvited => '\u062a\u0645\u062a \u062f\u0639\u0648\u0629 \u0627\u0644\u0648\u0644\u064a\u0651';
-  @override String get unmute => '\u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0635\u0648\u062a';
-  @override String get mute => '\u0643\u062a\u0645 \u0627\u0644\u0635\u0648\u062a';
-  @override String get startCam => '\u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627';
-  @override String get stopCam => '\u0625\u064a\u0642\u0627\u0641 \u0627\u0644\u0643\u0627\u0645\u064a\u0631\u0627';
-  @override String get speaker => '\u0645\u0643\u0628\u0631 \u0627\u0644\u0635\u0648\u062a';
-  @override String get earpiece => '\u0633\u0645\u0627\u0639\u0629 \u0627\u0644\u0623\u0630\u0646';
-  @override String get flip => '\u0642\u0644\u0628';
-  @override String get endCall => '\u0625\u0646\u0647\u0627\u0621 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629';
-  @override String get endThisCall => '\u0625\u0646\u0647\u0627\u0621 \u0647\u0630\u0647 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629\u061f';
-  @override String get allParticipantsDisconnected => '\u0633\u064a\u062a\u0645 \u0641\u0635\u0644 \u062c\u0645\u064a\u0639 \u0627\u0644\u0645\u0634\u0627\u0631\u0643\u064a\u0646.';
-  @override String get stayInCall => '\u0627\u0644\u0628\u0642\u0627\u0621 \u0641\u064a \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629';
-  @override String get pushNotifications => '\u0627\u0644\u0625\u0634\u0639\u0627\u0631\u0627\u062a';
-  @override String get pushNotificationsDesc => '\u062a\u0648\u0627\u0641\u0642\u0627\u062a \u062c\u062f\u064a\u062f\u0629\u060c \u0631\u0633\u0627\u0626\u0644\u060c \u0623\u062f\u0648\u0627\u0631 \u0627\u0644\u0623\u0644\u0639\u0627\u0628';
-  @override String get biometricLock => '\u0642\u0641\u0644 \u0628\u0627\u0644\u0628\u0635\u0645\u0629';
-  @override String get guardianWali => '\u0627\u0644\u0648\u0644\u064a\u0651';
-  @override String get appearance => '\u0627\u0644\u0645\u0638\u0647\u0631';
-  @override String get privacy => '\u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629';
-  @override String get showPhotoBeforeMutual => '\u0639\u0631\u0636 \u0627\u0644\u0635\u0648\u0631\u0629 \u0642\u0628\u0644 \u0627\u0644\u0627\u0647\u062a\u0645\u0627\u0645 \u0627\u0644\u0645\u062a\u0628\u0627\u062f\u0644';
-  @override String get termsOfService => '\u0634\u0631\u0648\u0637 \u0627\u0644\u062e\u062f\u0645\u0629';
-  @override String get contactSupport => '\u062a\u0648\u0627\u0635\u0644 \u0645\u0639 \u0627\u0644\u062f\u0639\u0645';
-  @override String get rateMiskMatch => '\u0642\u064a\u0651\u0645 \u0645\u0633\u0643 \u0645\u0627\u062a\u0634';
-  @override String get sealIsMusk => '\u062e\u062a\u0627\u0645\u0647 \u0645\u0633\u0643';
-  @override String get sealIsMuskTranslation => '"\u062e\u062a\u0627\u0645\u0647 \u0645\u0633\u0643" \u2014 \u0627\u0644\u0642\u0631\u0622\u0646 \u0668\u0663:\u0662\u0666';
-  @override String get signOut => '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062e\u0631\u0648\u062c';
-  @override String get deleteAccount => '\u062d\u0630\u0641 \u0627\u0644\u062d\u0633\u0627\u0628';
-  @override String get deleteAccountWarning => '\u0647\u0630\u0627 \u0627\u0644\u0625\u062c\u0631\u0627\u0621 \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639 \u0639\u0646\u0647. \u0633\u064a\u062a\u0645 \u062d\u0630\u0641 \u062c\u0645\u064a\u0639 \u0628\u064a\u0627\u0646\u0627\u062a\u0643 \u0646\u0647\u0627\u0626\u064a\u0627\u064b.';
-  @override String get cancel => '\u0625\u0644\u063a\u0627\u0621';
-  @override String get confirm => '\u062a\u0623\u0643\u064a\u062f';
-  @override String get activeMatches => '\u0646\u0634\u0637';
-  @override String get awaitingFamilies => '\u0628\u0627\u0646\u062a\u0638\u0627\u0631 \u0627\u0644\u0639\u0627\u0626\u0644\u0627\u062a';
-  @override String get matches => '\u0627\u0644\u062a\u0648\u0627\u0641\u0642\u0627\u062a';
-  @override String get noActiveMatchesYet => '\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0646\u0634\u0637\u0629 \u0628\u0639\u062f';
-  @override String get noPendingMatchesYet => '\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0645\u0639\u0644\u0642\u0629 \u0628\u0639\u062f';
-  @override String get closeMatch => '\u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u062a\u0648\u0627\u0641\u0642';
-  @override String get noMatchesYet => '\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0628\u0639\u062f';
-  @override String get chat => '\u0645\u062d\u0627\u062f\u062b\u0629';
-  @override String get discover => '\u0627\u0643\u062a\u0634\u0641';
-  @override String get completeProfileMoreMatches => '\u0623\u0643\u0645\u0644 \u0645\u0644\u0641\u0643 \u2014 \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0623\u0643\u062b\u0631 \u0628\u062b\u0644\u0627\u062b \u0645\u0631\u0627\u062a';
-  @override String get sortedByCompatibility => '\u0645\u0631\u062a\u0628 \u062d\u0633\u0628 \u0627\u0644\u062a\u0648\u0627\u0641\u0642';
-  @override String get noMoreCandidates => '\u0644\u0627 \u064a\u0648\u062c\u062f \u0645\u0631\u0634\u062d\u0648\u0646 \u0628\u0639\u062f';
-  @override String get mayAllahMakeItKhayr => '\u062c\u0639\u0644\u0647 \u0627\u0644\u0644\u0647 \u062e\u064a\u0631\u0627\u064b';
-  @override String get account => '\u062d\u0633\u0627\u0628';
-  @override String get about => '\u062d\u0648\u0644';
-  @override String get version => '\u0627\u0644\u0625\u0635\u062f\u0627\u0631';
-  @override String get accountActions => '\u0625\u062c\u0631\u0627\u0621\u0627\u062a \u0627\u0644\u062d\u0633\u0627\u0628';
-  @override String get signOutBody => '\u064a\u0645\u0643\u0646\u0643 \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0645\u062c\u062f\u062f\u0627\u064b \u0628\u0631\u0642\u0645 \u0647\u0627\u062a\u0641\u0643 \u0641\u064a \u0623\u064a \u0648\u0642\u062a.';
-  @override String get deleteMyAccount => '\u062d\u0630\u0641 \u062d\u0633\u0627\u0628\u064a';
-  @override String get writeYourAnswer => '\u0627\u0643\u062a\u0628 \u0625\u062c\u0627\u0628\u062a\u0643...';
-  @override String resendInCountdown(String time) => '\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0625\u0631\u0633\u0627\u0644 \u062e\u0644\u0627\u0644 $time';
-  @override String matchDayLabel(String day) => '\u0627\u0644\u064a\u0648\u0645 $day';
-  @override String gamesUnlockedCount(String unlocked, String total) => '$unlocked \u0645\u0646 $total \u0623\u0644\u0639\u0627\u0628 \u0645\u0641\u062a\u0648\u062d\u0629';
-  @override String yourTurnInGame(String name) => '\u062f\u0648\u0631\u0643 \u0641\u064a $name!';
-  @override String yourTurnInGames(String count) => '\u062f\u0648\u0631\u0643 \u0641\u064a $count \u0623\u0644\u0639\u0627\u0628!';
-  @override String get tapGameToRespond => '\u0627\u0636\u063a\u0637 \u0639\u0644\u0649 \u0644\u0639\u0628\u0629 \u0644\u0644\u0631\u062f.';
-  @override String get storyJustBeginning => '\u0642\u0635\u062a\u0643\u0645 \u0628\u062f\u0623\u062a \u0644\u0644\u062a\u0648';
-  @override String get completeGamesTimeline => '\u0623\u0643\u0645\u0644 \u0627\u0644\u0623\u0644\u0639\u0627\u0628 \u0644\u0628\u0646\u0627\u0621\n\u0633\u062c\u0644 \u0630\u0643\u0631\u064a\u0627\u062a \u0627\u0644\u062a\u0648\u0627\u0641\u0642.';
-  @override String get deen => '\u0627\u0644\u062f\u064a\u0646';
-  @override String get personality => '\u0627\u0644\u0634\u062e\u0635\u064a\u0629';
-  @override String get practical => '\u0627\u0644\u0639\u0645\u0644\u064a';
-  @override String get theirMessage => '\u0631\u0633\u0627\u0644\u062a\u0647\u0645:';
-  @override String get noMessageProvided => '\u0644\u0645 \u064a\u062a\u0645 \u062a\u0642\u062f\u064a\u0645 \u0631\u0633\u0627\u0644\u0629.';
-  @override String get decline => '\u0631\u0641\u0636';
-  @override String get approve => '\u0645\u0648\u0627\u0641\u0642\u0629';
-  @override String get approveThisMatch => '\u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u062a\u0648\u0627\u0641\u0642\u061f';
-  @override String get declineThisMatch => '\u0631\u0641\u0636 \u0647\u0630\u0627 \u0627\u0644\u062a\u0648\u0627\u0641\u0642\u061f';
-  @override String get matchApprovedMsg => '\u0627\u0644\u062d\u0645\u062f \u0644\u0644\u0647 \u2014 \u062a\u0645\u062a \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629. \u0628\u0627\u0631\u0643 \u0627\u0644\u0644\u0647 \u0641\u064a\u0643\u0645.';
-  @override String get matchDeclinedMsg => '\u062a\u0645 \u0627\u0644\u0631\u0641\u0636 \u0628\u0627\u062d\u062a\u0631\u0627\u0645.';
-  @override String get notesOptional => '\u0645\u0644\u0627\u062d\u0638\u0627\u062a (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)';
-  @override String get approveGuidanceHint => '\u0623\u064a \u0634\u0631\u0648\u0637 \u0623\u0648 \u062a\u0648\u062c\u064a\u0647\u0627\u062a \u0644\u0647\u0630\u0627 \u0627\u0644\u062a\u0648\u0627\u0641\u0642...';
-  @override String get yesApprove => '\u0646\u0639\u0645 \u2014 \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0627\u0644\u062a\u0648\u0627\u0641\u0642';
-  @override String get yesDecline => '\u0646\u0639\u0645 \u2014 \u0631\u0641\u0636 \u0627\u0644\u062a\u0648\u0627\u0641\u0642';
-  @override String get goBackNotDecided => '\u0627\u0644\u0631\u062c\u0648\u0639 \u2014 \u0644\u0645 \u0623\u0642\u0631\u0631 \u0628\u0639\u062f';
-  @override String get noActiveMatches => '\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0646\u0634\u0637\u0629';
-  @override String get messageBlockedNotice => '\u062a\u0645 \u062d\u0638\u0631 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629 \u0642\u0628\u0644 \u0627\u0644\u062a\u0633\u0644\u064a\u0645. \u0644\u0645 \u064a\u062a\u0636\u0631\u0631 \u0645\u0648\u0644\u0651\u064a\u0643. \u0625\u0630\u0627 \u0643\u0627\u0646\u062a \u0644\u062f\u064a\u0643 \u0645\u062e\u0627\u0648\u0641\u060c \u064a\u0645\u0643\u0646\u0643 \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u062a\u0648\u0627\u0641\u0642 \u0645\u0646 \u0634\u0627\u0634\u0629 \u0627\u0644\u062a\u0648\u0627\u0641\u0642.';
-  @override String get flagged => '\u0645\u0628\u0644\u063a \u0639\u0646\u0647';
-  @override String flaggedInChat(String name) => '\u0645\u0628\u0644\u063a \u0639\u0646\u0647 \u0641\u064a \u0645\u062d\u0627\u062f\u062b\u0629 $name';
-  @override String fromSender(String name) => '\u0645\u0646: $name';
-  @override String flaggedReason(String reason) => '\u0627\u0644\u0633\u0628\u0628: $reason';
-  @override String activeMatchesCount(String count) => '$count \u062a\u0648\u0627\u0641\u0642\u0627\u062a \u0646\u0634\u0637\u0629';
+/// The translations for Arabic (`ar`).
+class SAr extends S {
+  SAr([String locale = 'ar']) : super(locale);
+
+  @override
+  String get appName => 'مسك ماتش';
+
+  @override
+  String get appTagline => 'ختامه مسك';
+
+  @override
+  String get quranRef => 'القرآن ٨٣:٢٦';
+
+  @override
+  String get findYourOtherHalf => 'اعثر على\nنصفك الآخر';
+
+  @override
+  String get islamicWayTagline => 'بالطريقة الإسلامية — بمباركة وليّك.';
+
+  @override
+  String get enterYourNumber => 'أدخل رقمك';
+
+  @override
+  String get verificationCodeHint => 'سنرسل رمز تحقق عبر رسالة نصية';
+
+  @override
+  String get phoneNumber => 'رقم الهاتف';
+
+  @override
+  String get phoneHint => '٧٩ ١٢٣ ٤٥٦٧';
+
+  @override
+  String get enterValidPhone => 'أدخل رقم هاتف صحيح';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get passwordHint => '٨ أحرف على الأقل';
+
+  @override
+  String get passwordMinLength => 'كلمة المرور يجب أن تكون ٨ أحرف على الأقل';
+
+  @override
+  String get createAccount => 'إنشاء حساب';
+
+  @override
+  String get signIn => 'تسجيل الدخول';
+
+  @override
+  String get newAccount => 'حساب جديد';
+
+  @override
+  String get byContAgreement => 'بالمتابعة أنت توافق على ';
+
+  @override
+  String get terms => 'الشروط';
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get guardianInformed => 'سيتم إبلاغ وليّك';
+
+  @override
+  String get iAmA => 'أنا';
+
+  @override
+  String get brother => 'أخ';
+
+  @override
+  String get sister => 'أخت';
+
+  @override
+  String get selectCountry => 'اختر الدولة';
+
+  @override
+  String get search => 'بحث';
+
+  @override
+  String get countryNameOrCode => 'اسم الدولة أو الرمز';
+
+  @override
+  String get enterVerificationCode => 'أدخل رمز التحقق';
+
+  @override
+  String get otpSentHint => 'رمز من ٦ أرقام أُرسل إلى هاتفك';
+
+  @override
+  String get verifyAndContinue => 'تحقق وتابع';
+
+  @override
+  String get resendCode => 'إعادة إرسال الرمز';
+
+  @override
+  String get otpPrivacyNote => 'رمز التحقق خاص بك. لن نطلبه منك أبداً.';
+
+  @override
+  String get verifyYourNumber => 'تحقق من\nرقمك';
+
+  @override
+  String get change => 'تغيير';
+
+  @override
+  String get bismillahDua => 'بِسْمِ اللَّهِ وَعَلَى سُنَّةِ رَسُولِ اللَّهِ';
+
+  @override
+  String get bismillahTranslation => '\"بسم الله وعلى سنة رسول الله\"';
+
+  @override
+  String get setYourNiyyah => 'حدّد نيّتك';
+
+  @override
+  String get niyyahDescription =>
+      'نيّتك أهم من أي شيء آخر في هذه الرحلة. عبّر عنها بوضوح وإخلاص وتقوى — فإن الله يرى ما لا تراه العيون.';
+
+  @override
+  String get niyyahMarriage => 'أنوي الزواج ابتغاء مرضاة الله';
+
+  @override
+  String get niyyahRighteous => 'أنوي إيجاد زوج صالح';
+
+  @override
+  String get niyyahDeen => 'أنوي حفظ ديني بالزواج';
+
+  @override
+  String get writeOwnNiyyah => 'أو اكتب نيّتك الخاصة...';
+
+  @override
+  String get declareNiyyah => 'أعلن نيّتي';
+
+  @override
+  String get setNiyyahLater => 'سأحدد هذا لاحقاً';
+
+  @override
+  String get yourGuardian => 'وليّك';
+
+  @override
+  String get noMarriageWithoutGuardian => 'لَا نِكَاحَ إِلَّا بِوَلِيٍّ';
+
+  @override
+  String get noMarriageTranslation => '\"لا نكاح إلا بولي\"';
+
+  @override
+  String get whoIsGuardian => 'من هو وليّك؟';
+
+  @override
+  String get selectRelationship => 'اختر نوع القرابة';
+
+  @override
+  String get enterTheirDetails => 'أدخل بياناتهم';
+
+  @override
+  String get smsInvitationHint => 'سنرسل لهم دعوة عبر رسالة نصية';
+
+  @override
+  String get guardianFullName => 'الاسم الكامل للوليّ';
+
+  @override
+  String get guardianNameHint => 'مثال: أحمد الراشدي';
+
+  @override
+  String get pleaseEnterGuardianName => 'الرجاء إدخال اسم الوليّ';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get completeSetup => 'إكمال الإعداد';
+
+  @override
+  String get skipGuardianSetup => 'تخطي — إعداد الوليّ لاحقاً';
+
+  @override
+  String get chooseInvolvement => 'اختر مستوى مشاركتهم';
+
+  @override
+  String get changeSettingsLater => 'يمكنك تغيير هذه الإعدادات لاحقاً';
+
+  @override
+  String get mustApproveMatches => 'يجب الموافقة على جميع التوافقات';
+
+  @override
+  String get mustApproveDesc => 'مطلوب — وليّك يوافق على كل توافق';
+
+  @override
+  String get canReadConversations => 'يمكنه قراءة المحادثات';
+
+  @override
+  String get canReadDesc => 'وليّك يمكنه مشاهدة رسائل الدردشة';
+
+  @override
+  String get receivesNotifications => 'يتلقى إشعارات';
+
+  @override
+  String get receivesNotifDesc => 'يُبلّغ بالتوافقات الجديدة والنشاط';
+
+  @override
+  String get canJoinCalls => 'يمكنه الانضمام للمكالمات المرافقة';
+
+  @override
+  String get canJoinCallsDesc => 'يمكنه الاستماع للمكالمات الصوتية والمرئية';
+
+  @override
+  String get required => 'مطلوب';
+
+  @override
+  String get myProfile => 'ملفي الشخصي';
+
+  @override
+  String get editProfile => 'تعديل الملف';
+
+  @override
+  String get settings => 'الإعدادات';
+
+  @override
+  String get updateProfilePhoto => 'تحديث صورة الملف';
+
+  @override
+  String get takePhoto => 'التقاط صورة';
+
+  @override
+  String get chooseFromGallery => 'اختيار من المعرض';
+
+  @override
+  String get photoUpdated => 'تم تحديث الصورة بنجاح';
+
+  @override
+  String get photoUploadFailed => 'فشل رفع الصورة';
+
+  @override
+  String get profileStrength => 'قوة الملف الشخصي';
+
+  @override
+  String get myVoiceIntro => 'تعريفي الصوتي';
+
+  @override
+  String get islamicPractice => 'الممارسة الإسلامية';
+
+  @override
+  String get lifeGoals => 'أهداف الحياة';
+
+  @override
+  String get aboutMe => 'عنّي';
+
+  @override
+  String get readMore => 'اقرأ المزيد';
+
+  @override
+  String get showLess => 'عرض أقل';
+
+  @override
+  String get completeYourProfile => 'أكمل ملفك الشخصي';
+
+  @override
+  String get completeProfileHint =>
+      'عرّف المتقدمين عن نفسك.\nالملف المكتمل يحصل على اهتمام أكثر بثلاث مرات.';
+
+  @override
+  String get setUpMyProfile => 'إعداد ملفي';
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get basicInfo => 'المعلومات الأساسية';
+
+  @override
+  String get islamicIdentity => 'الهوية الإسلامية';
+
+  @override
+  String get educationAndCareer => 'التعليم والمهنة';
+
+  @override
+  String get aboutYou => 'عنك';
+
+  @override
+  String get dateOfBirth => 'تاريخ الميلاد';
+
+  @override
+  String get tapToSelect => 'اضغط للاختيار';
+
+  @override
+  String get mustBe18 => 'يجب أن يكون عمرك ١٨ سنة أو أكثر';
+
+  @override
+  String get city => 'المدينة';
+
+  @override
+  String get hijraDestination => 'بلد الهجرة المقصود';
+
+  @override
+  String get hijraHint => 'مثال: ماليزيا، تركيا، الأردن';
+
+  @override
+  String get games => 'الألعاب';
+
+  @override
+  String get matchMemory => 'ذاكرة التوافق';
+
+  @override
+  String get readyToBegin => 'مستعد للبدء؟';
+
+  @override
+  String get startBismillah => 'ابدأ — بسم الله';
+
+  @override
+  String get waitingForMatch => 'في انتظار شريكك';
+
+  @override
+  String get matchNotified => 'تم إبلاغهم';
+
+  @override
+  String get mashAllahComplete => 'ما شاء الله — اكتمل!';
+
+  @override
+  String get addedToMatchMemory => 'تمت الإضافة إلى ذاكرة التوافق.';
+
+  @override
+  String get turnHistory => 'سجل الأدوار';
+
+  @override
+  String get waitingForMatchAnswer => 'في انتظار إجابة شريكك...';
+
+  @override
+  String get answersHiddenUntil => 'الإجابات مخفية حتى يرد الطرفان';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get noMoreQuestions => 'لا مزيد من الأسئلة';
+
+  @override
+  String get gameWrappingUp => 'هذه اللعبة على وشك الانتهاء!';
+
+  @override
+  String get online => 'متصل';
+
+  @override
+  String get lastSeenRecently => 'شوهد مؤخراً';
+
+  @override
+  String get chaperonedCall => 'مكالمة مرافقة';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get yesterday => 'أمس';
+
+  @override
+  String get waitingForFamilyBlessings => 'في انتظار مباركة العائلة';
+
+  @override
+  String get bismillahBeginBest => 'بسم الله — ابدأ بالأفضل';
+
+  @override
+  String get startConversation => 'ابدأ المحادثة...';
+
+  @override
+  String get salamGreeting =>
+      'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ';
+
+  @override
+  String get ringing => 'يرنّ...';
+
+  @override
+  String get connecting => 'جارٍ الاتصال...';
+
+  @override
+  String get cameraOff => '(الكاميرا مغلقة)';
+
+  @override
+  String get guardianPresent => 'الوليّ موجود';
+
+  @override
+  String get guardianInvited => 'تمت دعوة الوليّ';
+
+  @override
+  String get unmute => 'تشغيل الصوت';
+
+  @override
+  String get mute => 'كتم الصوت';
+
+  @override
+  String get startCam => 'تشغيل الكاميرا';
+
+  @override
+  String get stopCam => 'إيقاف الكاميرا';
+
+  @override
+  String get speaker => 'مكبر الصوت';
+
+  @override
+  String get earpiece => 'سماعة الأذن';
+
+  @override
+  String get flip => 'قلب';
+
+  @override
+  String get endCall => 'إنهاء المكالمة';
+
+  @override
+  String get endThisCall => 'إنهاء هذه المكالمة؟';
+
+  @override
+  String get allParticipantsDisconnected => 'سيتم فصل جميع المشاركين.';
+
+  @override
+  String get stayInCall => 'البقاء في المكالمة';
+
+  @override
+  String get pushNotifications => 'الإشعارات';
+
+  @override
+  String get pushNotificationsDesc => 'توافقات جديدة، رسائل، أدوار الألعاب';
+
+  @override
+  String get biometricLock => 'قفل بالبصمة';
+
+  @override
+  String get guardianWali => 'الوليّ';
+
+  @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get privacy => 'الخصوصية';
+
+  @override
+  String get showPhotoBeforeMutual => 'عرض الصورة قبل الاهتمام المتبادل';
+
+  @override
+  String get termsOfService => 'شروط الخدمة';
+
+  @override
+  String get contactSupport => 'تواصل مع الدعم';
+
+  @override
+  String get rateMiskMatch => 'قيّم مسك ماتش';
+
+  @override
+  String get sealIsMusk => 'ختامه مسك';
+
+  @override
+  String get sealIsMuskTranslation => '\"ختامه مسك\" — القرآن ٨٣:٢٦';
+
+  @override
+  String get signOut => 'تسجيل الخروج؟';
+
+  @override
+  String get deleteAccount => 'حذف الحساب؟';
+
+  @override
+  String get deleteAccountWarning =>
+      'هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع بياناتك نهائياً.';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get confirm => 'تأكيد';
+
+  @override
+  String get activeMatches => 'نشط';
+
+  @override
+  String get awaitingFamilies => 'بانتظار العائلات';
+
+  @override
+  String get matches => 'التوافقات';
+
+  @override
+  String get noActiveMatchesYet => 'لا توجد توافقات نشطة بعد';
+
+  @override
+  String get noPendingMatchesYet => 'لا توجد توافقات معلقة بعد';
+
+  @override
+  String get closeMatch => 'إغلاق التوافق';
+
+  @override
+  String get noMatchesYet => 'لا توجد توافقات بعد';
+
+  @override
+  String get chat => 'محادثة';
+
+  @override
+  String get discover => 'اكتشف';
+
+  @override
+  String get completeProfileMoreMatches =>
+      'أكمل ملفك — توافقات أكثر بثلاث مرات';
+
+  @override
+  String get sortedByCompatibility => 'مرتب حسب التوافق';
+
+  @override
+  String get noMoreCandidates => 'لا يوجد مرشحون بعد';
+
+  @override
+  String get mayAllahMakeItKhayr => 'جعله الله خيراً';
+
+  @override
+  String resendInCountdown(String time) {
+    return 'إعادة الإرسال خلال $time';
+  }
+
+  @override
+  String get deen => 'دين';
+
+  @override
+  String get personality => 'شخصية';
+
+  @override
+  String get practical => 'عملي';
+
+  @override
+  String matchDayLabel(String day) {
+    return 'يوم التوافق $day';
+  }
+
+  @override
+  String gamesUnlockedCount(String unlocked, String total) {
+    return '$unlocked من $total مفتوحة';
+  }
+
+  @override
+  String yourTurnInGame(String name) {
+    return 'دورك في $name';
+  }
+
+  @override
+  String yourTurnInGames(String count) {
+    return 'دورك في $count ألعاب';
+  }
+
+  @override
+  String get tapGameToRespond => 'اضغط على لعبة للرد';
+
+  @override
+  String get storyJustBeginning => 'قصتكم بدأت للتو';
+
+  @override
+  String get completeGamesTimeline => 'أكمل الألعاب لملء الجدول الزمني';
+
+  @override
+  String get account => 'الحساب';
+
+  @override
+  String get about => 'حول';
+
+  @override
+  String get version => 'الإصدار';
+
+  @override
+  String get accountActions => 'إجراءات الحساب';
+
+  @override
+  String get signOutBody => 'يمكنك دائماً تسجيل الدخول لاحقاً.';
+
+  @override
+  String get deleteMyAccount => 'حذف حسابي';
+
+  @override
+  String get writeYourAnswer => 'اكتب إجابتك...';
+
+  @override
+  String get theirMessage => 'رسالتهم';
+
+  @override
+  String get noMessageProvided => 'لم يتم تقديم رسالة';
+
+  @override
+  String get decline => 'رفض';
+
+  @override
+  String get approve => 'موافقة';
+
+  @override
+  String get approveThisMatch => 'الموافقة على هذا التوافق؟';
+
+  @override
+  String get declineThisMatch => 'رفض هذا التوافق؟';
+
+  @override
+  String get matchApprovedMsg =>
+      'تمت الموافقة على التوافق — بارك الله في هذا الاقتران.';
+
+  @override
+  String get matchDeclinedMsg => 'تم رفض التوافق.';
+
+  @override
+  String get notesOptional => 'ملاحظات (اختياري)';
+
+  @override
+  String get approveGuidanceHint =>
+      'كوليّ، موافقتك تعني أنك تثق بهذا التوافق لموكّلك.';
+
+  @override
+  String get yesApprove => 'نعم، أوافق';
+
+  @override
+  String get yesDecline => 'نعم، أرفض';
+
+  @override
+  String get goBackNotDecided => 'رجوع — لم أقرر';
+
+  @override
+  String get noActiveMatches => 'لا توجد توافقات نشطة';
+
+  @override
+  String get messageBlockedNotice => 'تم حظر الرسالة من قبل الإشراف';
+
+  @override
+  String get flagged => 'مُبلّغ عنه';
+
+  @override
+  String flaggedInChat(String name) {
+    return 'تم الإبلاغ عن $name في المحادثة';
+  }
+
+  @override
+  String fromSender(String name) {
+    return 'من $name';
+  }
+
+  @override
+  String flaggedReason(String reason) {
+    return 'السبب: $reason';
+  }
+
+  @override
+  String activeMatchesCount(String count) {
+    return '$count توافقات نشطة';
+  }
+
+  @override
+  String get firstName => 'الاسم الأول';
+
+  @override
+  String get lastName => 'اسم العائلة';
+
+  @override
+  String get continueBtn => 'متابعة';
+
+  @override
+  String get saveProfileBismillah => 'حفظ ملفي — بسم الله';
+
+  @override
+  String get profileSaved => 'تم حفظ الملف الشخصي. جزاك الله خيراً';
+
+  @override
+  String get profileSaveFailed => 'تعذّر حفظ الملف الشخصي. حاول مرة أخرى.';
+
+  @override
+  String get tellUsAboutYourself => 'حدّثنا عن نفسك';
+
+  @override
+  String get howOthersSeeYou => 'هكذا سيراك الآخرون على مسك ماتش.';
+
+  @override
+  String get islamicPracticeSubtitle => 'شارك التزامك الإسلامي — أساس التوافق.';
+
+  @override
+  String get lifeGoalsSubtitle => 'الأهداف المشتركة مؤشر قوي للتوافق.';
+
+  @override
+  String get educationCareerSubtitle =>
+      'اختياري — يساعد في إيجاد مسارات حياة متوافقة.';
+
+  @override
+  String get aboutYouSubtitle => 'هذا أغنى مؤشر لمطابقة الذكاء الاصطناعي.';
+
+  @override
+  String stepOf(String current, String total) {
+    return 'الخطوة $current/$total';
+  }
+
+  @override
+  String get country => 'البلد';
+
+  @override
+  String get prayerFrequency => 'المواظبة على الصلاة';
+
+  @override
+  String get madhab => 'المذهب';
+
+  @override
+  String get quranLevel => 'مستوى القرآن';
+
+  @override
+  String get hijab => 'الحجاب';
+
+  @override
+  String get children => 'الأطفال';
+
+  @override
+  String get hajjTimeline => 'موعد الحج';
+
+  @override
+  String get islamicFinanceStance => 'الموقف من التمويل الإسلامي';
+
+  @override
+  String get wifeWorking => 'موقف عمل الزوجة';
+
+  @override
+  String get educationLevel => 'المستوى التعليمي';
+
+  @override
+  String get occupation => 'المهنة';
+
+  @override
+  String get iAmRevert => 'أنا مسلم جديد (مهتدي)';
+
+  @override
+  String get yearOfReversion => 'سنة الإسلام';
+
+  @override
+  String get iWantHijra => 'أريد الهجرة';
+
+  @override
+  String get recordVoiceIntro => 'سجّل تعريفك الصوتي';
+
+  @override
+  String get voiceIntroLimit => '٦٠ ثانية كحد أقصى. دعهم يسمعونك قبل أن يروك.';
+
+  @override
+  String get tapToRecord => 'اضغط للتسجيل';
+
+  @override
+  String get recording => 'جارٍ التسجيل...';
+
+  @override
+  String get tapToStop => 'اضغط للإيقاف';
+
+  @override
+  String get voiceRecorded => 'تم تسجيل التعريف الصوتي';
+
+  @override
+  String get deleteRecording => 'حذف التسجيل';
+
+  @override
+  String get playRecording => 'تشغيل';
+
+  @override
+  String get bioHint =>
+      'مسلم ملتزم من عمّان. أقدّر العائلة كثيراً وأسعى لجعل الإسلام محوراً لكل يوم...';
+
+  @override
+  String get aiMatchTip =>
+      'يقرأ الذكاء الاصطناعي سيرتك الذاتية لإيجاد توافقات أعمق';
+
+  @override
+  String get fieldRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get firstNameRequired => 'الاسم الأول مطلوب';
+
+  @override
+  String get lastNameRequired => 'اسم العائلة مطلوب';
+
+  @override
+  String get dateOfBirthRequired => 'تاريخ الميلاد مطلوب';
+
+  @override
+  String get pleaseFillRequired => 'يرجى ملء الحقول المطلوبة';
+
+  @override
+  String get madhabHanafi => 'حنفي';
+
+  @override
+  String get madhabMaliki => 'مالكي';
+
+  @override
+  String get madhabShafii => 'شافعي';
+
+  @override
+  String get madhabHanbali => 'حنبلي';
+
+  @override
+  String get madhabOther => 'آخر';
+
+  @override
+  String get prayerAll5 => 'جميع الصلوات الخمس';
+
+  @override
+  String get prayerMost => 'معظم الصلوات';
+
+  @override
+  String get prayerSometimes => 'أحياناً';
+
+  @override
+  String get prayerFridayOnly => 'الجمعة فقط';
+
+  @override
+  String get prayerWorkingOnIt => 'أعمل على ذلك';
+
+  @override
+  String get hijabWears => 'ترتدي الحجاب';
+
+  @override
+  String get hijabOpenTo => 'منفتحة على الحجاب';
+
+  @override
+  String get hijabFamilyDecides => 'العائلة تقرر';
+
+  @override
+  String get hijabPreference => 'تفضيل';
+
+  @override
+  String get hijabNA => 'لا ينطبق';
+
+  @override
+  String memberSince(String date) {
+    return 'عضو منذ $date';
+  }
+
+  @override
+  String get prayer => 'الصلاة';
+
+  @override
+  String get revert => 'مهتدي';
+
+  @override
+  String get cropPhoto => 'قص الصورة';
+
+  @override
+  String get waliRelFather => 'أب';
+
+  @override
+  String get waliRelBrother => 'أخ';
+
+  @override
+  String get waliRelUncle => 'عم';
+
+  @override
+  String get waliRelGrandfather => 'جد';
+
+  @override
+  String get waliRelImam => 'إمام';
+
+  @override
+  String get waliRelOther => 'آخر';
+
+  @override
+  String get filterProfiles => 'تصفية الملفات';
+
+  @override
+  String get refreshFeed => 'تحديث';
+
+  @override
+  String fieldsRemaining(String count) {
+    return '$count حقول متبقية';
+  }
+
+  @override
+  String candidatesForYou(String count) {
+    return '$count مرشحين لك';
+  }
+
+  @override
+  String get writePersonalisedMsg => 'اكتب رسالة شخصية...';
+
+  @override
+  String get match => 'توافق';
+
+  @override
+  String get biometricLockDesc => 'طلب بصمة الوجه / الإصبع عند الفتح';
+
+  @override
+  String get photoVisibleOff =>
+      'معطّل — تظهر الصورة فقط بعد إبداء الاهتمام المتبادل';
+
+  @override
+  String get invitationResent => 'تم إعادة إرسال الدعوة.';
+
+  @override
+  String get videoCallsComingSoon => 'مكالمات الفيديو قريباً';
+
+  @override
+  String get filtersComingSoon => 'التصفية قريباً';
 }

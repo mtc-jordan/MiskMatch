@@ -118,6 +118,7 @@ class UserProfile {
     this.idVerified   = false,
     this.minAge       = 22,
     this.maxAge       = 40,
+    this.createdAt,
   });
 
   final String    userId;
@@ -170,6 +171,9 @@ class UserProfile {
   // Preferences
   final int    minAge;
   final int    maxAge;
+
+  // Metadata
+  final DateTime? createdAt;
 
   // ── Computed helpers ─────────────────────────────────────────────────────
   String get displayFirstName => displayName ?? firstName;
@@ -229,6 +233,9 @@ class UserProfile {
     idVerified:      json['id_verified'] == 'verified',
     minAge:        json['min_age']       as int? ?? 22,
     maxAge:        json['max_age']       as int? ?? 40,
+    createdAt:     json['created_at'] != null
+        ? DateTime.tryParse(json['created_at'] as String)
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -264,6 +271,7 @@ class UserProfile {
     String? numChildrenDesired, String? hajjTimeline,
     bool? wantsHijra, String? islamicFinanceStance, String? wifeWorkingStance,
     String? photoUrl, String? voiceIntroUrl, int? minAge, int? maxAge,
+    String? educationLevel, String? occupation,
   }) => UserProfile(
     userId:        userId,
     firstName:     firstName      ?? this.firstName,
@@ -283,8 +291,8 @@ class UserProfile {
     hijabStance:   hijabStance    ?? this.hijabStance,
     quranLevel:    quranLevel     ?? this.quranLevel,
     isRevert:      isRevert       ?? this.isRevert,
-    educationLevel:educationLevel,
-    occupation:    occupation,
+    educationLevel:educationLevel ?? this.educationLevel,
+    occupation:    occupation     ?? this.occupation,
     wantsChildren: wantsChildren  ?? this.wantsChildren,
     numChildrenDesired: numChildrenDesired ?? this.numChildrenDesired,
     hajjTimeline:  hajjTimeline   ?? this.hajjTimeline,
@@ -297,6 +305,7 @@ class UserProfile {
     idVerified:      idVerified,
     minAge:        minAge         ?? this.minAge,
     maxAge:        maxAge         ?? this.maxAge,
+    createdAt:     createdAt,
   );
 }
 
@@ -317,10 +326,10 @@ class ProfileCompletion {
 
   factory ProfileCompletion.fromJson(Map<String, dynamic> json) =>
       ProfileCompletion(
-        percentage:    json['percentage']    as int? ?? 0,
+        percentage:    (json['completion_pct'] ?? json['percentage']) as int? ?? 0,
         missingFields: (json['missing_fields'] as List<dynamic>?)
             ?.map((e) => e.toString()).toList() ?? [],
-        nextStep:      json['next_step']     as String?,
+        nextStep:      (json['next_suggestion'] ?? json['next_step']) as String?,
       );
 }
 

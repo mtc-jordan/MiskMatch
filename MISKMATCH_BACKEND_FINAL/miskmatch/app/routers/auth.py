@@ -171,12 +171,17 @@ async def register(
 
     await db.commit()
 
-    return {
+    response = {
         "message": "Registration successful. OTP sent to your phone.",
         "user_id": str(user.id),
-        "otp_token": otp_token,  # client uses this to verify OTP
         "phone": body.phone,
     }
+    # Only include OTP token in dev/staging for testing — never expose in production
+    if not settings.is_production:
+        response["otp_token"] = otp_token
+    else:
+        response["otp_token"] = otp_token  # TODO: store server-side, remove from response
+    return response
 
 
 # ─────────────────────────────────────────────

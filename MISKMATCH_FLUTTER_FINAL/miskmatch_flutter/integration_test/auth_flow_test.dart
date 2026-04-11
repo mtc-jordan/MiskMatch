@@ -106,6 +106,8 @@ void main() {
         refreshToken: 'test-refresh-token',
         userId: 'test-user-123',
         tokenType: 'bearer',
+        gender: 'male',
+        onboardingCompleted: false,
       )),
     );
 
@@ -116,6 +118,8 @@ void main() {
         refreshToken: 'test-refresh-token',
         userId: 'existing-user-456',
         tokenType: 'bearer',
+        gender: 'male',
+        onboardingCompleted: true,
       )),
     );
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
@@ -91,7 +92,8 @@ class ApiClient {
         // Only pin for our API hosts
         if (!host.endsWith('miskmatch.app')) return false;
 
-        final fingerprint = cert.sha256.map(
+        final digest = sha256.convert(cert.der);
+        final fingerprint = digest.bytes.map(
           (b) => b.toRadixString(16).padLeft(2, '0').toUpperCase(),
         ).join(':');
 

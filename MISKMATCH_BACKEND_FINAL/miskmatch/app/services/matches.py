@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.models import (
-    User, Profile, Match, MatchStatus, Family,
+    User, UserStatus, Profile, Match, MatchStatus, Family,
     Notification, WaliRelationship, Gender,
 )
 from app.services.compatibility import compute_hybrid_score, rank_candidates
@@ -91,7 +91,7 @@ async def get_discovery_candidates(
         .where(
             and_(
                 User.gender == opposite_gender,
-                User.status == "active",
+                User.status == UserStatus.ACTIVE,
                 User.id != current_user.id,
                 Profile.user_id.not_in(
                     select(Match.sender_id).where(

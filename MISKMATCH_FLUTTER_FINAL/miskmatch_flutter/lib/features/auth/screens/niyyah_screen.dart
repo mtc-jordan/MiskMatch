@@ -27,7 +27,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
   final  _customCtrl = TextEditingController();
 
   List<String> _intentions(BuildContext context) {
-    final l = S.of(context);
+    final l = S.of(context)!;
     return [l.niyyahMarriage, l.niyyahRighteous, l.niyyahDeen];
   }
 
@@ -92,7 +92,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                   Directionality(
                     textDirection: TextDirection.rtl,
                     child: Text(
-                      S.of(context).bismillahDua,
+                      S.of(context)!.bismillahDua,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontFamily: 'Scheherazade',
@@ -109,7 +109,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 3. Translation
                   Text(
-                    S.of(context).bismillahTranslation,
+                    S.of(context)!.bismillahTranslation,
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall.copyWith(
                       color:     AppColors.neutral300,
@@ -135,7 +135,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 5. Heading
                   Text(
-                    S.of(context).setYourNiyyah,
+                    S.of(context)!.setYourNiyyah,
                     style: const TextStyle(
                       fontFamily:  'Georgia',
                       fontSize:    28,
@@ -154,7 +154,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 320),
                     child: Text(
-                      S.of(context).niyyahDescription,
+                      S.of(context)!.niyyahDescription,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMedium.copyWith(
                         color:  AppColors.neutral300,
@@ -208,7 +208,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.goldLight),
                       decoration: InputDecoration(
-                        hintText:  S.of(context).writeOwnNiyyah,
+                        hintText:  S.of(context)!.writeOwnNiyyah,
                         hintStyle: AppTypography.bodyMedium.copyWith(
                           color: AppColors.goldLight.withOpacity(0.4)),
                         border:         InputBorder.none,
@@ -230,7 +230,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 9. Submit button — gold variant
                   MiskButton(
-                    label:     S.of(context).declareNiyyah,
+                    label:     S.of(context)!.declareNiyyah,
                     onPressed: _niyyah != null ? _submit : null,
                     variant:   MiskButtonVariant.gold,
                     icon:      Icons.favorite_rounded,
@@ -244,7 +244,7 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
 
                   // 10. Skip
                   MiskButton(
-                    label:     S.of(context).setNiyyahLater,
+                    label:     S.of(context)!.setNiyyahLater,
                     onPressed: _submit,
                     variant:   MiskButtonVariant.ghost,
                   )

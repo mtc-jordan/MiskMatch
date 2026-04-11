@@ -229,7 +229,7 @@ class _NotStarted extends StatelessWidget {
           const SizedBox(height: 28),
 
           Text(
-            S.of(context).readyToBegin,
+            S.of(context)!.readyToBegin,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    26,
@@ -255,7 +255,7 @@ class _NotStarted extends StatelessWidget {
           const SizedBox(height: 40),
 
           MiskButton(
-            label:     S.of(context).startBismillah,
+            label:     S.of(context)!.startBismillah,
             onPressed: onStart,
             variant:   MiskButtonVariant.gold,
             icon:      Icons.mosque_rounded,
@@ -293,7 +293,7 @@ class _WaitingTurnBody extends StatelessWidget {
           const SizedBox(height: 28),
 
           Text(
-            S.of(context).waitingForMatch,
+            S.of(context)!.waitingForMatch,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    22,
@@ -306,7 +306,7 @@ class _WaitingTurnBody extends StatelessWidget {
           const SizedBox(height: 10),
 
           Text(
-            '${S.of(context).matchNotified} '
+            '${S.of(context)!.matchNotified} '
             "You'll receive a notification when it's your turn.",
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
@@ -393,7 +393,7 @@ class _CompletedBody extends StatelessWidget {
                     ),
                 const SizedBox(height: 14),
                 Text(
-                  S.of(context).mashAllahComplete,
+                  S.of(context)!.mashAllahComplete,
                   style: const TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    26,
@@ -404,7 +404,7 @@ class _CompletedBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  S.of(context).addedToMatchMemory,
+                  S.of(context)!.addedToMatchMemory,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.white.withOpacity(0.85)),
                 ),
@@ -417,7 +417,7 @@ class _CompletedBody extends StatelessWidget {
 
           // ── Turn History header ─────────────────────
           Text(
-            S.of(context).turnHistory,
+            S.of(context)!.turnHistory,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    18,
@@ -521,7 +521,7 @@ class _WaitingOverlay extends StatelessWidget {
                   .animate(onPlay: (c) => c.repeat(reverse: true))
                   .scaleXY(begin: 1.0, end: 1.1, duration: 1200.ms),
               const SizedBox(height: 20),
-              Text(S.of(context).waitingForMatchAnswer,
+              Text(S.of(context)!.waitingForMatchAnswer,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily:  'Georgia',
@@ -532,7 +532,7 @@ class _WaitingOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                S.of(context).answersHiddenUntil,
+                S.of(context)!.answersHiddenUntil,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodySmall.copyWith(
                   color: context.mutedText),
@@ -571,7 +571,7 @@ class _ErrorBody extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           MiskButton(
-            label:     S.of(context).retry,
+            label:     S.of(context)!.retry,
             onPressed: onRetry,
             variant:   MiskButtonVariant.outline,
             fullWidth: false,
@@ -595,7 +595,7 @@ class _NoQuestionBody extends StatelessWidget {
           const Text('🌙', style: TextStyle(fontSize: 48)),
           const SizedBox(height: 16),
           Text(
-            S.of(context).noMoreQuestions,
+            S.of(context)!.noMoreQuestions,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
@@ -605,7 +605,7 @@ class _NoQuestionBody extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          Text(S.of(context).gameWrappingUp,
+          Text(S.of(context)!.gameWrappingUp,
             style: AppTypography.bodyMedium.copyWith(
               color: context.mutedText),
           ),

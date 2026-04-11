@@ -147,7 +147,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          Text(S.of(context).discover,
+          Text(S.of(context)!.discover,
             style: const TextStyle(
               fontFamily:  'Georgia',
               fontSize:    22,
@@ -164,8 +164,12 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
             IconButton(
               icon:      const Icon(Icons.tune_rounded, size: 22),
               color:     context.mutedText,
-              tooltip:   'Filter profiles',
-              onPressed: () {},
+              tooltip:   S.of(context)!.filterProfiles,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Filters coming soon insha\'Allah')),
+                );
+              },
             ),
             Positioned(
               top: 10, right: 10,
@@ -182,7 +186,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         IconButton(
           icon:      const Icon(Icons.refresh_rounded, size: 22),
           color:     context.mutedText,
-          tooltip:   'Refresh feed',
+          tooltip:   S.of(context)!.refreshFeed,
           onPressed: () {
             HapticFeedback.lightImpact();
             ref.read(discoveryProvider.notifier).refresh();
@@ -263,7 +267,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).completeProfileMoreMatches,
+                          S.of(context)!.completeProfileMoreMatches,
                           style: AppTypography.labelMedium.copyWith(
                             color:      AppColors.goldDark,
                             fontWeight: FontWeight.w700,
@@ -395,7 +399,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 color: context.mutedText)),
         const SizedBox(height: 24),
         MiskButton(
-          label:     S.of(context).tryAgain,
+          label:     S.of(context)!.tryAgain,
           onPressed: () => ref.read(discoveryProvider.notifier).refresh(),
           variant:   MiskButtonVariant.outline,
           fullWidth: false,
@@ -437,7 +441,7 @@ class _FeedHeader extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            S.of(context).sortedByCompatibility,
+            S.of(context)!.sortedByCompatibility,
             style: AppTypography.labelSmall.copyWith(
               color:    context.mutedText.withOpacity(0.6),
               fontSize: 10,
@@ -494,7 +498,7 @@ class _InterestSentCard extends StatelessWidget {
                 ),
               ),
               Text(
-                S.of(context).mayAllahMakeItKhayr,
+                S.of(context)!.mayAllahMakeItKhayr,
                 style: AppTypography.labelSmall.copyWith(
                   color:    AppColors.success.withOpacity(0.7),
                   fontSize: 10,
@@ -696,7 +700,7 @@ class _EmptyState extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          Text(S.of(context).noMoreCandidates,
+          Text(S.of(context)!.noMoreCandidates,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    26,

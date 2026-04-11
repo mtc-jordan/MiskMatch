@@ -33,7 +33,7 @@ class GameHubScreen extends ConsumerWidget {
             elevation:          0,
             surfaceTintColor:   Colors.transparent,
             leading:            const BackButton(),
-            title: Text(S.of(context).games,
+            title: Text(S.of(context)!.games,
               style: const TextStyle(
                 fontFamily:  'Georgia',
                 fontSize:    22,
@@ -45,7 +45,7 @@ class GameHubScreen extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.history_rounded,
                   color: AppColors.roseDeep),
-                tooltip: S.of(context).matchMemory,
+                tooltip: S.of(context)!.matchMemory,
                 onPressed: () =>
                     _showMemoryTimeline(context, timelineAsync),
               ),
@@ -151,7 +151,7 @@ class _MatchDayHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context).matchDayLabel('${catalogue.matchDay}'),
+                  S.of(context)!.matchDayLabel('${catalogue.matchDay}'),
                   style: const TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    32,
@@ -161,7 +161,7 @@ class _MatchDayHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  S.of(context).gamesUnlockedCount('${catalogue.totalUnlocked}', '${catalogue.totalGames}'),
+                  S.of(context)!.gamesUnlockedCount('${catalogue.totalUnlocked}', '${catalogue.totalGames}'),
                   style: AppTypography.bodySmall.copyWith(
                     color: context.mutedText),
                 ),
@@ -258,15 +258,15 @@ class _MyTurnNudge extends StatelessWidget {
               children: [
                 Text(
                   games.length == 1 && games.isNotEmpty
-                      ? S.of(context).yourTurnInGame(games.first.name)
-                      : S.of(context).yourTurnInGames('${games.length}'),
+                      ? S.of(context)!.yourTurnInGame(games.first.name)
+                      : S.of(context)!.yourTurnInGames('${games.length}'),
                   style: AppTypography.titleSmall.copyWith(
                     color:      AppColors.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(S.of(context).tapGameToRespond,
+                Text(S.of(context)!.tapGameToRespond,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.white.withOpacity(0.8)),
                 ),
@@ -417,7 +417,7 @@ class _MemoryTimelineSheet extends StatelessWidget {
               children: [
                 const Icon(Icons.article_outlined, size: 22, color: AppColors.roseDeep),
                 const SizedBox(width: 10),
-                Text(S.of(context).matchMemory,
+                Text(S.of(context)!.matchMemory,
                   style: TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    20,
@@ -583,7 +583,7 @@ class _EmptyTimeline extends StatelessWidget {
               .scaleXY(begin: 1.0, end: 1.1, duration: 1200.ms),
           const SizedBox(height: 16),
           Text(
-            S.of(context).storyJustBeginning,
+            S.of(context)!.storyJustBeginning,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
@@ -594,7 +594,7 @@ class _EmptyTimeline extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            S.of(context).completeGamesTimeline,
+            S.of(context)!.completeGamesTimeline,
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall.copyWith(
               color:  context.mutedText,
@@ -633,7 +633,7 @@ class _ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           MiskButton(
-            label:     S.of(context).tryAgain,
+            label:     S.of(context)!.tryAgain,
             onPressed: onRetry,
             variant:   MiskButtonVariant.outline,
             fullWidth: false,

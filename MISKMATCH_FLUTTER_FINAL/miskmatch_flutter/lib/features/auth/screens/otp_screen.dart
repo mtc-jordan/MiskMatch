@@ -163,13 +163,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
                     child: Column(
                       children: [
-                        Text(S.of(context).enterVerificationCode,
+                        Text(S.of(context)!.enterVerificationCode,
                           style: AppTypography.titleLarge.copyWith(
                             fontSize: 20, fontWeight: FontWeight.w700,
                             color: context.onSurface),
                         ),
                         const SizedBox(height: 6),
-                        Text(S.of(context).otpSentHint,
+                        Text(S.of(context)!.otpSentHint,
                           style: AppTypography.bodySmall.copyWith(
                             fontSize: 13, color: context.mutedText),
                         ),
@@ -219,7 +219,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         // Verify button — only when 6 digits
                         if (_otp.length == 6)
                           MiskButton(
-                            label:     S.of(context).verifyAndContinue,
+                            label:     S.of(context)!.verifyAndContinue,
                             onPressed: _verify,
                             loading:   isLoading,
                             icon:      Icons.check_circle_outline_rounded,
@@ -238,7 +238,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         // Countdown / resend
                         _canResend
                             ? MiskButton(
-                                label:     S.of(context).resendCode,
+                                label:     S.of(context)!.resendCode,
                                 onPressed: _resend,
                                 variant:   MiskButtonVariant.ghost,
                                 fullWidth: false,
@@ -246,7 +246,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                                 icon:      Icons.refresh_rounded,
                               )
                             : Text(
-                                S.of(context).resendInCountdown('0:${_resendSeconds.toString().padLeft(2, '0')}'),
+                                S.of(context)!.resendInCountdown('0:${_resendSeconds.toString().padLeft(2, '0')}'),
                                 style: AppTypography.bodySmall.copyWith(
                                   color: _resendSeconds <= 10
                                       ? AppColors.roseDeep
@@ -265,7 +265,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                               size: 14, color: context.mutedText),
                             const SizedBox(width: 4),
                             Text(
-                              S.of(context).otpPrivacyNote,
+                              S.of(context)!.otpPrivacyNote,
                               style: AppTypography.caption.copyWith(
                                 color: context.mutedText,
                                 fontStyle: FontStyle.italic),
@@ -338,7 +338,7 @@ class _OtpHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      S.of(context).verifyYourNumber,
+                      S.of(context)!.verifyYourNumber,
                       style: const TextStyle(
                         fontFamily: 'Georgia', fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -362,7 +362,7 @@ class _OtpHeader extends StatelessWidget {
                               color: AppColors.neutral300, fontSize: 14),
                           ),
                           const SizedBox(width: 8),
-                          Text(S.of(context).change,
+                          Text(S.of(context)!.change,
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.goldLight,
                               decoration: TextDecoration.underline,

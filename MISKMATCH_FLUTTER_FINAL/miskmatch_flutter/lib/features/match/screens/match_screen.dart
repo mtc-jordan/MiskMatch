@@ -49,7 +49,7 @@ class MatchScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 MiskButton(
-                  label:     S.of(context).retry,
+                  label:     S.of(context)!.retry,
                   onPressed: () =>
                       ref.refresh(matchDetailProvider(matchId)),
                   fullWidth: false,
@@ -95,8 +95,8 @@ class MatchScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       match.status.canChat
-                          ? S.of(context).activeMatches
-                          : S.of(context).awaitingFamilies,
+                          ? S.of(context)!.activeMatches
+                          : S.of(context)!.awaitingFamilies,
                       style: AppTypography.labelSmall.copyWith(
                         color: match.status.canChat
                             ? AppColors.success
@@ -353,7 +353,7 @@ class _QuickActions extends ConsumerWidget {
             // Chat button — rose
             Expanded(
               child: MiskButton(
-                label:     S.of(context).chat,
+                label:     S.of(context)!.chat,
                 onPressed: match.status.canChat
                     ? () => context.push(AppRoutes.chatPath(matchId))
                     : null,
@@ -364,7 +364,7 @@ class _QuickActions extends ConsumerWidget {
             // Games button — outline
             Expanded(
               child: MiskButton(
-                label:     S.of(context).games,
+                label:     S.of(context)!.games,
                 onPressed: match.status.canPlayGames
                     ? () => context.push(
                         AppRoutes.gameHubPath(matchId))
@@ -475,22 +475,22 @@ class _CompatibilityCard extends StatelessWidget {
           // 4 breakdown bars
           if (breakdown != null) ...[
             _BreakdownBar(
-              label: S.of(context).deen,
+              label: S.of(context)!.deen,
               score: (breakdown['deen'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: S.of(context).lifeGoals,
+              label: S.of(context)!.lifeGoals,
               score: (breakdown['life_goals'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: S.of(context).personality,
+              label: S.of(context)!.personality,
               score: (breakdown['personality'] as num?)?.toDouble() ?? 0,
             ),
             const SizedBox(height: 10),
             _BreakdownBar(
-              label: S.of(context).practical,
+              label: S.of(context)!.practical,
               score: (breakdown['practical'] as num?)?.toDouble() ?? 0,
             ),
           ],

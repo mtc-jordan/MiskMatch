@@ -277,7 +277,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
               ),
               Text(
-                isOnline ? S.of(context).online : S.of(context).lastSeenRecently,
+                isOnline ? S.of(context)!.online : S.of(context)!.lastSeenRecently,
                 style: AppTypography.labelSmall.copyWith(
                   color:    isOnline
                       ? AppColors.success
@@ -294,14 +294,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         IconButton(
           icon: const Icon(Icons.videocam_outlined, size: 22),
           color: context.mutedText,
-          tooltip: S.of(context).chaperonedCall,
-          onPressed: () {},
+          tooltip: S.of(context)!.chaperonedCall,
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Video calls coming soon insha\'Allah')),
+            );
+          },
         ),
         // More menu
-        IconButton(
-          icon: const Icon(Icons.more_vert_rounded, size: 22),
-          color: context.mutedText,
-          onPressed: () {},
+        PopupMenuButton<String>(
+          icon: Icon(Icons.more_vert_rounded, size: 22, color: context.mutedText),
+          onSelected: (value) {
+            if (value == 'close') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(S.of(context)!.closeMatch)),
+              );
+            }
+          },
+          itemBuilder: (ctx) => [
+            PopupMenuItem(
+              value: 'close',
+              child: Row(
+                children: [
+                  const Icon(Icons.close_rounded, size: 18),
+                  const SizedBox(width: 8),
+                  Text(S.of(context)!.closeMatch),
+                ],
+              ),
+            ),
+          ],
         ),
         const SizedBox(width: 4),
       ],
@@ -395,8 +416,8 @@ class _DateDivider extends StatelessWidget {
     final now   = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final d     = DateTime(date.year, date.month, date.day);
-    if (d == today) return S.of(context).today;
-    if (d == today.subtract(const Duration(days: 1))) return S.of(context).yesterday;
+    if (d == today) return S.of(context)!.today;
+    if (d == today.subtract(const Duration(days: 1))) return S.of(context)!.yesterday;
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -458,7 +479,7 @@ class _WaliApprovalBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              S.of(context).waitingForFamilyBlessings,
+              S.of(context)!.waitingForFamilyBlessings,
               style: AppTypography.bodySmall.copyWith(
                 color:      AppColors.goldDark,
                 fontWeight: FontWeight.w500,
@@ -544,7 +565,7 @@ class _EmptyChatState extends StatelessWidget {
           const Text('🌙', style: TextStyle(fontSize: 56)),
           const SizedBox(height: 20),
           Text(
-            S.of(context).bismillahBeginBest,
+            S.of(context)!.bismillahBeginBest,
             style: TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
@@ -555,7 +576,7 @@ class _EmptyChatState extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            S.of(context).startConversation,
+            S.of(context)!.startConversation,
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
               color:  context.mutedText,

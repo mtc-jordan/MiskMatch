@@ -36,7 +36,7 @@ abstract class AppConfig {
       case Env.production: return 'https://api.miskmatch.app/api/v1';
       case Env.staging:    return 'https://api-staging.miskmatch.app/api/v1';
       case Env.development:
-        final scheme = _isLoopback(_devApiHost) ? 'http' : 'https';
+        final scheme = _isLocalDev(_devApiHost) ? 'http' : 'https';
         return '$scheme://$_devApiHost/api/v1';
     }
   }
@@ -46,15 +46,15 @@ abstract class AppConfig {
       case Env.production: return 'wss://api.miskmatch.app/api/v1';
       case Env.staging:    return 'wss://api-staging.miskmatch.app/api/v1';
       case Env.development:
-        final scheme = _isLoopback(_devApiHost) ? 'ws' : 'wss';
+        final scheme = _isLocalDev(_devApiHost) ? 'ws' : 'wss';
         return '$scheme://$_devApiHost/api/v1';
     }
   }
 
-  /// Only allow insecure transport for known local loopback addresses.
-  static bool _isLoopback(String host) {
+  /// Allow insecure transport for local/dev addresses.
+  static bool _isLocalDev(String host) {
     final h = host.split(':').first;
-    return h == 'localhost' || h == '127.0.0.1' || h == '10.0.2.2';
+    return h == 'localhost' || h == '127.0.0.1' || h == '10.0.2.2' || h.startsWith('192.168.') || h.startsWith('10.');
   }
 
   // ── Timeouts ─────────────────────────────────────────────────────────────

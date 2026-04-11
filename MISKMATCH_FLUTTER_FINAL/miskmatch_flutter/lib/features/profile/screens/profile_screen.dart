@@ -59,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: context.scaffoldColor,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
-      title: Text(S.of(context).myProfile,
+      title: Text(S.of(context)!.myProfile,
         style: const TextStyle(
           fontFamily:  'Georgia',
           fontSize:    22,
@@ -72,13 +72,13 @@ class ProfileScreen extends ConsumerWidget {
           icon:    const Icon(Icons.edit_outlined, size: 20),
           color:   AppColors.roseDeep,
           onPressed: () => context.push(AppRoutes.profileEdit),
-          tooltip: S.of(context).editProfile,
+          tooltip: S.of(context)!.editProfile,
         ),
         IconButton(
           icon:    const Icon(Icons.settings_outlined, size: 20),
           color:   context.mutedText,
           onPressed: () => context.push(AppRoutes.settings),
-          tooltip: S.of(context).settings,
+          tooltip: S.of(context)!.settings,
         ),
         const SizedBox(width: 4),
       ],
@@ -145,17 +145,17 @@ class _HeroSection extends ConsumerWidget {
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            Text(S.of(context).updateProfilePhoto,
+            Text(S.of(context)!.updateProfilePhoto,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded, color: AppColors.roseDeep),
-              title: Text(S.of(context).takePhoto),
+              title: Text(S.of(context)!.takePhoto),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: AppColors.roseDeep),
-              title: Text(S.of(context).chooseFromGallery),
+              title: Text(S.of(context)!.chooseFromGallery),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
             const SizedBox(height: 16),
@@ -182,12 +182,12 @@ class _HeroSection extends ConsumerWidget {
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Crop Photo',
+          toolbarTitle: S.of(context)!.cropPhoto,
           toolbarColor: AppColors.roseDeep,
           toolbarWidgetColor: AppColors.white,
           activeControlsWidgetColor: AppColors.roseDeep,
         ),
-        IOSUiSettings(title: 'Crop Photo'),
+        IOSUiSettings(title: S.of(context)!.cropPhoto),
       ],
     );
 
@@ -200,8 +200,8 @@ class _HeroSection extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-            ? S.of(context).photoUpdated
-            : S.of(context).photoUploadFailed),
+            ? S.of(context)!.photoUpdated
+            : S.of(context)!.photoUploadFailed),
         ),
       );
     }
@@ -316,7 +316,7 @@ class _HeroSection extends ConsumerWidget {
           // ── Member since ────────────────────────────────────
           const SizedBox(height: 10),
           Text(
-            'Member since ${_memberDate(profile)}',
+            S.of(context)!.memberSince(_memberDate(profile)),
             style: AppTypography.labelSmall.copyWith(
               color:    AppColors.goldPrimary,
               fontSize: 11,
@@ -328,13 +328,12 @@ class _HeroSection extends ConsumerWidget {
   }
 
   String _memberDate(UserProfile p) {
-    // Use created date if available, fallback to current
+    final d = p.createdAt ?? DateTime.now();
     const months = [
       '', 'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December',
     ];
-    final now = DateTime.now();
-    return '${months[now.month]} ${now.year}';
+    return '${months[d.month]} ${d.year}';
   }
 }
 
@@ -370,7 +369,7 @@ class _ProfileStrengthBar extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(S.of(context).profileStrength,
+                  Text(S.of(context)!.profileStrength,
                     style: AppTypography.titleSmall.copyWith(
                       color: AppColors.goldDark,
                     ),
@@ -444,7 +443,7 @@ class _VoiceIntroCard extends StatelessWidget {
       ),
       child: VoicePlayerWidget(
         audioUrl: profile.voiceIntroUrl!,
-        label:    S.of(context).myVoiceIntro,
+        label:    S.of(context)!.myVoiceIntro,
       ),
     )
         .animate()
@@ -462,22 +461,23 @@ class _IslamicPracticeGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final items = <(String, String, String)>[];
     if (profile.prayerFrequency != null) {
-      items.add(('Prayer', profile.prayerFrequency!.emoji,
+      items.add((l.prayer, profile.prayerFrequency!.emoji,
           profile.prayerFrequency!.label));
     }
     if (profile.madhab != null) {
-      items.add(('Madhab', '📚', profile.madhab!.label));
+      items.add((l.madhab, '📚', profile.madhab!.label));
     }
     if (profile.quranLevel != null && profile.quranLevel!.isNotEmpty) {
-      items.add(('Quran', '📖', profile.quranLevel!));
+      items.add((l.quranLevel, '📖', profile.quranLevel!));
     }
     if (profile.hijabStance != null && profile.hijabStance!.value != 'na') {
-      items.add(('Hijab', '🧕', profile.hijabStance!.label));
+      items.add((l.hijab, '🧕', profile.hijabStance!.label));
     }
     if (profile.isRevert) {
-      items.add(('Revert', '🌙', profile.revertYear != null
+      items.add((l.revert, '🌙', profile.revertYear != null
           ? 'Since ${profile.revertYear}'
           : 'Yes'));
     }
@@ -485,7 +485,7 @@ class _IslamicPracticeGrid extends StatelessWidget {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: S.of(context).islamicPractice,
+      title: S.of(context)!.islamicPractice,
       child: GridView.count(
         crossAxisCount:  2,
         shrinkWrap:      true,
@@ -587,7 +587,7 @@ class _LifeGoalsChips extends StatelessWidget {
     if (goals.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: S.of(context).lifeGoals,
+      title: S.of(context)!.lifeGoals,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -636,7 +636,7 @@ class _BioSectionState extends State<_BioSection> {
     if (bio == null || bio.isEmpty) return const SizedBox.shrink();
 
     return _Section(
-      title: S.of(context).aboutMe,
+      title: S.of(context)!.aboutMe,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -656,7 +656,7 @@ class _BioSectionState extends State<_BioSection> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  _expanded ? S.of(context).showLess : S.of(context).readMore,
+                  _expanded ? S.of(context)!.showLess : S.of(context)!.readMore,
                   style: AppTypography.labelSmall.copyWith(
                     color:      AppColors.roseDeep,
                     fontSize:   11,
@@ -800,21 +800,21 @@ class _CreateProfilePrompt extends StatelessWidget {
                 size: 36, color: AppColors.roseDeep),
           ),
           const SizedBox(height: 20),
-          Text(S.of(context).completeYourProfile,
+          Text(S.of(context)!.completeYourProfile,
             style: AppTypography.titleLarge.copyWith(
               color: context.onSurface, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            S.of(context).completeProfileHint,
+            S.of(context)!.completeProfileHint,
             style: AppTypography.bodyMedium.copyWith(
               color: context.mutedText, height: 1.5),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
           MiskButton(
-            label:     S.of(context).setUpMyProfile,
+            label:     S.of(context)!.setUpMyProfile,
             onPressed: onTap,
             icon:      Icons.arrow_forward_rounded,
           ),
@@ -849,7 +849,7 @@ class _ProfileErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           MiskButton(
-            label:     S.of(context).tryAgain,
+            label:     S.of(context)!.tryAgain,
             onPressed: onRetry,
             variant:   MiskButtonVariant.outline,
             fullWidth: false,

@@ -157,16 +157,16 @@ class _MiskButtonState extends State<MiskButton>
 
   /// Directional icons (forward arrows) need to be flipped in RTL mode
   /// because MiskButton receives IconData, bypassing Flutter's auto-mirror.
-  static const _rtlFlippableIcons = <IconData>{
-    Icons.arrow_forward_rounded,
-    Icons.arrow_forward,
-    Icons.arrow_forward_ios_rounded,
-    Icons.arrow_forward_ios,
+  static final _rtlFlippableIcons = <int>{
+    Icons.arrow_forward_rounded.codePoint,
+    Icons.arrow_forward.codePoint,
+    Icons.arrow_forward_ios_rounded.codePoint,
+    Icons.arrow_forward_ios.codePoint,
   };
 
   Widget _maybeFlipIcon(IconData icon, double size, bool isRtl) {
     final child = Icon(icon, size: size, color: _fg);
-    if (isRtl && _rtlFlippableIcons.contains(icon)) {
+    if (isRtl && _rtlFlippableIcons.contains(icon.codePoint)) {
       return Transform.flip(flipX: true, child: child);
     }
     return child;

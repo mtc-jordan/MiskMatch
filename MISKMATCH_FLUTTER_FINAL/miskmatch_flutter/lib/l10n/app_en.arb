@@ -181,5 +181,203 @@
   "completeProfileMoreMatches": "Complete profile — 3× more matches",
   "sortedByCompatibility": "Sorted by compatibility",
   "noMoreCandidates": "No candidates yet",
-  "mayAllahMakeItKhayr": "May Allah make it khayr"
+  "mayAllahMakeItKhayr": "May Allah make it khayr",
+
+  "resendInCountdown": "Resend in {time}",
+  "@resendInCountdown": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "deen": "Deen",
+  "personality": "Personality",
+  "practical": "Practical",
+
+  "matchDayLabel": "Match Day {day}",
+  "@matchDayLabel": {
+    "placeholders": {
+      "day": { "type": "String" }
+    }
+  },
+  "gamesUnlockedCount": "{unlocked} of {total} unlocked",
+  "@gamesUnlockedCount": {
+    "placeholders": {
+      "unlocked": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "yourTurnInGame": "Your turn in {name}",
+  "@yourTurnInGame": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "yourTurnInGames": "Your turn in {count} games",
+  "@yourTurnInGames": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "tapGameToRespond": "Tap a game to respond",
+  "storyJustBeginning": "Your story is just beginning",
+  "completeGamesTimeline": "Complete games to fill the timeline",
+
+  "account": "Account",
+  "about": "About",
+  "version": "Version",
+  "accountActions": "Account Actions",
+  "signOutBody": "You can always sign back in later.",
+  "deleteMyAccount": "Delete my account",
+  "writeYourAnswer": "Write your answer...",
+
+  "theirMessage": "Their message",
+  "noMessageProvided": "No message provided",
+  "decline": "Decline",
+  "approve": "Approve",
+  "approveThisMatch": "Approve this match?",
+  "declineThisMatch": "Decline this match?",
+  "matchApprovedMsg": "Match approved — may Allah bless this union.",
+  "matchDeclinedMsg": "Match declined.",
+  "notesOptional": "Notes (optional)",
+  "approveGuidanceHint": "As a guardian, your approval means you trust this match for your ward.",
+  "yesApprove": "Yes, approve",
+  "yesDecline": "Yes, decline",
+  "goBackNotDecided": "Go back — not decided",
+  "noActiveMatches": "No active matches",
+  "messageBlockedNotice": "Message blocked by moderation",
+  "flagged": "Flagged",
+  "flaggedInChat": "{name} flagged in chat",
+  "@flaggedInChat": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "fromSender": "From {name}",
+  "@fromSender": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "flaggedReason": "Reason: {reason}",
+  "@flaggedReason": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "activeMatchesCount": "{count} active matches",
+  "@activeMatchesCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+
+  "firstName": "First name",
+  "lastName": "Last name",
+  "continueBtn": "Continue",
+  "saveProfileBismillah": "Save my profile — Bismillah",
+  "profileSaved": "Profile saved. JazakAllah Khair",
+  "profileSaveFailed": "Could not save profile. Please try again.",
+  "tellUsAboutYourself": "Tell us about yourself",
+  "howOthersSeeYou": "This is how others will see you on MiskMatch.",
+  "islamicPracticeSubtitle": "Share your Islamic practice — the foundation of compatibility.",
+  "lifeGoalsSubtitle": "Shared life goals are a strong compatibility signal.",
+  "educationCareerSubtitle": "Optional — helps find compatible life trajectories.",
+  "aboutYouSubtitle": "This is the richest signal for AI compatibility matching.",
+  "stepOf": "Step {current}/{total}",
+  "@stepOf": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+
+  "country": "Country",
+  "prayerFrequency": "Prayer frequency",
+  "madhab": "Madhab",
+  "quranLevel": "Quran level",
+  "hijab": "Hijab",
+  "children": "Children",
+  "hajjTimeline": "Hajj timeline",
+  "islamicFinanceStance": "Islamic finance stance",
+  "wifeWorking": "Wife working stance",
+  "educationLevel": "Education level",
+  "occupation": "Occupation",
+  "iAmRevert": "I am a Muslim revert",
+  "yearOfReversion": "Year of reversion",
+  "iWantHijra": "I want to make hijra",
+
+  "recordVoiceIntro": "Record your voice introduction",
+  "voiceIntroLimit": "60 seconds maximum. Let them hear you before they see you.",
+  "tapToRecord": "Tap to record",
+  "recording": "Recording...",
+  "tapToStop": "Tap to stop",
+  "voiceRecorded": "Voice intro recorded",
+  "deleteRecording": "Delete recording",
+  "playRecording": "Play",
+
+  "bioHint": "A practicing Muslim from Amman. I value family deeply and strive to make Islam central to every day...",
+  "aiMatchTip": "Your bio is read by our AI to find deeper matches",
+
+  "fieldRequired": "This field is required",
+  "firstNameRequired": "First name is required",
+  "lastNameRequired": "Last name is required",
+  "dateOfBirthRequired": "Date of birth is required",
+  "pleaseFillRequired": "Please fill in the required fields",
+
+  "madhabHanafi": "Hanafi",
+  "madhabMaliki": "Maliki",
+  "madhabShafii": "Shafi'i",
+  "madhabHanbali": "Hanbali",
+  "madhabOther": "Other",
+
+  "prayerAll5": "All 5 daily prayers",
+  "prayerMost": "Most prayers",
+  "prayerSometimes": "Sometimes",
+  "prayerFridayOnly": "Friday only",
+  "prayerWorkingOnIt": "Working on it",
+
+  "hijabWears": "Wears hijab",
+  "hijabOpenTo": "Open to hijab",
+  "hijabFamilyDecides": "Family decides",
+  "hijabPreference": "Preference",
+  "hijabNA": "N/A",
+
+  "memberSince": "Member since {date}",
+  "@memberSince": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "prayer": "Prayer",
+  "revert": "Revert",
+  "cropPhoto": "Crop Photo",
+
+  "waliRelFather": "Father",
+  "waliRelBrother": "Brother",
+  "waliRelUncle": "Uncle",
+  "waliRelGrandfather": "Grandfather",
+  "waliRelImam": "Imam",
+  "waliRelOther": "Other",
+
+  "filterProfiles": "Filter profiles",
+  "refreshFeed": "Refresh feed",
+  "fieldsRemaining": "{count} fields remaining",
+  "@fieldsRemaining": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "candidatesForYou": "{count} candidates for you",
+  "@candidatesForYou": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "writePersonalisedMsg": "Write a personalised message...",
+  "match": "Match",
+  "biometricLockDesc": "Require Face ID / fingerprint on open",
+  "photoVisibleOff": "Off — photo revealed only after both sides show interest",
+  "invitationResent": "Invitation resent.",
+  "videoCallsComingSoon": "Video calls coming soon",
+  "filtersComingSoon": "Filters coming soon"
 }

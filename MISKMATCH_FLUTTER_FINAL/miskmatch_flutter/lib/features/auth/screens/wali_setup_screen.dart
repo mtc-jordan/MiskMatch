@@ -12,6 +12,7 @@ import 'package:miskmatch/features/auth/providers/auth_provider.dart';
 import 'package:miskmatch/features/wali/data/wali_repository.dart';
 import 'package:miskmatch/features/wali/data/wali_models.dart';
 import 'package:miskmatch/l10n/generated/app_localizations.dart';
+import 'package:miskmatch/shared/models/api_response.dart';
 
 /// Wali (guardian) setup — 3-step onboarding wizard.
 
@@ -43,14 +44,17 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
 
   bool _loading = false;
 
-  static const _relationships = [
-    ('father',      'Father',      Icons.man_rounded),
-    ('brother',     'Brother',     Icons.person_rounded),
-    ('uncle',       'Uncle',       Icons.elderly_rounded),
-    ('grandfather', 'Grandfather', Icons.elderly_rounded),
-    ('imam',        'Imam',        Icons.mosque_rounded),
-    ('other',       'Other',       Icons.group_rounded),
-  ];
+  List<(String, String, IconData)> _relationships(BuildContext context) {
+    final l = S.of(context)!;
+    return [
+      ('father',      l.waliRelFather,      Icons.man_rounded),
+      ('brother',     l.waliRelBrother,     Icons.person_rounded),
+      ('uncle',       l.waliRelUncle,       Icons.elderly_rounded),
+      ('grandfather', l.waliRelGrandfather, Icons.elderly_rounded),
+      ('imam',        l.waliRelImam,        Icons.mosque_rounded),
+      ('other',       l.waliRelOther,       Icons.group_rounded),
+    ];
+  }
 
   @override
   void dispose() {
@@ -203,7 +207,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
                 child: Column(
                   children: [
                     MiskButton(
-                      label:     _step < 2 ? S.of(context).next : S.of(context).completeSetup,
+                      label:     _step < 2 ? S.of(context)!.next : S.of(context)!.completeSetup,
                       onPressed: _canProceed ? _next : null,
                       loading:   _loading,
                       icon:      _step < 2
@@ -212,7 +216,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
                     ),
                     const SizedBox(height: 8),
                     MiskButton(
-                      label:     S.of(context).skipGuardianSetup,
+                      label:     S.of(context)!.skipGuardianSetup,
                       onPressed: _skip,
                       variant:   MiskButtonVariant.ghost,
                       small:     true,
@@ -278,7 +282,7 @@ class _WaliHeader extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(S.of(context).yourGuardian,
+                      Text(S.of(context)!.yourGuardian,
                         style: const TextStyle(
                           fontFamily: 'Georgia', fontSize: 22,
                           fontWeight: FontWeight.w700, color: AppColors.white),
@@ -287,7 +291,7 @@ class _WaliHeader extends StatelessWidget {
                       Directionality(
                         textDirection: TextDirection.rtl,
                         child: Text(
-                          S.of(context).noMarriageWithoutGuardian,
+                          S.of(context)!.noMarriageWithoutGuardian,
                           style: const TextStyle(
                             fontFamily: 'Scheherazade', fontSize: 16,
                             color: AppColors.goldLight, height: 2.0),
@@ -301,7 +305,7 @@ class _WaliHeader extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 68, top: 2),
               child: Text(
-                S.of(context).noMarriageTranslation,
+                S.of(context)!.noMarriageTranslation,
                 style: AppTypography.caption.copyWith(
                   color: AppColors.white.withOpacity(0.7),
                   fontStyle: FontStyle.italic, fontSize: 11),
@@ -364,11 +368,11 @@ class _Step1Relationship extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).whoIsGuardian,
+          Text(S.of(context)!.whoIsGuardian,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text(S.of(context).selectRelationship,
+          Text(S.of(context)!.selectRelationship,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
@@ -380,7 +384,14 @@ class _Step1Relationship extends StatelessWidget {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
             childAspectRatio: 1.4,
-            children: _WaliSetupScreenState._relationships.map((r) {
+            children: [
+              ('father',      S.of(context)!.waliRelFather,      Icons.man_rounded),
+              ('brother',     S.of(context)!.waliRelBrother,     Icons.person_rounded),
+              ('uncle',       S.of(context)!.waliRelUncle,       Icons.elderly_rounded),
+              ('grandfather', S.of(context)!.waliRelGrandfather, Icons.elderly_rounded),
+              ('imam',        S.of(context)!.waliRelImam,        Icons.mosque_rounded),
+              ('other',       S.of(context)!.waliRelOther,       Icons.group_rounded),
+            ].map((r) {
               final (key, label, icon) = r;
               final sel = selected == key;
               return _RelationshipCard(
@@ -515,25 +526,25 @@ class _Step2Details extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).enterTheirDetails,
+          Text(S.of(context)!.enterTheirDetails,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text(S.of(context).smsInvitationHint,
+          Text(S.of(context)!.smsInvitationHint,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
 
           MiskTextField(
-            label:      S.of(context).guardianFullName,
-            hint:       S.of(context).guardianNameHint,
+            label:      S.of(context)!.guardianFullName,
+            hint:       S.of(context)!.guardianNameHint,
             controller: nameCtrl,
             prefixIcon: const Icon(Icons.person_outline_rounded),
             textInputAction: TextInputAction.next,
             onChanged:  (_) => onChanged(),
             validator: (v) {
               if (v == null || v.trim().length < 2) {
-                return S.of(context).pleaseEnterGuardianName;
+                return S.of(context)!.pleaseEnterGuardianName;
               }
               return null;
             },
@@ -572,8 +583,8 @@ class _Step2Details extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: MiskTextField(
-                  label:        S.of(context).phoneNumber,
-                  hint:         S.of(context).phoneHint,
+                  label:        S.of(context)!.phoneNumber,
+                  hint:         S.of(context)!.phoneHint,
                   controller:   phoneCtrl,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
@@ -675,11 +686,11 @@ class _WaliCountrySheetState extends State<_WaliCountrySheet> {
                 color: context.handleColor,
                 borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            Text(S.of(context).selectCountry,
+            Text(S.of(context)!.selectCountry,
               style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
             MiskTextField(
-              label: S.of(context).search, hint: S.of(context).countryNameOrCode,
+              label: S.of(context)!.search, hint: S.of(context)!.countryNameOrCode,
               prefixIcon: const Icon(Icons.search_rounded),
               onChanged: (v) => setState(() => _q = v)),
             const SizedBox(height: 12),
@@ -732,41 +743,41 @@ class _Step3Permissions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).chooseInvolvement,
+          Text(S.of(context)!.chooseInvolvement,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700, color: context.onSurface)),
           const SizedBox(height: 4),
-          Text(S.of(context).changeSettingsLater,
+          Text(S.of(context)!.changeSettingsLater,
             style: AppTypography.bodySmall.copyWith(
               color: context.mutedText, fontSize: 13)),
           const SizedBox(height: 24),
 
           _PermissionRow(
             icon:     Icons.check_circle_rounded,
-            label:    S.of(context).mustApproveMatches,
-            subtitle: S.of(context).mustApproveDesc,
+            label:    S.of(context)!.mustApproveMatches,
+            subtitle: S.of(context)!.mustApproveDesc,
             value:    approveMatches,
             onChanged: null, // can't turn off
             isFirst:  true,
           ),
           _PermissionRow(
             icon:     Icons.chat_bubble_outline_rounded,
-            label:    S.of(context).canReadConversations,
-            subtitle: S.of(context).canReadDesc,
+            label:    S.of(context)!.canReadConversations,
+            subtitle: S.of(context)!.canReadDesc,
             value:    readConvos,
             onChanged: onRead,
           ),
           _PermissionRow(
             icon:     Icons.notifications_outlined,
-            label:    S.of(context).receivesNotifications,
-            subtitle: S.of(context).receivesNotifDesc,
+            label:    S.of(context)!.receivesNotifications,
+            subtitle: S.of(context)!.receivesNotifDesc,
             value:    notifications,
             onChanged: onNotify,
           ),
           _PermissionRow(
             icon:     Icons.call_outlined,
-            label:    S.of(context).canJoinCalls,
-            subtitle: S.of(context).canJoinCallsDesc,
+            label:    S.of(context)!.canJoinCalls,
+            subtitle: S.of(context)!.canJoinCallsDesc,
             value:    joinCalls,
             onChanged: onCall,
             isLast:   true,
@@ -841,7 +852,7 @@ class _PermissionRow extends StatelessWidget {
                     color: AppColors.roseDeep.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(S.of(context).required,
+                  child: Text(S.of(context)!.required,
                     style: AppTypography.caption.copyWith(
                       color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                 )

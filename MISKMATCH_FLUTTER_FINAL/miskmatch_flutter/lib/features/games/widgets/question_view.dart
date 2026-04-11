@@ -186,7 +186,7 @@ class _QuestionViewState extends State<QuestionView> {
       default:
         return _OpenTextInput(
           hint:         widget.question['placeholder']?.toString() ??
-                        S.of(context).writeYourAnswer,
+                        S.of(context)!.writeYourAnswer,
           controller:   _textCtrl,
           maxLines:     _questionType == 'letter_prompt' ? 8 : 5,
           isSubmitting: widget.isSubmitting || _submitted,

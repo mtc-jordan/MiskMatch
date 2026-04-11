@@ -190,7 +190,7 @@ class _HeroSection extends StatelessWidget {
 
               // Headline
               Text(
-                S.of(context).findYourOtherHalf,
+                S.of(context)!.findYourOtherHalf,
                 style: const TextStyle(
                   fontFamily: 'Georgia', fontSize: 36,
                   fontWeight: FontWeight.w700, color: AppColors.white,
@@ -205,7 +205,7 @@ class _HeroSection extends StatelessWidget {
               const SizedBox(height: 10),
 
               Text(
-                S.of(context).islamicWayTagline,
+                S.of(context)!.islamicWayTagline,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.neutral300, fontStyle: FontStyle.italic),
               )
@@ -284,14 +284,14 @@ class _ContentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text(S.of(context).enterYourNumber,
+              Text(S.of(context)!.enterYourNumber,
                 style: AppTypography.titleLarge.copyWith(
                   fontSize: 20, fontWeight: FontWeight.w700,
                   color: context.onSurface,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(S.of(context).verificationCodeHint,
+              Text(S.of(context)!.verificationCodeHint,
                 style: AppTypography.bodySmall.copyWith(
                   fontSize: 13, color: context.mutedText),
               ),
@@ -340,8 +340,8 @@ class _ContentCard extends StatelessWidget {
                   // Phone field
                   Expanded(
                     child: MiskTextField(
-                      label:        S.of(context).phoneNumber,
-                      hint:         S.of(context).phoneHint,
+                      label:        S.of(context)!.phoneNumber,
+                      hint:         S.of(context)!.phoneHint,
                       controller:   phoneCtr,
                       keyboardType: TextInputType.phone,
                       autofocus:    true,
@@ -349,7 +349,7 @@ class _ContentCard extends StatelessWidget {
                       onChanged:    onPhoneChanged,
                       validator: (v) {
                         if (v == null || v.replaceAll(' ', '').trim().length < 8) {
-                          return S.of(context).enterValidPhone;
+                          return S.of(context)!.enterValidPhone;
                         }
                         return null;
                       },
@@ -362,8 +362,8 @@ class _ContentCard extends StatelessWidget {
 
               // Password field
               MiskTextField(
-                label:           S.of(context).password,
-                hint:            S.of(context).passwordHint,
+                label:           S.of(context)!.password,
+                hint:            S.of(context)!.passwordHint,
                 controller:      passCtr,
                 obscureText:     obscure,
                 keyboardType:    TextInputType.visiblePassword,
@@ -378,7 +378,7 @@ class _ContentCard extends StatelessWidget {
                 ),
                 validator: (v) {
                   if (v == null || v.length < 8) {
-                    return S.of(context).passwordMinLength;
+                    return S.of(context)!.passwordMinLength;
                   }
                   return null;
                 },
@@ -403,7 +403,7 @@ class _ContentCard extends StatelessWidget {
 
               // Submit
               MiskButton(
-                label:     isRegister ? S.of(context).createAccount : S.of(context).signIn,
+                label:     isRegister ? S.of(context)!.createAccount : S.of(context)!.signIn,
                 onPressed: phoneValid ? onSubmit : null,
                 loading:   isLoading,
                 icon:      isRegister
@@ -419,11 +419,11 @@ class _ContentCard extends StatelessWidget {
                   TextSpan(
                     style: AppTypography.caption.copyWith(color: context.mutedText),
                     children: [
-                      TextSpan(text: S.of(context).byContAgreement),
-                      TextSpan(text: S.of(context).terms,
+                      TextSpan(text: S.of(context)!.byContAgreement),
+                      TextSpan(text: S.of(context)!.terms,
                         style: TextStyle(color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                       const TextSpan(text: ' & '),
-                      TextSpan(text: S.of(context).privacyPolicy,
+                      TextSpan(text: S.of(context)!.privacyPolicy,
                         style: TextStyle(color: AppColors.roseDeep, fontWeight: FontWeight.w600)),
                     ],
                   ),
@@ -441,7 +441,7 @@ class _ContentCard extends StatelessWidget {
                     Icon(Icons.mosque_rounded,
                         size: 14, color: context.mutedText.withOpacity(0.7)),
                     const SizedBox(width: 6),
-                    Text(S.of(context).guardianInformed,
+                    Text(S.of(context)!.guardianInformed,
                       style: AppTypography.caption.copyWith(
                         fontSize: 9, color: context.mutedText,
                         fontStyle: FontStyle.italic),
@@ -511,8 +511,8 @@ class _ModeTab extends StatelessWidget {
             fontWeight: FontWeight.w400),
         dividerColor:         Colors.transparent,
         tabs: [
-          Tab(text: S.of(context).newAccount),
-          Tab(text: S.of(context).signIn),
+          Tab(text: S.of(context)!.newAccount),
+          Tab(text: S.of(context)!.signIn),
         ],
       ),
     );
@@ -533,17 +533,17 @@ class _GenderPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).iAmA,
+        Text(S.of(context)!.iAmA,
           style: AppTypography.titleSmall.copyWith(color: context.subtleText)),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(child: _GenderOption(
-              label: S.of(context).brother, labelAr: 'أخ', icon: Icons.man_rounded,
+              label: S.of(context)!.brother, labelAr: 'أخ', icon: Icons.man_rounded,
               selected: value == 'male', onTap: () => onChange('male'))),
             const SizedBox(width: 12),
             Expanded(child: _GenderOption(
-              label: S.of(context).sister, labelAr: 'أخت', icon: Icons.woman_rounded,
+              label: S.of(context)!.sister, labelAr: 'أخت', icon: Icons.woman_rounded,
               selected: value == 'female', onTap: () => onChange('female'))),
           ],
         ),
@@ -675,15 +675,15 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
             ),
             const SizedBox(height: 16),
 
-            Text(S.of(context).selectCountry,
+            Text(S.of(context)!.selectCountry,
               style: AppTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.w700)),
             const SizedBox(height: 16),
 
             // Search field
             MiskTextField(
-              label: S.of(context).search,
-              hint:  S.of(context).countryNameOrCode,
+              label: S.of(context)!.search,
+              hint:  S.of(context)!.countryNameOrCode,
               prefixIcon: const Icon(Icons.search_rounded),
               onChanged: (v) => setState(() => _query = v),
             ),

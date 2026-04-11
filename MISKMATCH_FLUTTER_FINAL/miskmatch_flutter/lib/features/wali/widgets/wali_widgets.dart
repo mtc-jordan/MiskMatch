@@ -54,7 +54,7 @@ class FlaggedMessageCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    message.wardName != null ? S.of(context).flaggedInChat(message.wardName!) : S.of(context).flagged,
+                    message.wardName != null ? S.of(context)!.flaggedInChat(message.wardName!) : S.of(context)!.flagged,
                     style: AppTypography.labelMedium.copyWith(
                       color:      AppColors.error,
                       fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class FlaggedMessageCard extends StatelessWidget {
                     Icon(Icons.person_outline_rounded,
                       size: 14, color: context.mutedText),
                     const SizedBox(width: 6),
-                    Text(S.of(context).fromSender(message.senderName),
+                    Text(S.of(context)!.fromSender(message.senderName),
                       style: AppTypography.labelMedium.copyWith(
                         color: context.subtleText),
                     ),
@@ -119,7 +119,7 @@ class FlaggedMessageCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        S.of(context).flaggedReason(message.moderationReason),
+                        S.of(context)!.flaggedReason(message.moderationReason),
                         style: AppTypography.bodySmall.copyWith(
                           color:     context.mutedText,
                           fontStyle: FontStyle.italic,
@@ -146,7 +146,7 @@ class FlaggedMessageCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          S.of(context).messageBlockedNotice,
+                          S.of(context)!.messageBlockedNotice,
                           style: AppTypography.bodySmall.copyWith(
                             color:  context.mutedText,
                             height: 1.5,
@@ -283,8 +283,8 @@ class WardSummaryCard extends StatelessWidget {
                       ],
                       Text(
                         ward.activeMatches > 0
-                            ? S.of(context).activeMatchesCount('${ward.activeMatches}')
-                            : S.of(context).noActiveMatches,
+                            ? S.of(context)!.activeMatchesCount('${ward.activeMatches}')
+                            : S.of(context)!.noActiveMatches,
                         style: AppTypography.bodySmall.copyWith(
                           color: context.mutedText),
                       ),

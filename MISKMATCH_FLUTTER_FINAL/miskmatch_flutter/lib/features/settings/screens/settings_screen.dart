@@ -59,7 +59,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       backgroundColor: context.scaffoldColor,
       appBar: AppBar(
         leading: const BackButton(),
-        title: Text(S.of(context).settings,
+        title: Text(S.of(context)!.settings,
           style: const TextStyle(
             fontFamily:  'Georgia',
             fontSize:    20,
@@ -77,11 +77,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // ACCOUNT
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.person_outline_rounded, label: S.of(context).account),
+          _SectionHeader(icon: Icons.person_outline_rounded, label: S.of(context)!.account),
 
           _SettingsTile(
             icon:     Icons.phone_outlined,
-            label:    S.of(context).phoneNumber,
+            label:    S.of(context)!.phoneNumber,
             trailing: Text('+•••••••••••',
               style: AppTypography.bodySmall.copyWith(
                 color: context.mutedText)),
@@ -89,16 +89,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           _SwitchTile(
             icon:     Icons.notifications_outlined,
-            label:    S.of(context).pushNotifications,
-            subtitle: S.of(context).pushNotificationsDesc,
+            label:    S.of(context)!.pushNotifications,
+            subtitle: S.of(context)!.pushNotificationsDesc,
             value:    _notificationsEnabled,
             onChange: (v) => setState(() => _notificationsEnabled = v),
           ),
 
           _SwitchTile(
             icon:     Icons.fingerprint_rounded,
-            label:    S.of(context).biometricLock,
-            subtitle: 'Require Face ID / fingerprint on open',
+            label:    S.of(context)!.biometricLock,
+            subtitle: S.of(context)!.biometricLockDesc,
             value:    _biometricEnabled,
             onChange: (v) => setState(() => _biometricEnabled = v),
           ),
@@ -108,14 +108,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // GUARDIAN (WALI)
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.shield_outlined, label: S.of(context).guardianWali),
+          _SectionHeader(icon: Icons.shield_outlined, label: S.of(context)!.guardianWali),
 
           _GuardianStatusTile(
             waliStatus: waliStatus,
             onResend: () async {
               await ref.read(waliRepositoryProvider).resendInvite();
               if (context.mounted) {
-                context.showSuccessSnack('Invitation resent.');
+                context.showSuccessSnack(S.of(context)!.invitationResent);
               }
             },
           ),
@@ -125,7 +125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // APPEARANCE
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.palette_outlined, label: S.of(context).appearance),
+          _SectionHeader(icon: Icons.palette_outlined, label: S.of(context)!.appearance),
 
           _ThemeSegmentTile(
             themeMode: _themeMode,
@@ -137,12 +137,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // PRIVACY
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.lock_outline_rounded, label: S.of(context).privacy),
+          _SectionHeader(icon: Icons.lock_outline_rounded, label: S.of(context)!.privacy),
 
           _SwitchTile(
             icon:     Icons.photo_outlined,
-            label:    S.of(context).showPhotoBeforeMutual,
-            subtitle: 'Off — photo revealed only after both sides show interest',
+            label:    S.of(context)!.showPhotoBeforeMutual,
+            subtitle: S.of(context)!.photoVisibleOff,
             value:    _photoVisible,
             onChange: (v) => setState(() => _photoVisible = v),
           ),
@@ -152,11 +152,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // ABOUT
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.info_outline_rounded, label: S.of(context).about),
+          _SectionHeader(icon: Icons.info_outline_rounded, label: S.of(context)!.about),
 
           _SettingsTile(
             icon:     Icons.info_outline_rounded,
-            label:    S.of(context).version,
+            label:    S.of(context)!.version,
             trailing: Text(_appVersion,
               style: AppTypography.bodySmall.copyWith(
                 color: context.mutedText)),
@@ -164,25 +164,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           _SettingsTile(
             icon:  Icons.description_outlined,
-            label: S.of(context).termsOfService,
+            label: S.of(context)!.termsOfService,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.privacy_tip_outlined,
-            label: S.of(context).privacyPolicy,
+            label: S.of(context)!.privacyPolicy,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.email_outlined,
-            label: S.of(context).contactSupport,
+            label: S.of(context)!.contactSupport,
             onTap: () {},
           ),
 
           _SettingsTile(
             icon:  Icons.star_outline_rounded,
-            label: S.of(context).rateMiskMatch,
+            label: S.of(context)!.rateMiskMatch,
             onTap: () {},
           ),
 
@@ -194,7 +194,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Center(
               child: Column(children: [
                 Text(
-                  S.of(context).sealIsMusk,
+                  S.of(context)!.sealIsMusk,
                   style: const TextStyle(
                     fontFamily: 'Scheherazade',
                     fontSize:   18,
@@ -203,7 +203,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 Text(
-                  S.of(context).sealIsMuskTranslation,
+                  S.of(context)!.sealIsMuskTranslation,
                   style: AppTypography.bodySmall.copyWith(
                     color:     context.mutedText,
                     fontStyle: FontStyle.italic,
@@ -218,18 +218,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // ═══════════════════════════════════════════
           // DANGER ZONE
           // ═══════════════════════════════════════════
-          _SectionHeader(icon: Icons.warning_amber_rounded, label: S.of(context).accountActions),
+          _SectionHeader(icon: Icons.warning_amber_rounded, label: S.of(context)!.accountActions),
 
           _SettingsTile(
             icon:      Icons.logout_rounded,
-            label:     S.of(context).signOut,
+            label:     S.of(context)!.signOut,
             textColor: AppColors.error,
             onTap:     () => _showLogoutSheet(context, ref),
           ),
 
           _SettingsTile(
             icon:      Icons.delete_forever_outlined,
-            label:     S.of(context).deleteAccount,
+            label:     S.of(context)!.deleteAccount,
             textColor: AppColors.error,
             onTap:     () => _showDeleteSheet(context),
           ),
@@ -247,9 +247,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => _ConfirmSheet(
         icon:      Icons.logout_rounded,
-        title:     '${S.of(context).signOut}?',
-        body:      S.of(context).signOutBody,
-        confirm:   S.of(context).signOut,
+        title:     '${S.of(context)!.signOut}?',
+        body:      S.of(context)!.signOutBody,
+        confirm:   S.of(context)!.signOut,
         isDanger:  false,
         onConfirm: () async {
           Navigator.pop(context);
@@ -267,9 +267,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (_) => _ConfirmSheet(
         icon:      Icons.warning_amber_rounded,
         iconColor: AppColors.error,
-        title:     '${S.of(context).deleteAccount}?',
-        body:      S.of(context).deleteAccountWarning,
-        confirm:   S.of(context).deleteMyAccount,
+        title:     '${S.of(context)!.deleteAccount}?',
+        body:      S.of(context)!.deleteAccountWarning,
+        confirm:   S.of(context)!.deleteMyAccount,
         isDanger:  true,
         onConfirm: () async {
           Navigator.pop(context);
@@ -765,7 +765,7 @@ class _ConfirmSheet extends StatelessWidget {
 
         // Cancel — ghost
         MiskButton(
-          label:     S.of(context).cancel,
+          label:     S.of(context)!.cancel,
           onPressed: () => Navigator.pop(context),
           variant:   MiskButtonVariant.ghost,
         ),
