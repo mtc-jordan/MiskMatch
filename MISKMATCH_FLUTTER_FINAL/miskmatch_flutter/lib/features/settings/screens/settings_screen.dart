@@ -278,7 +278,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           result.when(
             success: (_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Account deleted successfully.')),
+                SnackBar(content: Text(S.of(context)!.accountDeletedSuccess)),
               );
               ref.read(authProvider.notifier).logout();
             },
@@ -464,7 +464,7 @@ class _SwitchTile extends StatelessWidget {
             onChanged:        onChange,
             activeColor:      AppColors.roseDeep,
             activeTrackColor: AppColors.roseDeep,
-            inactiveThumbColor: AppColors.white,
+            inactiveThumbColor: context.scaffoldColor,
             inactiveTrackColor: context.handleColor,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
@@ -505,13 +505,13 @@ class _ThemeSegmentTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Theme',
+                Text(S.of(context)!.themeLabel,
                   style: TextStyle(
                     fontSize: 15,
                     color:    context.onSurface,
                   ),
                 ),
-                Text('Rose Garden / Musk Night',
+                Text(S.of(context)!.themeDescription,
                   style: TextStyle(
                     fontSize: 11,
                     color:    context.mutedText,
@@ -599,29 +599,29 @@ class _GuardianStatusTile extends StatelessWidget {
                 color: context.mutedText, strokeWidth: 2),
             ),
             const SizedBox(width: 14),
-            Text('Loading guardian status...',
+            Text(S.of(context)!.loadingGuardianStatus,
               style: TextStyle(fontSize: 15, color: context.mutedText)),
           ]),
         ),
       ),
       error: (_, __) => _SettingsTile(
         icon:     Icons.shield_outlined,
-        label:    'Guardian status',
-        trailing: _buildChip('Not set up', AppColors.neutral500),
+        label:    S.of(context)!.guardianStatus,
+        trailing: _buildChip(S.of(context)!.notSetUp, AppColors.neutral500),
       ),
       data: (status) => Column(children: [
         _SettingsTile(
           icon:     status.accepted
               ? Icons.shield_rounded
               : Icons.shield_outlined,
-          label:    'Guardian',
+          label:    S.of(context)!.guardianLabel,
           subtitle: status.waliName,
           trailing: _buildChip(
             !status.hasWali
-                ? 'Not set up'
+                ? S.of(context)!.notSetUp
                 : status.accepted
-                    ? 'Active'
-                    : 'Pending',
+                    ? S.of(context)!.statusActive
+                    : S.of(context)!.statusPending,
             !status.hasWali
                 ? AppColors.neutral500
                 : status.accepted
@@ -632,7 +632,7 @@ class _GuardianStatusTile extends StatelessWidget {
         if (status.hasWali && !status.accepted)
           _SettingsTile(
             icon:  Icons.send_rounded,
-            label: 'Resend guardian invite',
+            label: S.of(context)!.resendGuardianInvite,
             onTap: onResend,
           ),
       ]),
@@ -747,7 +747,7 @@ class _ConfirmSheet extends StatelessWidget {
               backgroundColor: isDanger
                   ? AppColors.error
                   : context.onSurface,
-              foregroundColor: AppColors.white,
+              foregroundColor: context.scaffoldColor,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14)),

@@ -10,6 +10,7 @@ abstract class ApiEndpoints {
   static const authResendOtp  = '/auth/resend-otp';
   static const authLogout     = '/auth/logout';
   static const authDeviceToken = '/auth/device-token';
+  static const authNiyyah      = '/auth/niyyah';
   static const authDeleteAccount = '/auth/account';
 
   // ── Profiles ──────────────────────────────────────────────────────────────
@@ -21,6 +22,7 @@ abstract class ApiEndpoints {
   static const profileFamily      = '/profiles/me/family';
   static const profileSifr        = '/profiles/me/sifr';
   static const profilePreferences = '/profiles/me/preferences';
+  static const profilePhotoVisibility = '/profiles/me/photo-visibility';
   static String profileById(String id) => '/profiles/$id';
 
   // ── Matches ───────────────────────────────────────────────────────────────
@@ -39,8 +41,9 @@ abstract class ApiEndpoints {
   static String messages(String matchId) => '/messages/$matchId';
   static String messagesRead(String matchId) => '/messages/$matchId/read';
   static String messagesReport(String matchId) => '/messages/$matchId/report';
-  static String messagesWs(String matchId, String token) =>
-      '/messages/ws/$matchId?token=$token';
+  /// WebSocket path for match messages. Authenticate by sending as first message:
+  /// { "type": "authenticate", "payload": { "token": "<access_token>" } }
+  static String messagesWs(String matchId) => '/messages/ws/$matchId';
   static const waliConversations = '/messages/wali/conversations';
   static String waliMessages(String matchId) => '/messages/wali/$matchId';
 
@@ -59,8 +62,9 @@ abstract class ApiEndpoints {
   static String timeCapsuleOpen(String matchId) =>
       '/games/$matchId/time-capsule/open';
   static String memoryTimeline(String matchId) => '/games/$matchId/memory';
-  static String gameWs(String matchId, String token) =>
-      '/games/ws/$matchId?token=$token';
+  /// WebSocket path for games. Authenticate by sending as first message:
+  /// { "type": "authenticate", "payload": { "token": "<access_token>" } }
+  static String gameWs(String matchId) => '/games/ws/$matchId';
 
   // ── Wali ─────────────────────────────────────────────────────────────────
   static const waliSetup          = '/wali/setup';

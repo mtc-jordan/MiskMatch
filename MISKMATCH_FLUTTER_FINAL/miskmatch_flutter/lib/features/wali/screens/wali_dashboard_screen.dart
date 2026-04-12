@@ -12,6 +12,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Wali (Guardian) Portal — main dashboard.
 ///
@@ -109,8 +110,8 @@ class _WaliDashboardScreenState
               color: AppColors.goldPrimary, size: 20),
           ),
           const SizedBox(width: 10),
-          const Text('Guardian Portal',
-            style: TextStyle(
+          Text(S.of(context)!.guardianPortal,
+            style: const TextStyle(
               fontFamily:  'Georgia',
               fontSize:    20,
               fontWeight:  FontWeight.w700,
@@ -396,7 +397,7 @@ class _WardDetailSheet extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // ── Permissions checklist ──────────────────
-                  Text('Permissions',
+                  Text(S.of(context)!.permissionsLabel,
                     style: TextStyle(
                       fontFamily:  'Georgia',
                       fontSize:    16,
@@ -406,26 +407,26 @@ class _WardDetailSheet extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   _PermissionRow(
-                    label:  'Must approve matches',
+                    label:  S.of(context)!.mustApproveMatches,
                     active: ward.permissions.mustApproveMatches,
                   ),
                   _PermissionRow(
-                    label:  'Can read conversations',
+                    label:  S.of(context)!.canReadConversations,
                     active: ward.permissions.canReadMessages,
                   ),
                   _PermissionRow(
-                    label:  'Receives notifications',
+                    label:  S.of(context)!.receivesNotifications,
                     active: ward.permissions.receivesNotifications,
                   ),
                   _PermissionRow(
-                    label:  'Can join chaperoned calls',
+                    label:  S.of(context)!.canJoinCalls,
                     active: ward.permissions.canJoinCalls,
                   ),
 
                   // ── Profile overview ───────────────────────
                   if (ward.profile != null) ...[
                     const SizedBox(height: 24),
-                    Text('Profile overview',
+                    Text(S.of(context)!.profileOverview,
                       style: TextStyle(
                         fontFamily:  'Georgia',
                         fontSize:    16,

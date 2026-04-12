@@ -27,6 +27,7 @@ from app.core.database import get_db
 from app.models.models import (
     User, Profile, Match, MatchStatus,
     WaliRelationship, UserRole,
+    MadhabChoice, PrayerFrequency,
 )
 from app.routers.auth import get_current_active_user
 from app.schemas.matches import (
@@ -60,6 +61,11 @@ async def get_discovery_feed(
     db: DB,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=5, le=50),
+    min_age: Optional[int] = Query(None, ge=18, le=80),
+    max_age: Optional[int] = Query(None, ge=18, le=80),
+    country: Optional[str] = Query(None, max_length=2),
+    madhab: Optional[MadhabChoice] = Query(None),
+    prayer: Optional[PrayerFrequency] = Query(None),
 ):
     """
     Returns a ranked list of compatible profiles for the current user.
@@ -92,6 +98,11 @@ async def get_discovery_feed(
         current_profile=my_profile,
         page=page,
         page_size=page_size,
+        filter_min_age=min_age,
+        filter_max_age=max_age,
+        filter_country=country,
+        filter_madhab=madhab,
+        filter_prayer=prayer,
     )
 
     # Get set of user IDs I already expressed interest in
@@ -270,9 +281,12 @@ async def get_my_matches(
     )
     profiles_map = {p.user_id: p for p in profiles_result.scalars().all()}
 
-    # Single query: all other users
+    # Single query: all other users (exclude soft-deleted)
     users_result = await db.execute(
-        select(User).where(User.id.in_(other_ids))
+        select(User).where(
+            User.id.in_(other_ids),
+            User.deleted_at.is_(None),
+        )
     )
     users_map = {u.id: u for u in users_result.scalars().all()}
 

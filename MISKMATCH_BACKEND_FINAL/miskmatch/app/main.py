@@ -242,7 +242,7 @@ async def request_logging_middleware(request: Request, call_next):
 _RATE_LIMIT_ROUTES = {
     "/api/v1/auth/register":   (5,  60),   # 5 per minute
     "/api/v1/auth/login":      (10, 60),   # 10 per minute
-    "/api/v1/auth/verify-otp": (10, 60),   # 10 per minute
+    "/api/v1/auth/verify-otp": (5,  60),   # 5 per minute (brute-force protection)
     "/api/v1/auth/resend-otp": (3,  60),   # 3 per minute
     "/api/v1/webhooks/stripe": (60, 60),   # 60 per minute (Stripe bursts)
     "/api/v1/webhooks/onfido": (30, 60),   # 30 per minute

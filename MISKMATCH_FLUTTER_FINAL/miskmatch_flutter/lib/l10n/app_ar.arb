@@ -311,6 +311,185 @@
   "biometricLockDesc": "طلب بصمة الوجه / الإصبع عند الفتح",
   "photoVisibleOff": "معطّل — تظهر الصورة فقط بعد إبداء الاهتمام المتبادل",
   "invitationResent": "تم إعادة إرسال الدعوة.",
-  "videoCallsComingSoon": "مكالمات الفيديو قريباً",
-  "filtersComingSoon": "التصفية قريباً"
+
+  "filters": "التصفية",
+  "ageRange": "الفئة العمرية",
+  "anyCountry": "أي بلد",
+  "anyMadhab": "أي مذهب",
+  "anyPrayer": "أي مستوى صلاة",
+  "applyFilters": "تطبيق",
+  "resetFilters": "إعادة تعيين",
+  "filtersActive": "التصفية مفعّلة",
+
+  "gameDescriptionIntro": "ستساعدك هذه اللعبة أنت وشريكك على اكتشاف بعضكما من خلال أسئلة ذات معنى. أجب بصدق — يمكن لوليّك رؤية جميع الإجابات.",
+  "notificationOnYourTurn": "ستتلقى إشعاراً عندما يحين دورك.",
+  "turnOf": "الدور {current} من {total}",
+  "bothAnswered": "أجاب كلاكما!",
+  "answersRevealed": "تم كشف الإجابات!",
+  "raceResults": "نتائج السباق!",
+  "reveal": "اكشف!",
+  "gameCompleteMashaAllah": "ما شاء الله — اكتملت اللعبة!",
+  "nextQuestion": "السؤال التالي",
+  "yourAnswer": "إجابتك",
+  "theirAnswer": "إجابتهم",
+  "correct": "الصحيح: ",
+  "you": "أنت",
+  "vs": "ضد",
+  "them": "هم",
+  "sameChoiceMashaAllah": "اخترتما نفس الشيء! ما شاء الله",
+  "differentChoices": "اخترتما مختلفاً — بداية رائعة للحوار!",
+  "yes": "نعم",
+  "no": "لا",
+  "submit": "إرسال",
+  "submitAnswer": "إرسال الإجابة",
+  "submitRanking": "إرسال الترتيب",
+  "dragToRank": "اسحب للترتيب من الأهم إلى الأقل أهمية:",
+  "notAtAll": "١ — أبداً",
+  "absolutely": "١٠ — تماماً",
+  "completeSentence": "أكمل الجملة",
+  "moreCharsNeeded": "{count} أحرف إضافية مطلوبة",
+  "dayNumber": "اليوم {day}",
+  "completeCheck": "مكتمل ✓",
+  "waiting": "بانتظار...",
+  "tapToStart": "انقر للبدء",
+  "yourTurn": "دورك",
+
+  "timeCapsule": "كبسولة الزمن",
+  "letterToFutureSelf": "رسالة إلى أنفسكم المستقبلية",
+  "timeCapsuleInstructions": "اكتب رسالة إلى أنفسكم المستقبلية — آمالكم لهذه العلاقة، دعاء، حلم، أو رسالة تريدان قراءتها معاً في اليوم ٢١. سيكتب شريكك رسالته أيضاً. لن يتمكن أي منكما من قراءتها حتى تُفتح الكبسولة.",
+  "timeCapsuleHint": "بسم الله... أنفسنا العزيزة في المستقبل،\n\nبحلول وقت قراءتكم هذا...",
+  "readyToSeal": "جاهز للإغلاق",
+  "moreCharsToSeal": "{count} أحرف إضافية للإغلاق",
+  "sealCapsule": "أغلق الكبسولة",
+  "timeCapsuleSealed": "كبسولة الزمن — مغلقة",
+  "capsuleSealedDesc": "رسائلكم محفوظة بأمان. ستُكشف معاً في اليوم ٢١.",
+  "opensIn": "تفتح في",
+  "day": "يوم",
+  "days": "أيام",
+  "hours": "ساعات",
+  "min": "دقيقة",
+  "sec": "ثانية",
+  "capsuleOpen": "كبسولة الزمن مفتوحة!",
+  "readLetters": "اقرأوا رسائلكم لبعضكم.",
+  "capsuleIsOpen": "الكبسولة مفتوحة!",
+  "lettersProcessing": "ستظهر رسائلكم هنا بمجرد المعالجة.",
+  "openCapsule": "افتح كبسولة الزمن",
+
+  "guardianCallInvite": "دعوة مكالمة الولي",
+  "incomingCall": "مكالمة واردة",
+  "guardianInviteNote": "تمت دعوتك كوليّ لهذه المكالمة.",
+  "guardianChaperon": "تمت دعوة وليّك للانضمام كمراقب.",
+  "decline": "رفض",
+  "accept": "قبول",
+  "youLabel": "أنت — {name}",
+  "chaperonesCall": "مكالمة بإشراف — سيتم إخطار الولي",
+  "guardianObserver": "سيتم دعوة وليّك للانضمام كمراقب. هذه هي الطريقة المباركة — تواصل مفتوح مع العائلة.",
+  "audioOnly": "صوت فقط",
+  "audioOnlyDesc": "بدون كاميرا — مكالمة صوتية",
+  "inviteGuardian": "دعوة الولي",
+  "inviteGuardianDesc": "سيتلقى وليّك دعوة المكالمة",
+  "scheduleLater": "جدولة لاحقاً",
+  "scheduleLaterDesc": "اختر وقتاً بدلاً من الاتصال الآن",
+  "scheduleCall": "جدولة المكالمة",
+  "startCallNow": "ابدأ المكالمة الآن",
+  "cancel": "إلغاء",
+  "scheduledTime": "الوقت المحدد",
+
+  "madhabHanafi": "حنفي",
+  "madhabMaliki": "مالكي",
+  "madhabShafii": "شافعي",
+  "madhabHanbali": "حنبلي",
+  "madhabOther": "أخرى",
+  "prayerAllFive": "جميع الصلوات الخمس",
+  "prayerMost": "معظم الصلوات",
+  "prayerSometimes": "أحياناً",
+  "prayerFridayOnly": "الجمعة فقط",
+  "prayerWorkingOn": "أعمل على ذلك",
+  "hijabWears": "ترتدي الحجاب",
+  "hijabOpenTo": "منفتحة على الحجاب",
+  "hijabFamilyDecides": "العائلة تقرر",
+  "hijabPreference": "تفضيل",
+  "hijabNA": "لا ينطبق",
+  "quranHafiz": "حافظ كامل",
+  "quranPartialHafiz": "حافظ جزئي",
+  "quranMemorising": "يحفظ حالياً",
+  "quranTajweed": "يقرأ بالتجويد",
+  "quranStrong": "قراءة قوية",
+  "quranLearning": "يتعلم",
+  "quranBeginner": "مبتدئ",
+  "revertLabel": "مهتدٍ",
+  "revertYear": "مهتدٍ {year}",
+  "prayer": "الصلاة",
+  "quran": "القرآن",
+  "journey": "المسيرة",
+
+  "trustScore": "الثقة",
+  "mosqueVerified": "موثّق من المسجد",
+  "scholarEndorsed": "تزكية عالم",
+  "gamesCompleted": "الألعاب",
+  "verified": "موثّق",
+
+  "accountDeletedSuccess": "تم حذف الحساب بنجاح.",
+  "themeLabel": "المظهر",
+  "themeDescription": "حديقة الورد / ليل المسك",
+  "loadingGuardianStatus": "جارٍ تحميل حالة الولي...",
+  "guardianStatus": "حالة الولي",
+  "guardianLabel": "الولي",
+  "notSetUp": "لم يتم الإعداد",
+  "statusActive": "نشط",
+  "statusPending": "قيد الانتظار",
+  "resendGuardianInvite": "إعادة إرسال دعوة الولي",
+
+  "copyMessage": "نسخ الرسالة",
+  "messageCopied": "تم نسخ الرسالة",
+  "reportMessage": "الإبلاغ عن الرسالة",
+  "moreOptions": "المزيد من الخيارات",
+  "interestSentTo": "تم إرسال الاهتمام إلى {name}. جزاك الله خيراً 🌙",
+  "@interestSentTo": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "interestSentToShort": "تم إرسال الاهتمام إلى {name}",
+  "@interestSentToShort": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "somethingWentWrong": "حدث خطأ ما",
+  "pleaseRestartApp": "يرجى إعادة تشغيل التطبيق.\nنعتذر عن الإزعاج.",
+  "guardianPortal": "بوابة الولي",
+  "permissionsLabel": "الصلاحيات",
+  "profileOverview": "نظرة عامة على الملف",
+  "ourJourney": "مسيرتنا",
+  "writePersonalisedMessage": "اكتب رسالة شخصية...",
+
+  "profileCompletionAdd": "أضف: {fields}",
+  "@profileCompletionAdd": {
+    "placeholders": {
+      "fields": { "type": "String" }
+    }
+  },
+  "revertSinceYear": "منذ {year}",
+  "@revertSinceYear": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "revertYes": "نعم",
+  "wantsChildrenCount": "👶 يرغب في {count} أطفال",
+  "@wantsChildrenCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "wantsChildren": "👶 يرغب في الأطفال",
+  "noChildren": "👶 بدون أطفال",
+  "selfIndicator": "أنت — {name}",
+  "@selfIndicator": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

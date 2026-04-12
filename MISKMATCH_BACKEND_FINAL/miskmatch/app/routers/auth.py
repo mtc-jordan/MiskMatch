@@ -18,11 +18,14 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.redis import is_token_blacklisted, blacklist_token, blacklist_all_user_tokens
+from app.core.redis import (
+    is_token_blacklisted, blacklist_token, blacklist_all_user_tokens,
+    store_otp, get_stored_otp, delete_otp,
+)
 from app.core.security import (
     hash_password, verify_password, is_password_strong,
     create_access_token, create_refresh_token,
-    decode_token, create_otp_token,
+    decode_token,
 )
 from app.models.models import User, UserRole, UserStatus, Gender
 from app.schemas.auth import (
@@ -162,9 +165,9 @@ async def register(
     db.add(user)
     await db.flush()  # get the ID before commit
 
-    # Generate and send OTP
+    # Generate OTP, store server-side in Redis (10 min TTL)
     otp = generate_otp()
-    otp_token = create_otp_token(body.phone, otp)
+    await store_otp(body.phone, otp)
 
     # Send OTP in background (don't block response)
     background_tasks.add_task(send_otp_sms, body.phone, otp)
@@ -176,11 +179,9 @@ async def register(
         "user_id": str(user.id),
         "phone": body.phone,
     }
-    # Only include OTP token in dev/staging for testing — never expose in production
+    # Only include OTP in dev/staging for testing — never expose in production
     if not settings.is_production:
-        response["otp_token"] = otp_token
-    else:
-        response["otp_token"] = otp_token  # TODO: store server-side, remove from response
+        response["otp"] = otp
     return response
 
 
@@ -200,22 +201,22 @@ async def verify_otp(
     Verify the OTP sent to user's phone.
     On success: mark phone as verified and activate account.
     """
-    from jose import JWTError
-
-    try:
-        payload = decode_token(body.otp_token)
-        if payload.get("type") != "otp":
-            raise HTTPException(status_code=400, detail="Invalid token type")
-        if payload.get("otp") != body.otp:
-            raise HTTPException(status_code=400, detail="Incorrect OTP")
-        phone = payload.get("sub")
-    except JWTError:
+    stored_otp = await get_stored_otp(body.phone)
+    if stored_otp is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="OTP expired or invalid. Request a new one.",
+            detail="OTP expired or not found. Request a new one.",
+        )
+    if stored_otp != body.otp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect OTP",
         )
 
-    result = await db.execute(select(User).where(User.phone == phone))
+    # OTP verified — delete from Redis (one-time use)
+    await delete_otp(body.phone)
+
+    result = await db.execute(select(User).where(User.phone == body.phone))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -383,13 +384,13 @@ async def resend_otp(
         return {"message": "If this phone is registered, an OTP will be sent."}
 
     otp = generate_otp()
-    otp_token = create_otp_token(phone, otp)
+    await store_otp(phone, otp)
     background_tasks.add_task(send_otp_sms, phone, otp)
 
-    return {
-        "message": "OTP sent",
-        "otp_token": otp_token,
-    }
+    response = {"message": "OTP sent"}
+    if not settings.is_production:
+        response["otp"] = otp
+    return response
 
 
 # ─────────────────────────────────────────────
@@ -438,6 +439,27 @@ async def register_device_token(
     current_user.fcm_token = body.token
     await db.commit()
     return {"message": "Device token registered"}
+
+
+# ─────────────────────────────────────────────
+# UPDATE NIYYAH
+# ─────────────────────────────────────────────
+
+@router.put("/niyyah", summary="Set or update user's niyyah (intention)")
+async def update_niyyah(
+    body: dict,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: AsyncSession = Depends(get_db),
+):
+    """Update the user's niyyah (intention for marriage)."""
+    niyyah = body.get("niyyah", "").strip()
+    if not niyyah:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Niyyah cannot be empty")
+    if len(niyyah) > 500:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Niyyah too long (max 500 chars)")
+    current_user.niyyah = niyyah
+    await db.commit()
+    return {"message": "Niyyah updated", "niyyah": niyyah}
 
 
 # ─────────────────────────────────────────────

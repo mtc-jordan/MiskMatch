@@ -9,6 +9,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Time Capsule — special game with 3 distinct states:
 ///
@@ -247,7 +248,7 @@ class _WritingStateState extends State<_WritingState> {
               ),
             ),
             style: AppTypography.bodyMedium.copyWith(
-              color:  AppColors.neutral900,
+              color:  context.onSurface,
               height: 1.6,
             ),
           ).animate(delay: 200.ms).fadeIn(duration: 400.ms),
@@ -402,7 +403,7 @@ class _SealedState extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        d == 1 ? 'day' : 'days',
+                        d == 1 ? S.of(context)!.day : S.of(context)!.days,
                         style: const TextStyle(
                           fontSize: 16,
                           color:    AppColors.neutral500,
@@ -415,17 +416,17 @@ class _SealedState extends StatelessWidget {
                         children: [
                           _CountdownBlock(
                             value: _pad(remaining.inHours.remainder(24)),
-                            label: 'hours',
+                            label: S.of(context)!.hours,
                           ),
                           const _ColonSep(),
                           _CountdownBlock(
                             value: _pad(remaining.inMinutes.remainder(60)),
-                            label: 'min',
+                            label: S.of(context)!.min,
                           ),
                           const _ColonSep(),
                           _CountdownBlock(
                             value: _pad(remaining.inSeconds.remainder(60)),
-                            label: 'sec',
+                            label: S.of(context)!.sec,
                           ),
                         ],
                       ),
@@ -649,7 +650,7 @@ class _OpenState extends ConsumerWidget {
                     // Letter text
                     Text(ans,
                       style: AppTypography.bodyMedium.copyWith(
-                        color:  AppColors.neutral900,
+                        color:  context.onSurface,
                         fontSize: 14,
                         height: 1.7,
                       ),

@@ -417,7 +417,7 @@ class _BooleanInput extends StatelessWidget {
       children: [
         Expanded(
           child: _BoolBtn(
-            label:    'Yes',
+            label:    S.of(context)!.yes,
             icon:     Icons.check_circle_outline_rounded,
             color:    AppColors.success,
             selected: selected == 'yes',
@@ -427,7 +427,7 @@ class _BooleanInput extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _BoolBtn(
-            label:    'No',
+            label:    S.of(context)!.no,
             icon:     Icons.cancel_outlined,
             color:    AppColors.error,
             selected: selected == 'no',
@@ -511,7 +511,7 @@ class _RankingInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Drag to rank from most to least important:',
+          S.of(context)!.dragToRank,
           style: AppTypography.bodySmall.copyWith(
             color:     context.mutedText,
             fontStyle: FontStyle.italic,
@@ -588,7 +588,7 @@ class _RankingInput extends StatelessWidget {
         const SizedBox(height: 16),
 
         MiskButton(
-          label:     'Submit ranking',
+          label:     S.of(context)!.submitRanking,
           onPressed: isSubmitting ? null : onSubmit,
           loading:   isSubmitting,
           icon:      Icons.check_rounded,
@@ -676,11 +676,11 @@ class _SliderInput extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('1 — Not at all',
+              Text(S.of(context)!.notAtAll,
                 style: AppTypography.labelSmall.copyWith(
                   color: context.mutedText),
               ),
-              Text('10 — Absolutely',
+              Text(S.of(context)!.absolutely,
                 style: AppTypography.labelSmall.copyWith(
                   color: context.mutedText),
               ),
@@ -691,7 +691,7 @@ class _SliderInput extends StatelessWidget {
         const SizedBox(height: 28),
 
         MiskButton(
-          label:     'Submit',
+          label:     S.of(context)!.submit,
           onPressed: isSubmitting ? null : onSubmit,
           loading:   isSubmitting,
           icon:      Icons.check_rounded,
@@ -808,7 +808,7 @@ class _CompletionInput extends StatelessWidget {
           const SizedBox(height: 20),
         ] else ...[
           MiskTextField(
-            label:      'Complete the sentence',
+            label:      S.of(context)!.completeSentence,
             controller: controller,
             maxLines:   3,
             onChanged:  (_) {},
@@ -816,7 +816,7 @@ class _CompletionInput extends StatelessWidget {
           const SizedBox(height: 16),
         ],
         MiskButton(
-          label:     'Submit',
+          label:     S.of(context)!.submit,
           onPressed: isSubmitting || controller.text.trim().length < 2
               ? null
               : onSubmit,
@@ -922,7 +922,7 @@ class _OpenTextInputState extends State<_OpenTextInput> {
         const SizedBox(height: 16),
 
         MiskButton(
-          label:     'Submit answer',
+          label:     S.of(context)!.submitAnswer,
           onPressed: _canSubmit ? widget.onSubmit : null,
           loading:   widget.isSubmitting,
           icon:      Icons.send_rounded,

@@ -527,6 +527,38 @@ async def update_preferences(
 
 
 # ─────────────────────────────────────────────
+# PHOTO VISIBILITY
+# ─────────────────────────────────────────────
+
+@router.put(
+    "/me/photo-visibility",
+    summary="Toggle photo visibility",
+)
+async def update_photo_visibility(
+    body: dict,
+    current_user: CurrentUser,
+    db: DB,
+):
+    """
+    Toggle whether profile photo is visible in discovery.
+    When off, photos are blurred until mutual interest is expressed.
+    """
+    visible = body.get("visible")
+    if visible is None or not isinstance(visible, bool):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="'visible' must be a boolean",
+        )
+    profile = await _get_profile_or_404(db, current_user.id)
+    profile.photo_visible = visible
+    await db.commit()
+    return {
+        "message": "Photo visibility updated",
+        "photo_visible": profile.photo_visible,
+    }
+
+
+# ─────────────────────────────────────────────
 # PUBLIC PROFILE VIEW
 # ─────────────────────────────────────────────
 

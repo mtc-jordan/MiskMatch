@@ -6,6 +6,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/features/discovery/widgets/voice_player.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Chat message bubble.
 ///
@@ -283,12 +284,12 @@ class _MessageMenu extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.copy_rounded,
                 color: context.subtleText),
-            title: const Text('Copy message'),
+            title: Text(S.of(context)!.copyMessage),
             onTap: () {
               Clipboard.setData(ClipboardData(text: message.content));
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Message copied')),
+                SnackBar(content: Text(S.of(context)!.messageCopied)),
               );
             },
           ),
@@ -296,7 +297,7 @@ class _MessageMenu extends StatelessWidget {
             ListTile(
               leading:   const Icon(Icons.flag_outlined,
                   color: AppColors.error),
-              title:     const Text('Report message'),
+              title:     Text(S.of(context)!.reportMessage),
               textColor: AppColors.error,
               iconColor: AppColors.error,
               onTap: () {

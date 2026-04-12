@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/discovery_provider.dart';
 import '../widgets/profile_card.dart';
 import '../widgets/interest_sheet.dart';
+import '../widgets/filter_sheet.dart';
 import 'package:miskmatch/features/profile/providers/profile_provider.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
@@ -158,29 +159,26 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         ],
       ),
       actions: [
-        // Filter button with dot
+        // Filter button with active dot
         Stack(
           children: [
             IconButton(
               icon:      const Icon(Icons.tune_rounded, size: 22),
               color:     context.mutedText,
               tooltip:   S.of(context)!.filterProfiles,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Filters coming soon insha\'Allah')),
-                );
-              },
+              onPressed: () => showFilterSheet(context, ref),
             ),
-            Positioned(
-              top: 10, right: 10,
-              child: Container(
-                width: 7, height: 7,
-                decoration: const BoxDecoration(
-                  color: AppColors.roseDeep,
-                  shape: BoxShape.circle,
+            if (ref.watch(discoveryFiltersProvider).hasActiveFilters)
+              Positioned(
+                top: 10, right: 10,
+                child: Container(
+                  width: 7, height: 7,
+                  decoration: const BoxDecoration(
+                    color: AppColors.roseDeep,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
         IconButton(
@@ -339,8 +337,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                 HapticFeedback.heavyImpact();
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(
-                      'Interest sent to ${profile.displayFirstName}. '
-                      'JazakAllah Khair 🌙'),
+                      S.of(context)!.interestSentTo(profile.displayFirstName)),
                   behavior: SnackBarBehavior.floating,
                   backgroundColor: AppColors.success,
                   shape: RoundedRectangleBorder(
@@ -491,7 +488,7 @@ class _InterestSentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Interest sent to $name',
+                S.of(context)!.interestSentToShort(name),
                 style: AppTypography.labelMedium.copyWith(
                   color:      AppColors.success,
                   fontWeight: FontWeight.w600,

@@ -5,6 +5,7 @@ import '../data/game_models.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Game card with 5 visual states:
 ///   LOCKED      — neutral100 70%, lock icon, "Day N"
@@ -140,7 +141,7 @@ class GameCard extends StatelessWidget {
     // ── LOCKED ──
     if (!game.unlocked) {
       return Text(
-        'Day ${game.unlockDay}',
+        S.of(context)!.dayNumber('${game.unlockDay}'),
         style: AppTypography.labelSmall.copyWith(
           color:    context.mutedText,
           fontSize: 10,
@@ -155,7 +156,7 @@ class GameCard extends StatelessWidget {
         children: [
           _ProgressBar(fraction: 1.0, isDone: true),
           const SizedBox(height: 4),
-          Text('Complete ✓',
+          Text(S.of(context)!.completeCheck,
             style: AppTypography.labelSmall.copyWith(
               color:      AppColors.goldPrimary,
               fontWeight: FontWeight.w600,
@@ -179,7 +180,7 @@ class GameCard extends StatelessWidget {
               color:        context.subtleBg,
               borderRadius: BorderRadius.circular(100),
             ),
-            child: Text('Waiting...',
+            child: Text(S.of(context)!.waiting,
               style: AppTypography.labelSmall.copyWith(
                 color:    context.mutedText,
                 fontSize: 9,
@@ -210,7 +211,7 @@ class GameCard extends StatelessWidget {
 
     // ── NOT STARTED ──
     return Text(
-      'Tap to start',
+      S.of(context)!.tapToStart,
       style: AppTypography.labelSmall.copyWith(
         color:    AppColors.roseDeep.withOpacity(0.7),
         fontSize: 10,
@@ -255,7 +256,7 @@ class _MyTurnBadge extends StatelessWidget {
         gradient:     AppColors.roseGradient,
         borderRadius: BorderRadius.circular(100),
       ),
-      child: Text('Your turn',
+      child: Text(S.of(context)!.yourTurn,
         style: AppTypography.labelSmall.copyWith(
           color:      AppColors.white,
           fontSize:   8,

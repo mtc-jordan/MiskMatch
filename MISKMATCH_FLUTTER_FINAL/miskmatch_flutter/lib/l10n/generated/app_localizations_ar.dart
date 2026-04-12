@@ -786,7 +786,7 @@ class SAr extends S {
   String get madhabHanbali => 'حنبلي';
 
   @override
-  String get madhabOther => 'آخر';
+  String get madhabOther => 'أخرى';
 
   @override
   String get prayerAll5 => 'جميع الصلوات الخمس';
@@ -883,8 +883,406 @@ class SAr extends S {
   String get invitationResent => 'تم إعادة إرسال الدعوة.';
 
   @override
-  String get videoCallsComingSoon => 'مكالمات الفيديو قريباً';
+  String get filters => 'التصفية';
 
   @override
-  String get filtersComingSoon => 'التصفية قريباً';
+  String get ageRange => 'الفئة العمرية';
+
+  @override
+  String get anyCountry => 'أي بلد';
+
+  @override
+  String get anyMadhab => 'أي مذهب';
+
+  @override
+  String get anyPrayer => 'أي مستوى صلاة';
+
+  @override
+  String get applyFilters => 'تطبيق';
+
+  @override
+  String get resetFilters => 'إعادة تعيين';
+
+  @override
+  String get filtersActive => 'التصفية مفعّلة';
+
+  @override
+  String get gameDescriptionIntro =>
+      'ستساعدك هذه اللعبة أنت وشريكك على اكتشاف بعضكما من خلال أسئلة ذات معنى. أجب بصدق — يمكن لوليّك رؤية جميع الإجابات.';
+
+  @override
+  String get notificationOnYourTurn => 'ستتلقى إشعاراً عندما يحين دورك.';
+
+  @override
+  String turnOf(String current, String total) {
+    return 'الدور $current من $total';
+  }
+
+  @override
+  String get bothAnswered => 'أجاب كلاكما!';
+
+  @override
+  String get answersRevealed => 'تم كشف الإجابات!';
+
+  @override
+  String get raceResults => 'نتائج السباق!';
+
+  @override
+  String get reveal => 'اكشف!';
+
+  @override
+  String get gameCompleteMashaAllah => 'ما شاء الله — اكتملت اللعبة!';
+
+  @override
+  String get nextQuestion => 'السؤال التالي';
+
+  @override
+  String get yourAnswer => 'إجابتك';
+
+  @override
+  String get theirAnswer => 'إجابتهم';
+
+  @override
+  String get correct => 'الصحيح: ';
+
+  @override
+  String get you => 'أنت';
+
+  @override
+  String get vs => 'ضد';
+
+  @override
+  String get them => 'هم';
+
+  @override
+  String get sameChoiceMashaAllah => 'اخترتما نفس الشيء! ما شاء الله';
+
+  @override
+  String get differentChoices => 'اخترتما مختلفاً — بداية رائعة للحوار!';
+
+  @override
+  String get yes => 'نعم';
+
+  @override
+  String get no => 'لا';
+
+  @override
+  String get submit => 'إرسال';
+
+  @override
+  String get submitAnswer => 'إرسال الإجابة';
+
+  @override
+  String get submitRanking => 'إرسال الترتيب';
+
+  @override
+  String get dragToRank => 'اسحب للترتيب من الأهم إلى الأقل أهمية:';
+
+  @override
+  String get notAtAll => '١ — أبداً';
+
+  @override
+  String get absolutely => '١٠ — تماماً';
+
+  @override
+  String get completeSentence => 'أكمل الجملة';
+
+  @override
+  String moreCharsNeeded(String count) {
+    return '$count أحرف إضافية مطلوبة';
+  }
+
+  @override
+  String dayNumber(String day) {
+    return 'اليوم $day';
+  }
+
+  @override
+  String get completeCheck => 'مكتمل ✓';
+
+  @override
+  String get waiting => 'بانتظار...';
+
+  @override
+  String get tapToStart => 'انقر للبدء';
+
+  @override
+  String get yourTurn => 'دورك';
+
+  @override
+  String get timeCapsule => 'كبسولة الزمن';
+
+  @override
+  String get letterToFutureSelf => 'رسالة إلى أنفسكم المستقبلية';
+
+  @override
+  String get timeCapsuleInstructions =>
+      'اكتب رسالة إلى أنفسكم المستقبلية — آمالكم لهذه العلاقة، دعاء، حلم، أو رسالة تريدان قراءتها معاً في اليوم ٢١. سيكتب شريكك رسالته أيضاً. لن يتمكن أي منكما من قراءتها حتى تُفتح الكبسولة.';
+
+  @override
+  String get timeCapsuleHint =>
+      'بسم الله... أنفسنا العزيزة في المستقبل،\n\nبحلول وقت قراءتكم هذا...';
+
+  @override
+  String get readyToSeal => 'جاهز للإغلاق';
+
+  @override
+  String moreCharsToSeal(String count) {
+    return '$count أحرف إضافية للإغلاق';
+  }
+
+  @override
+  String get sealCapsule => 'أغلق الكبسولة';
+
+  @override
+  String get timeCapsuleSealed => 'كبسولة الزمن — مغلقة';
+
+  @override
+  String get capsuleSealedDesc =>
+      'رسائلكم محفوظة بأمان. ستُكشف معاً في اليوم ٢١.';
+
+  @override
+  String get opensIn => 'تفتح في';
+
+  @override
+  String get day => 'يوم';
+
+  @override
+  String get days => 'أيام';
+
+  @override
+  String get hours => 'ساعات';
+
+  @override
+  String get min => 'دقيقة';
+
+  @override
+  String get sec => 'ثانية';
+
+  @override
+  String get capsuleOpen => 'كبسولة الزمن مفتوحة!';
+
+  @override
+  String get readLetters => 'اقرأوا رسائلكم لبعضكم.';
+
+  @override
+  String get capsuleIsOpen => 'الكبسولة مفتوحة!';
+
+  @override
+  String get lettersProcessing => 'ستظهر رسائلكم هنا بمجرد المعالجة.';
+
+  @override
+  String get openCapsule => 'افتح كبسولة الزمن';
+
+  @override
+  String get guardianCallInvite => 'دعوة مكالمة الولي';
+
+  @override
+  String get incomingCall => 'مكالمة واردة';
+
+  @override
+  String get guardianInviteNote => 'تمت دعوتك كوليّ لهذه المكالمة.';
+
+  @override
+  String get guardianChaperon => 'تمت دعوة وليّك للانضمام كمراقب.';
+
+  @override
+  String get accept => 'قبول';
+
+  @override
+  String youLabel(String name) {
+    return 'أنت — $name';
+  }
+
+  @override
+  String get chaperonesCall => 'مكالمة بإشراف — سيتم إخطار الولي';
+
+  @override
+  String get guardianObserver =>
+      'سيتم دعوة وليّك للانضمام كمراقب. هذه هي الطريقة المباركة — تواصل مفتوح مع العائلة.';
+
+  @override
+  String get audioOnly => 'صوت فقط';
+
+  @override
+  String get audioOnlyDesc => 'بدون كاميرا — مكالمة صوتية';
+
+  @override
+  String get inviteGuardian => 'دعوة الولي';
+
+  @override
+  String get inviteGuardianDesc => 'سيتلقى وليّك دعوة المكالمة';
+
+  @override
+  String get scheduleLater => 'جدولة لاحقاً';
+
+  @override
+  String get scheduleLaterDesc => 'اختر وقتاً بدلاً من الاتصال الآن';
+
+  @override
+  String get scheduleCall => 'جدولة المكالمة';
+
+  @override
+  String get startCallNow => 'ابدأ المكالمة الآن';
+
+  @override
+  String get scheduledTime => 'الوقت المحدد';
+
+  @override
+  String get prayerAllFive => 'جميع الصلوات الخمس';
+
+  @override
+  String get prayerWorkingOn => 'أعمل على ذلك';
+
+  @override
+  String get quranHafiz => 'حافظ كامل';
+
+  @override
+  String get quranPartialHafiz => 'حافظ جزئي';
+
+  @override
+  String get quranMemorising => 'يحفظ حالياً';
+
+  @override
+  String get quranTajweed => 'يقرأ بالتجويد';
+
+  @override
+  String get quranStrong => 'قراءة قوية';
+
+  @override
+  String get quranLearning => 'يتعلم';
+
+  @override
+  String get quranBeginner => 'مبتدئ';
+
+  @override
+  String get revertLabel => 'مهتدٍ';
+
+  @override
+  String revertYear(String year) {
+    return 'مهتدٍ $year';
+  }
+
+  @override
+  String get quran => 'القرآن';
+
+  @override
+  String get journey => 'المسيرة';
+
+  @override
+  String get trustScore => 'الثقة';
+
+  @override
+  String get mosqueVerified => 'موثّق من المسجد';
+
+  @override
+  String get scholarEndorsed => 'تزكية عالم';
+
+  @override
+  String get gamesCompleted => 'الألعاب';
+
+  @override
+  String get verified => 'موثّق';
+
+  @override
+  String get accountDeletedSuccess => 'تم حذف الحساب بنجاح.';
+
+  @override
+  String get themeLabel => 'المظهر';
+
+  @override
+  String get themeDescription => 'حديقة الورد / ليل المسك';
+
+  @override
+  String get loadingGuardianStatus => 'جارٍ تحميل حالة الولي...';
+
+  @override
+  String get guardianStatus => 'حالة الولي';
+
+  @override
+  String get guardianLabel => 'الولي';
+
+  @override
+  String get notSetUp => 'لم يتم الإعداد';
+
+  @override
+  String get statusActive => 'نشط';
+
+  @override
+  String get statusPending => 'قيد الانتظار';
+
+  @override
+  String get resendGuardianInvite => 'إعادة إرسال دعوة الولي';
+
+  @override
+  String get copyMessage => 'نسخ الرسالة';
+
+  @override
+  String get messageCopied => 'تم نسخ الرسالة';
+
+  @override
+  String get reportMessage => 'الإبلاغ عن الرسالة';
+
+  @override
+  String get moreOptions => 'المزيد من الخيارات';
+
+  @override
+  String interestSentTo(String name) {
+    return 'تم إرسال الاهتمام إلى $name. جزاك الله خيراً 🌙';
+  }
+
+  @override
+  String interestSentToShort(String name) {
+    return 'تم إرسال الاهتمام إلى $name';
+  }
+
+  @override
+  String get somethingWentWrong => 'حدث خطأ ما';
+
+  @override
+  String get pleaseRestartApp => 'يرجى إعادة تشغيل التطبيق.\nنعتذر عن الإزعاج.';
+
+  @override
+  String get guardianPortal => 'بوابة الولي';
+
+  @override
+  String get permissionsLabel => 'الصلاحيات';
+
+  @override
+  String get profileOverview => 'نظرة عامة على الملف';
+
+  @override
+  String get ourJourney => 'مسيرتنا';
+
+  @override
+  String get writePersonalisedMessage => 'اكتب رسالة شخصية...';
+
+  @override
+  String profileCompletionAdd(String fields) {
+    return 'أضف: $fields';
+  }
+
+  @override
+  String revertSinceYear(String year) {
+    return 'منذ $year';
+  }
+
+  @override
+  String get revertYes => 'نعم';
+
+  @override
+  String wantsChildrenCount(String count) {
+    return '👶 يرغب في $count أطفال';
+  }
+
+  @override
+  String get wantsChildren => '👶 يرغب في الأطفال';
+
+  @override
+  String get noChildren => '👶 بدون أطفال';
+
+  @override
+  String selfIndicator(String name) {
+    return 'أنت — $name';
+  }
 }

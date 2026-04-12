@@ -3,6 +3,13 @@ import '../data/discovery_repository.dart';
 import 'package:miskmatch/features/profile/data/profile_models.dart';
 import 'package:miskmatch/shared/models/api_response.dart';
 
+// Re-export so consumers can import from either location
+export '../data/discovery_repository.dart' show DiscoveryFilters;
+
+final discoveryFiltersProvider = StateProvider<DiscoveryFilters>(
+  (_) => const DiscoveryFilters(),
+);
+
 // ─────────────────────────────────────────────
 // FEED STATE
 // ─────────────────────────────────────────────
@@ -64,13 +71,16 @@ class DiscoveryFeedState {
 // ─────────────────────────────────────────────
 
 class DiscoveryNotifier extends StateNotifier<DiscoveryFeedState> {
-  DiscoveryNotifier(this._repo) : super(const DiscoveryFeedState());
+  DiscoveryNotifier(this._repo, this._filtersRef) : super(const DiscoveryFeedState());
 
   final DiscoveryRepository _repo;
+  final Ref _filtersRef;
+
+  DiscoveryFilters get _filters => _filtersRef.read(discoveryFiltersProvider);
 
   Future<void> loadFeed() async {
     state = state.copyWith(isLoading: true, error: null);
-    final result = await _repo.getDiscovery(page: 1);
+    final result = await _repo.getDiscovery(page: 1, filters: _filters);
     state = switch (result) {
       ApiSuccess(data: final cards) => state.copyWith(
           candidates:    cards,
@@ -90,7 +100,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryFeedState> {
     if (!state.hasMore || state.isLoadingMore) return;
     state = state.copyWith(isLoadingMore: true);
     final nextPage = state.page + 1;
-    final result   = await _repo.getDiscovery(page: nextPage);
+    final result   = await _repo.getDiscovery(page: nextPage, filters: _filters);
     state = switch (result) {
       ApiSuccess(data: final cards) => state.copyWith(
           candidates:    [...state.candidates, ...cards],
@@ -132,7 +142,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryFeedState> {
 
 final discoveryProvider =
     StateNotifierProvider<DiscoveryNotifier, DiscoveryFeedState>((ref) {
-  return DiscoveryNotifier(ref.watch(discoveryRepositoryProvider));
+  return DiscoveryNotifier(ref.watch(discoveryRepositoryProvider), ref);
 });
 
 // ── Interest sending state ────────────────────────────────────────────────────

@@ -16,6 +16,7 @@ WebSocket:
     WS   /games/ws/{match_id}                   → Real-time game events
 """
 
+import asyncio
 import json
 import logging
 from typing import Annotated, Optional
@@ -32,7 +33,7 @@ from sqlalchemy import select
 from app.core.database import get_db, AsyncSessionLocal
 from app.core.security import decode_token
 from app.core.websocket import manager
-from app.games.engine import GAME_REGISTRY, GameType, GameMode
+from app.games.engine import GAME_REGISTRY, GameMode
 from app.models.models import User, UserStatus, Match, MatchStatus
 from app.routers.auth import get_current_active_user
 from app.services import games as game_svc
@@ -207,17 +208,40 @@ async def open_time_capsule(match_id: UUID, current_user: CurrentUser, db: DB):
 async def websocket_games(
     websocket: WebSocket,
     match_id: UUID,
-    token: str = Query(...),
 ):
     """
     Real-time game event stream.
     Listen here during real-time games for simultaneous answer reveals.
     All game actions are submitted via REST; results arrive here.
+
+    Authentication — first-message auth:
+        Connect without token, then send as first message:
+        { "type": "authenticate", "payload": { "token": "<access_token>" } }
     """
+    # ── Auth: first-message token exchange ──
+    await websocket.accept()
+    try:
+        raw = await asyncio.wait_for(websocket.receive_text(), timeout=10.0)
+        event = json.loads(raw)
+        if event.get("type") != "authenticate" or not event.get("payload", {}).get("token"):
+            await websocket.send_json({
+                "type": "error",
+                "payload": {"message": "First message must be an authenticate event"},
+            })
+            await websocket.close(code=4001, reason="Authentication required")
+            return
+        token = event["payload"]["token"]
+    except asyncio.TimeoutError:
+        await websocket.close(code=4001, reason="Authentication timeout")
+        return
+    except (json.JSONDecodeError, Exception):
+        await websocket.close(code=4001, reason="Invalid authentication message")
+        return
+
     try:
         payload = decode_token(token)
         if payload.get("type") != "access":
-            await websocket.close(code=4001)
+            await websocket.close(code=4001, reason="Invalid token type")
             return
         user_id = UUID(payload["sub"])
     except Exception:
@@ -237,7 +261,7 @@ async def websocket_games(
         if not match or user_id not in [match.sender_id, match.receiver_id]:
             await websocket.close(code=4004); return
 
-    await manager.connect(websocket, user_id, match_id)
+    await manager.connect(websocket, user_id, match_id, already_accepted=True)
     try:
         await websocket.send_json({
             "type": "game_connected",
@@ -248,7 +272,18 @@ async def websocket_games(
             event = json.loads(raw)
             if event.get("type") == "ping":
                 await websocket.send_json({"type": "pong", "payload": {}})
-    except (WebSocketDisconnect, json.JSONDecodeError):
-        pass
+    except WebSocketDisconnect:
+        logger.info(
+            "Game WS disconnected: user=%s match=%s", user_id, match_id
+        )
+    except json.JSONDecodeError as e:
+        logger.warning(
+            "Game WS bad JSON from user=%s match=%s: %s", user_id, match_id, e
+        )
+    except Exception as e:
+        logger.error(
+            "Game WS unexpected error: user=%s match=%s: %s",
+            user_id, match_id, e, exc_info=True,
+        )
     finally:
         await manager.disconnect(user_id, match_id)

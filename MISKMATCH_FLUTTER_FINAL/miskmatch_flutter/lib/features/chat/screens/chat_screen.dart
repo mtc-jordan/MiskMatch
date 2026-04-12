@@ -12,6 +12,8 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'package:miskmatch/l10n/generated/app_localizations.dart';
+import 'package:miskmatch/features/profile/providers/profile_provider.dart';
+import 'package:miskmatch/features/calls/widgets/call_schedule_sheet.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, required this.matchId});
@@ -296,13 +298,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           color: context.mutedText,
           tooltip: S.of(context)!.chaperonedCall,
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Video calls coming soon insha\'Allah')),
+            final myProfile = ref.read(myProfileProvider);
+            final myName = myProfile?.displayFirstName ?? '';
+            showCallScheduleSheet(
+              context:   context,
+              ref:       ref,
+              matchId:   widget.matchId,
+              myName:    myName,
+              otherName: otherName,
             );
           },
         ),
         // More menu
         PopupMenuButton<String>(
+          tooltip: S.of(context)!.moreOptions,
           icon: Icon(Icons.more_vert_rounded, size: 22, color: context.mutedText),
           onSelected: (value) {
             if (value == 'close') {

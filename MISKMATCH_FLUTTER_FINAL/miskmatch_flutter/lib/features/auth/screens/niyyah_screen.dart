@@ -32,13 +32,17 @@ class _NiyyahScreenState extends ConsumerState<NiyyahScreen> {
   }
 
   String? get _niyyah {
-    if (_selected != null) return 'selected';
+    if (_selected != null) return _intentions(context)[_selected!];
     if (_customCtrl.text.trim().isNotEmpty) return _customCtrl.text.trim();
     return null;
   }
 
-  void _submit() {
-    context.go(AppRoutes.waliSetup);
+  Future<void> _submit() async {
+    final niyyah = _niyyah;
+    if (niyyah != null && niyyah.isNotEmpty) {
+      await ref.read(authProvider.notifier).updateNiyyah(niyyah);
+    }
+    if (mounted) context.go(AppRoutes.waliSetup);
   }
 
   @override

@@ -47,6 +47,11 @@ async def get_discovery_candidates(
     current_profile: Profile,
     page: int = 1,
     page_size: int = 20,
+    filter_min_age: Optional[int] = None,
+    filter_max_age: Optional[int] = None,
+    filter_country: Optional[str] = None,
+    filter_madhab: Optional[str] = None,
+    filter_prayer: Optional[str] = None,
 ) -> tuple[list[tuple[Profile, float]], int]:
     """
     Return ranked candidate profiles for the discovery feed.
@@ -92,6 +97,7 @@ async def get_discovery_candidates(
             and_(
                 User.gender == opposite_gender,
                 User.status == UserStatus.ACTIVE,
+                User.deleted_at.is_(None),
                 User.id != current_user.id,
                 Profile.user_id.not_in(
                     select(Match.sender_id).where(
@@ -113,26 +119,37 @@ async def get_discovery_candidates(
         )
     )
 
-    # Age filter
-    if current_profile.min_age and current_profile.max_age:
-        from sqlalchemy import extract
+    # Age filter — explicit filter params override profile preferences
+    effective_min_age = filter_min_age or current_profile.min_age
+    effective_max_age = filter_max_age or current_profile.max_age
+    if effective_min_age and effective_max_age:
         stmt = stmt.where(
             and_(
                 func.date_part(
                     "year",
                     func.age(Profile.date_of_birth)
                 ).between(
-                    current_profile.min_age,
-                    current_profile.max_age,
+                    effective_min_age,
+                    effective_max_age,
                 )
             )
         )
 
-    # Country preference filter
-    if current_profile.preferred_countries:
+    # Country filter — explicit filter param overrides profile preferences
+    if filter_country:
+        stmt = stmt.where(Profile.country == filter_country)
+    elif current_profile.preferred_countries:
         stmt = stmt.where(
             Profile.country.in_(current_profile.preferred_countries)
         )
+
+    # Madhab filter
+    if filter_madhab:
+        stmt = stmt.where(Profile.madhab == filter_madhab)
+
+    # Prayer frequency filter
+    if filter_prayer:
+        stmt = stmt.where(Profile.prayer_frequency == filter_prayer)
 
     # Count total
     count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -311,7 +328,7 @@ async def express_interest(
         select(User).where(User.id == receiver_id)
     )
     receiver = result.scalar_one_or_none()
-    if not receiver or receiver.status != "active":
+    if not receiver or receiver.status != UserStatus.ACTIVE or receiver.deleted_at is not None:
         raise ValueError("User not found or unavailable.")
 
     # Gender check

@@ -93,8 +93,8 @@ class RingingScreen extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 participantType == 'wali'
-                                    ? 'You have been invited as guardian to this call.'
-                                    : 'Your guardian has been invited to join as chaperone.',
+                                    ? S.of(context)!.guardianInviteNote
+                                    : S.of(context)!.guardianChaperon,
                                 style: AppTypography.bodySmall.copyWith(
                                   color:  AppColors.goldLight,
                                   height: 1.5,
@@ -118,7 +118,7 @@ class RingingScreen extends ConsumerWidget {
                         _CallButton(
                           icon:  Icons.call_end_rounded,
                           color: AppColors.error,
-                          label: 'Decline',
+                          label: S.of(context)!.decline,
                           onTap: () {
                             Haptic.medium();
                             ref.read(callProvider.notifier)
@@ -133,7 +133,7 @@ class RingingScreen extends ConsumerWidget {
                               ? Icons.videocam_rounded
                               : Icons.call_rounded,
                           color: AppColors.success,
-                          label: 'Accept',
+                          label: S.of(context)!.accept,
                           onTap: () async {
                             Haptic.confirm();
                             await ref.read(callProvider.notifier).acceptCall(
@@ -191,8 +191,8 @@ class _CallerInfo extends StatelessWidget {
       children: [
         Text(
           participantType == 'wali'
-              ? 'Guardian call invite'
-              : 'Incoming call',
+              ? S.of(context)!.guardianCallInvite
+              : S.of(context)!.incomingCall,
           style: const TextStyle(
             fontSize: 16,
             color:    Color(0xFFAAAAAA), // neutral400

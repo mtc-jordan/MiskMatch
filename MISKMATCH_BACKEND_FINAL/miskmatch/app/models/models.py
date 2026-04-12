@@ -356,6 +356,9 @@ class Profile(Base, TimestampMixin):
         CheckConstraint("max_age >= 18 AND max_age <= 80", name="ck_profile_max_age"),
         CheckConstraint("trust_score >= 0 AND trust_score <= 100", name="ck_profile_trust"),
         Index("ix_profiles_country_city", "country", "city"),
+        Index("ix_profiles_dob", "date_of_birth"),
+        Index("ix_profiles_madhab", "madhab"),
+        Index("ix_profiles_prayer", "prayer_frequency"),
     )
 
 
@@ -556,6 +559,7 @@ class Match(Base, TimestampMixin):
     __table_args__ = (
         UniqueConstraint("sender_id", "receiver_id", name="uq_match_pair"),
         Index("ix_matches_status", "status"),
+        Index("ix_matches_sender_receiver", "sender_id", "receiver_id"),
     )
 
 

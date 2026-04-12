@@ -384,7 +384,7 @@ class _AudioArea extends StatelessWidget {
               const Icon(Icons.person_rounded,
                 color: Color(0xFFAAAAAA), size: 18),
               const SizedBox(width: 6),
-              Text('You — $myName',
+              Text(S.of(context)!.selfIndicator(myName),
                 style: AppTypography.bodySmall.copyWith(
                   color: const Color(0xFFAAAAAA)),
               ),
@@ -693,29 +693,36 @@ class _ControlBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(
-          width: _size, height: _size,
-          decoration: BoxDecoration(
-            color:    _bg,
-            shape:    BoxShape.circle,
-            boxShadow: _shadows,
+    return Semantics(
+      button:  true,
+      enabled: true,
+      label:   label,
+      onTap:   onTap,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: _size, height: _size,
+            decoration: BoxDecoration(
+              color:    _bg,
+              shape:    BoxShape.circle,
+              boxShadow: _shadows,
+            ),
+            child: Icon(icon,
+              color: _iconColor,
+              size:  isEnd ? 32 : 26,
+            ),
           ),
-          child: Icon(icon,
-            color: _iconColor,
-            size:  isEnd ? 32 : 26,
+          const SizedBox(height: 6),
+          Text(label,
+            style: const TextStyle(
+              fontSize: 11,
+              color:    AppColors.neutral300,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(label,
-          style: const TextStyle(
-            fontSize: 11,
-            color:    AppColors.neutral300,
-          ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }

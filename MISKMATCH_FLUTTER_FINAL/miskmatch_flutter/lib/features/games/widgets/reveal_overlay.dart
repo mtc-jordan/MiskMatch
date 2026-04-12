@@ -6,6 +6,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Full-screen reveal overlay — shown when both players have answered
 /// in a real-time game (Would You Rather, Islamic Trivia, Geography Race).
@@ -64,7 +65,7 @@ class RevealOverlay extends StatelessWidget {
 
                 // ── t=400: Title ─────────────────────────────
                 Text(
-                  _title,
+                  _title(context),
                   style: const TextStyle(
                     fontFamily:  'Georgia',
                     fontSize:    28,
@@ -87,7 +88,7 @@ class RevealOverlay extends StatelessWidget {
                     SizedBox(
                       width: cardWidth,
                       child: _AnswerCard(
-                        label:       'Your answer',
+                        label:       S.of(context)!.yourAnswer,
                         answer:      result.yourAnswer ?? '—',
                         isMe:        true,
                         isCorrect:   result.youGotIt,
@@ -105,7 +106,7 @@ class RevealOverlay extends StatelessWidget {
                     SizedBox(
                       width: cardWidth,
                       child: _AnswerCard(
-                        label:       'Their answer',
+                        label:       S.of(context)!.theirAnswer,
                         answer:      result.partnerAnswer ?? '—',
                         isMe:        false,
                         isCorrect:   result.theyGotIt,
@@ -153,8 +154,8 @@ class RevealOverlay extends StatelessWidget {
                 // ── t=1000: Dismiss button ───────────────────
                 MiskButton(
                   label: result.gameComplete
-                      ? "Masha'Allah — Game complete! 🌙"
-                      : 'Next question →',
+                      ? S.of(context)!.gameCompleteMashaAllah
+                      : S.of(context)!.nextQuestion,
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     onDismiss();
@@ -182,11 +183,11 @@ class RevealOverlay extends StatelessWidget {
     _                  => '✨',
   };
 
-  String get _title => switch (gameType) {
-    'would_you_rather' => 'Both answered!',
-    'islamic_trivia'   => 'Answers revealed!',
-    'geography_race'   => 'Race results!',
-    _                  => 'Reveal!',
+  String _title(BuildContext context) => switch (gameType) {
+    'would_you_rather' => S.of(context)!.bothAnswered,
+    'islamic_trivia'   => S.of(context)!.answersRevealed,
+    'geography_race'   => S.of(context)!.raceResults,
+    _                  => S.of(context)!.reveal,
   };
 }
 
@@ -304,7 +305,7 @@ class _CorrectAnswerBanner extends StatelessWidget {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Correct: ',
+                    text: S.of(context)!.correct,
                     style: TextStyle(
                       fontSize:   13,
                       color:      AppColors.success.withOpacity(0.8),
@@ -368,7 +369,7 @@ class _ScoreBanner extends StatelessWidget {
                   color:       AppColors.goldLight,
                 ),
               ),
-              Text('You',
+              Text(S.of(context)!.you,
                 style: TextStyle(
                   fontSize: 11,
                   color:    AppColors.white.withOpacity(0.7),
@@ -379,7 +380,7 @@ class _ScoreBanner extends StatelessWidget {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('vs',
+            child: Text(S.of(context)!.vs,
               style: TextStyle(
                 fontSize: 14,
                 color:    AppColors.white.withOpacity(0.5),
@@ -399,7 +400,7 @@ class _ScoreBanner extends StatelessWidget {
                   color:       AppColors.goldLight,
                 ),
               ),
-              Text('Them',
+              Text(S.of(context)!.them,
                 style: TextStyle(
                   fontSize: 11,
                   color:    AppColors.white.withOpacity(0.7),
@@ -442,8 +443,8 @@ class _OutcomeMessage extends StatelessWidget {
           Expanded(
             child: Text(
               sameAnswer
-                  ? "You both chose the same! Masha'Allah"
-                  : 'You chose differently — great conversation starter!',
+                  ? S.of(context)!.sameChoiceMashaAllah
+                  : S.of(context)!.differentChoices,
               style: const TextStyle(
                 fontSize: 14,
                 color:    AppColors.white,

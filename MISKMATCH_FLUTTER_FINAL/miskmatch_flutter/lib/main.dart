@@ -112,6 +112,12 @@ class _MiskMatchErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Null-safe: localizations may be unavailable if this fires during early init.
+    final l = S.of(context);
+    final title = l?.somethingWentWrong ?? 'Something went wrong';
+    final body  = l?.pleaseRestartApp
+        ?? 'Please restart the app.\nWe apologise for the inconvenience.';
+
     return Material(
       color: const Color(0xFFFBF0F3),
       child: Center(
@@ -134,14 +140,13 @@ class _MiskMatchErrorWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Something went wrong',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700,
+            Text(title,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700,
                     color: Color(0xFF1A1A2E)),
                 textAlign: TextAlign.center),
             const SizedBox(height: 8),
-            const Text(
-                'Please restart the app.\nWe apologise for the inconvenience.',
-                style: TextStyle(fontSize: 14, color: Color(0xFF8A8AAA), height: 1.6),
+            Text(body,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF8A8AAA), height: 1.6),
                 textAlign: TextAlign.center),
           ]),
         ),

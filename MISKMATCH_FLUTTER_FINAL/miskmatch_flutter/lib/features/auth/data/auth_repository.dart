@@ -120,6 +120,15 @@ class AuthRepository {
     }
   }
 
+  // ── Update niyyah ─────────────────────────────────────────────────────────
+  Future<void> updateNiyyah(String niyyah) async {
+    try {
+      await dio.put(ApiEndpoints.authNiyyah, data: {'niyyah': niyyah});
+    } catch (e) {
+      debugPrint('Failed to save niyyah: $e');
+    }
+  }
+
   // ── Restore session ───────────────────────────────────────────────────────
   Future<bool> hasActiveSession() => storage.hasValidTokens();
 }

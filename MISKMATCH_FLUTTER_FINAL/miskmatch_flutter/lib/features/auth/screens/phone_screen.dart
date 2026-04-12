@@ -308,29 +308,33 @@ class _ContentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Country chip
-                  GestureDetector(
-                    onTap: () => _showCountryPicker(context),
-                    child: Container(
-                      height: 56,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.roseLight.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(AppRadius.input),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(flag, style: const TextStyle(fontSize: 20)),
-                          const SizedBox(width: 6),
-                          Text(dialCode,
-                            style: AppTypography.bodyLarge.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: context.onSurface),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(Icons.keyboard_arrow_down_rounded,
-                              size: 18, color: context.mutedText),
-                        ],
+                  Semantics(
+                    button: true,
+                    label: '${S.of(context)!.selectCountry}, $dialCode',
+                    child: GestureDetector(
+                      onTap: () => _showCountryPicker(context),
+                      child: Container(
+                        height: 56,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.roseLight.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(AppRadius.input),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(flag, style: const TextStyle(fontSize: 20)),
+                            const SizedBox(width: 6),
+                            Text(dialCode,
+                              style: AppTypography.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: context.onSurface),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.keyboard_arrow_down_rounded,
+                                size: 18, color: context.mutedText),
+                          ],
+                        ),
                       ),
                     ),
                   ),

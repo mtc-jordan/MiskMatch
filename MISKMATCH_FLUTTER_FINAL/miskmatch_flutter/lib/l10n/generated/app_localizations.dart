@@ -1771,17 +1771,755 @@ abstract class S {
   /// **'Invitation resent.'**
   String get invitationResent;
 
-  /// No description provided for @videoCallsComingSoon.
+  /// No description provided for @filters.
   ///
   /// In en, this message translates to:
-  /// **'Video calls coming soon'**
-  String get videoCallsComingSoon;
+  /// **'Filters'**
+  String get filters;
 
-  /// No description provided for @filtersComingSoon.
+  /// No description provided for @ageRange.
   ///
   /// In en, this message translates to:
-  /// **'Filters coming soon'**
-  String get filtersComingSoon;
+  /// **'Age range'**
+  String get ageRange;
+
+  /// No description provided for @anyCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Any country'**
+  String get anyCountry;
+
+  /// No description provided for @anyMadhab.
+  ///
+  /// In en, this message translates to:
+  /// **'Any madhab'**
+  String get anyMadhab;
+
+  /// No description provided for @anyPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Any prayer level'**
+  String get anyPrayer;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply filters'**
+  String get applyFilters;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get resetFilters;
+
+  /// No description provided for @filtersActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters active'**
+  String get filtersActive;
+
+  /// No description provided for @gameDescriptionIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This game will help you and your match discover each other through meaningful questions. Answer honestly — your wali can see all responses.'**
+  String get gameDescriptionIntro;
+
+  /// No description provided for @notificationOnYourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll receive a notification when it\'s your turn.'**
+  String get notificationOnYourTurn;
+
+  /// No description provided for @turnOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {current} of {total}'**
+  String turnOf(String current, String total);
+
+  /// No description provided for @bothAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Both answered!'**
+  String get bothAnswered;
+
+  /// No description provided for @answersRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers revealed!'**
+  String get answersRevealed;
+
+  /// No description provided for @raceResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Race results!'**
+  String get raceResults;
+
+  /// No description provided for @reveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal!'**
+  String get reveal;
+
+  /// No description provided for @gameCompleteMashaAllah.
+  ///
+  /// In en, this message translates to:
+  /// **'Masha\'Allah — Game complete!'**
+  String get gameCompleteMashaAllah;
+
+  /// No description provided for @nextQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Next question'**
+  String get nextQuestion;
+
+  /// No description provided for @yourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get yourAnswer;
+
+  /// No description provided for @theirAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Their answer'**
+  String get theirAnswer;
+
+  /// No description provided for @correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct: '**
+  String get correct;
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
+
+  /// No description provided for @vs.
+  ///
+  /// In en, this message translates to:
+  /// **'vs'**
+  String get vs;
+
+  /// No description provided for @them.
+  ///
+  /// In en, this message translates to:
+  /// **'Them'**
+  String get them;
+
+  /// No description provided for @sameChoiceMashaAllah.
+  ///
+  /// In en, this message translates to:
+  /// **'You both chose the same! Masha\'Allah'**
+  String get sameChoiceMashaAllah;
+
+  /// No description provided for @differentChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'You chose differently — great conversation starter!'**
+  String get differentChoices;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @submitAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit answer'**
+  String get submitAnswer;
+
+  /// No description provided for @submitRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit ranking'**
+  String get submitRanking;
+
+  /// No description provided for @dragToRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to rank from most to least important:'**
+  String get dragToRank;
+
+  /// No description provided for @notAtAll.
+  ///
+  /// In en, this message translates to:
+  /// **'1 — Not at all'**
+  String get notAtAll;
+
+  /// No description provided for @absolutely.
+  ///
+  /// In en, this message translates to:
+  /// **'10 — Absolutely'**
+  String get absolutely;
+
+  /// No description provided for @completeSentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the sentence'**
+  String get completeSentence;
+
+  /// No description provided for @moreCharsNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more characters needed'**
+  String moreCharsNeeded(String count);
+
+  /// No description provided for @dayNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String dayNumber(String day);
+
+  /// No description provided for @completeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete ✓'**
+  String get completeCheck;
+
+  /// No description provided for @waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting...'**
+  String get waiting;
+
+  /// No description provided for @tapToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start'**
+  String get tapToStart;
+
+  /// No description provided for @yourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your turn'**
+  String get yourTurn;
+
+  /// No description provided for @timeCapsule.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Capsule'**
+  String get timeCapsule;
+
+  /// No description provided for @letterToFutureSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'A letter to your future selves'**
+  String get letterToFutureSelf;
+
+  /// No description provided for @timeCapsuleInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a letter to your future selves — your hopes for this relationship, a du\'a, a dream, or a message you want to read together on Day 21. Your partner will write theirs too. Neither of you can read them until the capsule opens.'**
+  String get timeCapsuleInstructions;
+
+  /// No description provided for @timeCapsuleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bismillah... dear future us,\n\nBy the time you read this...'**
+  String get timeCapsuleHint;
+
+  /// No description provided for @readyToSeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to seal'**
+  String get readyToSeal;
+
+  /// No description provided for @moreCharsToSeal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more characters to seal'**
+  String moreCharsToSeal(String count);
+
+  /// No description provided for @sealCapsule.
+  ///
+  /// In en, this message translates to:
+  /// **'Seal the Capsule'**
+  String get sealCapsule;
+
+  /// No description provided for @timeCapsuleSealed.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Capsule — Sealed'**
+  String get timeCapsuleSealed;
+
+  /// No description provided for @capsuleSealedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your letters are safely sealed. They will be revealed together on Day 21.'**
+  String get capsuleSealedDesc;
+
+  /// No description provided for @opensIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens in'**
+  String get opensIn;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'day'**
+  String get day;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get hours;
+
+  /// No description provided for @min.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get min;
+
+  /// No description provided for @sec.
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get sec;
+
+  /// No description provided for @capsuleOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Time Capsule is Open!'**
+  String get capsuleOpen;
+
+  /// No description provided for @readLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'Read your letters to each other.'**
+  String get readLetters;
+
+  /// No description provided for @capsuleIsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'The capsule is open!'**
+  String get capsuleIsOpen;
+
+  /// No description provided for @lettersProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your letters will appear here once processed.'**
+  String get lettersProcessing;
+
+  /// No description provided for @openCapsule.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Time Capsule'**
+  String get openCapsule;
+
+  /// No description provided for @guardianCallInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian call invite'**
+  String get guardianCallInvite;
+
+  /// No description provided for @incomingCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming call'**
+  String get incomingCall;
+
+  /// No description provided for @guardianInviteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You have been invited as guardian to this call.'**
+  String get guardianInviteNote;
+
+  /// No description provided for @guardianChaperon.
+  ///
+  /// In en, this message translates to:
+  /// **'Your guardian has been invited to join as chaperone.'**
+  String get guardianChaperon;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @youLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You — {name}'**
+  String youLabel(String name);
+
+  /// No description provided for @chaperonesCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Chaperoned call — guardian will be notified'**
+  String get chaperonesCall;
+
+  /// No description provided for @guardianObserver.
+  ///
+  /// In en, this message translates to:
+  /// **'Your guardian will be invited to join as an observer. This is the blessed way — open communication with family.'**
+  String get guardianObserver;
+
+  /// No description provided for @audioOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio only'**
+  String get audioOnly;
+
+  /// No description provided for @audioOnlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera — audio call instead'**
+  String get audioOnlyDesc;
+
+  /// No description provided for @inviteGuardian.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite guardian'**
+  String get inviteGuardian;
+
+  /// No description provided for @inviteGuardianDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wali will receive a call invite'**
+  String get inviteGuardianDesc;
+
+  /// No description provided for @scheduleLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule for later'**
+  String get scheduleLater;
+
+  /// No description provided for @scheduleLaterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time instead of calling now'**
+  String get scheduleLaterDesc;
+
+  /// No description provided for @scheduleCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule call'**
+  String get scheduleCall;
+
+  /// No description provided for @startCallNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Start call now'**
+  String get startCallNow;
+
+  /// No description provided for @scheduledTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled time'**
+  String get scheduledTime;
+
+  /// No description provided for @prayerAllFive.
+  ///
+  /// In en, this message translates to:
+  /// **'All 5 daily prayers'**
+  String get prayerAllFive;
+
+  /// No description provided for @prayerWorkingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Working on it'**
+  String get prayerWorkingOn;
+
+  /// No description provided for @quranHafiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Hafiz'**
+  String get quranHafiz;
+
+  /// No description provided for @quranPartialHafiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial Hafiz'**
+  String get quranPartialHafiz;
+
+  /// No description provided for @quranMemorising.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently memorising'**
+  String get quranMemorising;
+
+  /// No description provided for @quranTajweed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recites with Tajweed'**
+  String get quranTajweed;
+
+  /// No description provided for @quranStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong recitation'**
+  String get quranStrong;
+
+  /// No description provided for @quranLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get quranLearning;
+
+  /// No description provided for @quranBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get quranBeginner;
+
+  /// No description provided for @revertLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get revertLabel;
+
+  /// No description provided for @revertYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert {year}'**
+  String revertYear(String year);
+
+  /// No description provided for @quran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get quran;
+
+  /// No description provided for @journey.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey'**
+  String get journey;
+
+  /// No description provided for @trustScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust'**
+  String get trustScore;
+
+  /// No description provided for @mosqueVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque verified'**
+  String get mosqueVerified;
+
+  /// No description provided for @scholarEndorsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Scholar endorsed'**
+  String get scholarEndorsed;
+
+  /// No description provided for @gamesCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get gamesCompleted;
+
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verified;
+
+  /// No description provided for @accountDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get accountDeletedSuccess;
+
+  /// No description provided for @themeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeLabel;
+
+  /// No description provided for @themeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose Garden / Musk Night'**
+  String get themeDescription;
+
+  /// No description provided for @loadingGuardianStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading guardian status...'**
+  String get loadingGuardianStatus;
+
+  /// No description provided for @guardianStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian status'**
+  String get guardianStatus;
+
+  /// No description provided for @guardianLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian'**
+  String get guardianLabel;
+
+  /// No description provided for @notSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get notSetUp;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @resendGuardianInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend guardian invite'**
+  String get resendGuardianInvite;
+
+  /// No description provided for @copyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy message'**
+  String get copyMessage;
+
+  /// No description provided for @messageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Message copied'**
+  String get messageCopied;
+
+  /// No description provided for @reportMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Report message'**
+  String get reportMessage;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @interestSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest sent to {name}. JazakAllah Khair 🌙'**
+  String interestSentTo(String name);
+
+  /// No description provided for @interestSentToShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest sent to {name}'**
+  String interestSentToShort(String name);
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @pleaseRestartApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please restart the app.\nWe apologise for the inconvenience.'**
+  String get pleaseRestartApp;
+
+  /// No description provided for @guardianPortal.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian Portal'**
+  String get guardianPortal;
+
+  /// No description provided for @permissionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get permissionsLabel;
+
+  /// No description provided for @profileOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile overview'**
+  String get profileOverview;
+
+  /// No description provided for @ourJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Journey'**
+  String get ourJourney;
+
+  /// No description provided for @writePersonalisedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a personalised message...'**
+  String get writePersonalisedMessage;
+
+  /// No description provided for @profileCompletionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add: {fields}'**
+  String profileCompletionAdd(String fields);
+
+  /// No description provided for @revertSinceYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {year}'**
+  String revertSinceYear(String year);
+
+  /// No description provided for @revertYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get revertYes;
+
+  /// No description provided for @wantsChildrenCount.
+  ///
+  /// In en, this message translates to:
+  /// **'👶 Wants {count} children'**
+  String wantsChildrenCount(String count);
+
+  /// No description provided for @wantsChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'👶 Wants children'**
+  String get wantsChildren;
+
+  /// No description provided for @noChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'👶 No children'**
+  String get noChildren;
+
+  /// No description provided for @selfIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'You — {name}'**
+  String selfIndicator(String name);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -4,6 +4,39 @@ import 'package:miskmatch/core/api/api_client.dart';
 import 'package:miskmatch/core/api/api_endpoints.dart';
 import 'package:miskmatch/shared/models/api_response.dart';
 import 'package:miskmatch/features/profile/data/profile_models.dart';
+// ─────────────────────────────────────────────
+// DISCOVERY FILTERS (shared between repo and provider)
+// ─────────────────────────────────────────────
+
+class DiscoveryFilters {
+  const DiscoveryFilters({
+    this.minAge,
+    this.maxAge,
+    this.country,
+    this.madhab,
+    this.prayer,
+  });
+
+  final int?    minAge;
+  final int?    maxAge;
+  final String? country;
+  final String? madhab;
+  final String? prayer;
+
+  bool get hasActiveFilters =>
+      minAge != null || maxAge != null || country != null ||
+      madhab != null || prayer != null;
+
+  Map<String, dynamic> toQueryParams() {
+    final params = <String, dynamic>{};
+    if (minAge != null) params['min_age'] = minAge;
+    if (maxAge != null) params['max_age'] = maxAge;
+    if (country != null) params['country'] = country;
+    if (madhab != null) params['madhab'] = madhab;
+    if (prayer != null) params['prayer'] = prayer;
+    return params;
+  }
+}
 
 class DiscoveryRepository {
   DiscoveryRepository(this._dio);
@@ -13,11 +46,16 @@ class DiscoveryRepository {
   Future<ApiResult<List<CandidateCard>>> getDiscovery({
     int page = 1,
     int pageSize = 10,
+    DiscoveryFilters filters = const DiscoveryFilters(),
   }) async {
     try {
       final res = await _dio.get(
         ApiEndpoints.matchDiscover,
-        queryParameters: {'page': page, 'page_size': pageSize},
+        queryParameters: {
+          'page': page,
+          'page_size': pageSize,
+          ...filters.toQueryParams(),
+        },
         options: Options(receiveTimeout: const Duration(seconds: 3)),
       );
       if (res.statusCode == 200) {

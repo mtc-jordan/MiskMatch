@@ -378,6 +378,191 @@
   "biometricLockDesc": "Require Face ID / fingerprint on open",
   "photoVisibleOff": "Off — photo revealed only after both sides show interest",
   "invitationResent": "Invitation resent.",
-  "videoCallsComingSoon": "Video calls coming soon",
-  "filtersComingSoon": "Filters coming soon"
+
+  "filters": "Filters",
+  "ageRange": "Age range",
+  "anyCountry": "Any country",
+  "anyMadhab": "Any madhab",
+  "anyPrayer": "Any prayer level",
+  "applyFilters": "Apply filters",
+  "resetFilters": "Reset",
+  "filtersActive": "Filters active",
+
+  "gameDescriptionIntro": "This game will help you and your match discover each other through meaningful questions. Answer honestly — your wali can see all responses.",
+  "notificationOnYourTurn": "You'll receive a notification when it's your turn.",
+  "turnOf": "Turn {current} of {total}",
+  "@turnOf": { "placeholders": { "current": {"type": "String"}, "total": {"type": "String"} } },
+  "bothAnswered": "Both answered!",
+  "answersRevealed": "Answers revealed!",
+  "raceResults": "Race results!",
+  "reveal": "Reveal!",
+  "gameCompleteMashaAllah": "Masha'Allah — Game complete!",
+  "nextQuestion": "Next question",
+  "yourAnswer": "Your answer",
+  "theirAnswer": "Their answer",
+  "correct": "Correct: ",
+  "you": "You",
+  "vs": "vs",
+  "them": "Them",
+  "sameChoiceMashaAllah": "You both chose the same! Masha'Allah",
+  "differentChoices": "You chose differently — great conversation starter!",
+  "yes": "Yes",
+  "no": "No",
+  "submit": "Submit",
+  "submitAnswer": "Submit answer",
+  "submitRanking": "Submit ranking",
+  "dragToRank": "Drag to rank from most to least important:",
+  "notAtAll": "1 — Not at all",
+  "absolutely": "10 — Absolutely",
+  "completeSentence": "Complete the sentence",
+  "moreCharsNeeded": "{count} more characters needed",
+  "@moreCharsNeeded": { "placeholders": { "count": {"type": "String"} } },
+  "dayNumber": "Day {day}",
+  "@dayNumber": { "placeholders": { "day": {"type": "String"} } },
+  "completeCheck": "Complete ✓",
+  "waiting": "Waiting...",
+  "tapToStart": "Tap to start",
+  "yourTurn": "Your turn",
+
+  "timeCapsule": "Time Capsule",
+  "letterToFutureSelf": "A letter to your future selves",
+  "timeCapsuleInstructions": "Write a letter to your future selves — your hopes for this relationship, a du'a, a dream, or a message you want to read together on Day 21. Your partner will write theirs too. Neither of you can read them until the capsule opens.",
+  "timeCapsuleHint": "Bismillah... dear future us,\n\nBy the time you read this...",
+  "readyToSeal": "Ready to seal",
+  "moreCharsToSeal": "{count} more characters to seal",
+  "@moreCharsToSeal": { "placeholders": { "count": {"type": "String"} } },
+  "sealCapsule": "Seal the Capsule",
+  "timeCapsuleSealed": "Time Capsule — Sealed",
+  "capsuleSealedDesc": "Your letters are safely sealed. They will be revealed together on Day 21.",
+  "opensIn": "Opens in",
+  "day": "day",
+  "days": "days",
+  "hours": "hours",
+  "min": "min",
+  "sec": "sec",
+  "capsuleOpen": "Your Time Capsule is Open!",
+  "readLetters": "Read your letters to each other.",
+  "capsuleIsOpen": "The capsule is open!",
+  "lettersProcessing": "Your letters will appear here once processed.",
+  "openCapsule": "Open the Time Capsule",
+
+  "guardianCallInvite": "Guardian call invite",
+  "incomingCall": "Incoming call",
+  "guardianInviteNote": "You have been invited as guardian to this call.",
+  "guardianChaperon": "Your guardian has been invited to join as chaperone.",
+  "decline": "Decline",
+  "accept": "Accept",
+  "youLabel": "You — {name}",
+  "@youLabel": { "placeholders": { "name": {"type": "String"} } },
+  "chaperonesCall": "Chaperoned call — guardian will be notified",
+  "guardianObserver": "Your guardian will be invited to join as an observer. This is the blessed way — open communication with family.",
+  "audioOnly": "Audio only",
+  "audioOnlyDesc": "No camera — audio call instead",
+  "inviteGuardian": "Invite guardian",
+  "inviteGuardianDesc": "Your wali will receive a call invite",
+  "scheduleLater": "Schedule for later",
+  "scheduleLaterDesc": "Pick a time instead of calling now",
+  "scheduleCall": "Schedule call",
+  "startCallNow": "Start call now",
+  "cancel": "Cancel",
+  "scheduledTime": "Scheduled time",
+
+  "madhabHanafi": "Hanafi",
+  "madhabMaliki": "Maliki",
+  "madhabShafii": "Shafi'i",
+  "madhabHanbali": "Hanbali",
+  "madhabOther": "Other",
+  "prayerAllFive": "All 5 daily prayers",
+  "prayerMost": "Most prayers",
+  "prayerSometimes": "Sometimes",
+  "prayerFridayOnly": "Friday only",
+  "prayerWorkingOn": "Working on it",
+  "hijabWears": "Wears hijab",
+  "hijabOpenTo": "Open to hijab",
+  "hijabFamilyDecides": "Family decides",
+  "hijabPreference": "Preference",
+  "hijabNA": "N/A",
+  "quranHafiz": "Full Hafiz",
+  "quranPartialHafiz": "Partial Hafiz",
+  "quranMemorising": "Currently memorising",
+  "quranTajweed": "Recites with Tajweed",
+  "quranStrong": "Strong recitation",
+  "quranLearning": "Learning",
+  "quranBeginner": "Beginner",
+  "revertLabel": "Revert",
+  "revertYear": "Revert {year}",
+  "@revertYear": { "placeholders": { "year": {"type": "String"} } },
+  "prayer": "Prayer",
+  "quran": "Quran",
+  "journey": "Journey",
+
+  "trustScore": "Trust",
+  "mosqueVerified": "Mosque verified",
+  "scholarEndorsed": "Scholar endorsed",
+  "gamesCompleted": "Games",
+  "verified": "Verified",
+
+  "accountDeletedSuccess": "Account deleted successfully.",
+  "themeLabel": "Theme",
+  "themeDescription": "Rose Garden / Musk Night",
+  "loadingGuardianStatus": "Loading guardian status...",
+  "guardianStatus": "Guardian status",
+  "guardianLabel": "Guardian",
+  "notSetUp": "Not set up",
+  "statusActive": "Active",
+  "statusPending": "Pending",
+  "resendGuardianInvite": "Resend guardian invite",
+
+  "copyMessage": "Copy message",
+  "messageCopied": "Message copied",
+  "reportMessage": "Report message",
+  "moreOptions": "More options",
+  "interestSentTo": "Interest sent to {name}. JazakAllah Khair 🌙",
+  "@interestSentTo": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "interestSentToShort": "Interest sent to {name}",
+  "@interestSentToShort": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "somethingWentWrong": "Something went wrong",
+  "pleaseRestartApp": "Please restart the app.\nWe apologise for the inconvenience.",
+  "guardianPortal": "Guardian Portal",
+  "permissionsLabel": "Permissions",
+  "profileOverview": "Profile overview",
+  "ourJourney": "Our Journey",
+  "writePersonalisedMessage": "Write a personalised message...",
+
+  "profileCompletionAdd": "Add: {fields}",
+  "@profileCompletionAdd": {
+    "placeholders": {
+      "fields": { "type": "String" }
+    }
+  },
+  "revertSinceYear": "Since {year}",
+  "@revertSinceYear": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "revertYes": "Yes",
+  "wantsChildrenCount": "👶 Wants {count} children",
+  "@wantsChildrenCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "wantsChildren": "👶 Wants children",
+  "noChildren": "👶 No children",
+  "selfIndicator": "You — {name}",
+  "@selfIndicator": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

@@ -888,8 +888,412 @@ class SEn extends S {
   String get invitationResent => 'Invitation resent.';
 
   @override
-  String get videoCallsComingSoon => 'Video calls coming soon';
+  String get filters => 'Filters';
 
   @override
-  String get filtersComingSoon => 'Filters coming soon';
+  String get ageRange => 'Age range';
+
+  @override
+  String get anyCountry => 'Any country';
+
+  @override
+  String get anyMadhab => 'Any madhab';
+
+  @override
+  String get anyPrayer => 'Any prayer level';
+
+  @override
+  String get applyFilters => 'Apply filters';
+
+  @override
+  String get resetFilters => 'Reset';
+
+  @override
+  String get filtersActive => 'Filters active';
+
+  @override
+  String get gameDescriptionIntro =>
+      'This game will help you and your match discover each other through meaningful questions. Answer honestly — your wali can see all responses.';
+
+  @override
+  String get notificationOnYourTurn =>
+      'You\'ll receive a notification when it\'s your turn.';
+
+  @override
+  String turnOf(String current, String total) {
+    return 'Turn $current of $total';
+  }
+
+  @override
+  String get bothAnswered => 'Both answered!';
+
+  @override
+  String get answersRevealed => 'Answers revealed!';
+
+  @override
+  String get raceResults => 'Race results!';
+
+  @override
+  String get reveal => 'Reveal!';
+
+  @override
+  String get gameCompleteMashaAllah => 'Masha\'Allah — Game complete!';
+
+  @override
+  String get nextQuestion => 'Next question';
+
+  @override
+  String get yourAnswer => 'Your answer';
+
+  @override
+  String get theirAnswer => 'Their answer';
+
+  @override
+  String get correct => 'Correct: ';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get vs => 'vs';
+
+  @override
+  String get them => 'Them';
+
+  @override
+  String get sameChoiceMashaAllah => 'You both chose the same! Masha\'Allah';
+
+  @override
+  String get differentChoices =>
+      'You chose differently — great conversation starter!';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get submitAnswer => 'Submit answer';
+
+  @override
+  String get submitRanking => 'Submit ranking';
+
+  @override
+  String get dragToRank => 'Drag to rank from most to least important:';
+
+  @override
+  String get notAtAll => '1 — Not at all';
+
+  @override
+  String get absolutely => '10 — Absolutely';
+
+  @override
+  String get completeSentence => 'Complete the sentence';
+
+  @override
+  String moreCharsNeeded(String count) {
+    return '$count more characters needed';
+  }
+
+  @override
+  String dayNumber(String day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get completeCheck => 'Complete ✓';
+
+  @override
+  String get waiting => 'Waiting...';
+
+  @override
+  String get tapToStart => 'Tap to start';
+
+  @override
+  String get yourTurn => 'Your turn';
+
+  @override
+  String get timeCapsule => 'Time Capsule';
+
+  @override
+  String get letterToFutureSelf => 'A letter to your future selves';
+
+  @override
+  String get timeCapsuleInstructions =>
+      'Write a letter to your future selves — your hopes for this relationship, a du\'a, a dream, or a message you want to read together on Day 21. Your partner will write theirs too. Neither of you can read them until the capsule opens.';
+
+  @override
+  String get timeCapsuleHint =>
+      'Bismillah... dear future us,\n\nBy the time you read this...';
+
+  @override
+  String get readyToSeal => 'Ready to seal';
+
+  @override
+  String moreCharsToSeal(String count) {
+    return '$count more characters to seal';
+  }
+
+  @override
+  String get sealCapsule => 'Seal the Capsule';
+
+  @override
+  String get timeCapsuleSealed => 'Time Capsule — Sealed';
+
+  @override
+  String get capsuleSealedDesc =>
+      'Your letters are safely sealed. They will be revealed together on Day 21.';
+
+  @override
+  String get opensIn => 'Opens in';
+
+  @override
+  String get day => 'day';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get min => 'min';
+
+  @override
+  String get sec => 'sec';
+
+  @override
+  String get capsuleOpen => 'Your Time Capsule is Open!';
+
+  @override
+  String get readLetters => 'Read your letters to each other.';
+
+  @override
+  String get capsuleIsOpen => 'The capsule is open!';
+
+  @override
+  String get lettersProcessing =>
+      'Your letters will appear here once processed.';
+
+  @override
+  String get openCapsule => 'Open the Time Capsule';
+
+  @override
+  String get guardianCallInvite => 'Guardian call invite';
+
+  @override
+  String get incomingCall => 'Incoming call';
+
+  @override
+  String get guardianInviteNote =>
+      'You have been invited as guardian to this call.';
+
+  @override
+  String get guardianChaperon =>
+      'Your guardian has been invited to join as chaperone.';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String youLabel(String name) {
+    return 'You — $name';
+  }
+
+  @override
+  String get chaperonesCall => 'Chaperoned call — guardian will be notified';
+
+  @override
+  String get guardianObserver =>
+      'Your guardian will be invited to join as an observer. This is the blessed way — open communication with family.';
+
+  @override
+  String get audioOnly => 'Audio only';
+
+  @override
+  String get audioOnlyDesc => 'No camera — audio call instead';
+
+  @override
+  String get inviteGuardian => 'Invite guardian';
+
+  @override
+  String get inviteGuardianDesc => 'Your wali will receive a call invite';
+
+  @override
+  String get scheduleLater => 'Schedule for later';
+
+  @override
+  String get scheduleLaterDesc => 'Pick a time instead of calling now';
+
+  @override
+  String get scheduleCall => 'Schedule call';
+
+  @override
+  String get startCallNow => 'Start call now';
+
+  @override
+  String get scheduledTime => 'Scheduled time';
+
+  @override
+  String get prayerAllFive => 'All 5 daily prayers';
+
+  @override
+  String get prayerWorkingOn => 'Working on it';
+
+  @override
+  String get quranHafiz => 'Full Hafiz';
+
+  @override
+  String get quranPartialHafiz => 'Partial Hafiz';
+
+  @override
+  String get quranMemorising => 'Currently memorising';
+
+  @override
+  String get quranTajweed => 'Recites with Tajweed';
+
+  @override
+  String get quranStrong => 'Strong recitation';
+
+  @override
+  String get quranLearning => 'Learning';
+
+  @override
+  String get quranBeginner => 'Beginner';
+
+  @override
+  String get revertLabel => 'Revert';
+
+  @override
+  String revertYear(String year) {
+    return 'Revert $year';
+  }
+
+  @override
+  String get quran => 'Quran';
+
+  @override
+  String get journey => 'Journey';
+
+  @override
+  String get trustScore => 'Trust';
+
+  @override
+  String get mosqueVerified => 'Mosque verified';
+
+  @override
+  String get scholarEndorsed => 'Scholar endorsed';
+
+  @override
+  String get gamesCompleted => 'Games';
+
+  @override
+  String get verified => 'Verified';
+
+  @override
+  String get accountDeletedSuccess => 'Account deleted successfully.';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get themeDescription => 'Rose Garden / Musk Night';
+
+  @override
+  String get loadingGuardianStatus => 'Loading guardian status...';
+
+  @override
+  String get guardianStatus => 'Guardian status';
+
+  @override
+  String get guardianLabel => 'Guardian';
+
+  @override
+  String get notSetUp => 'Not set up';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get resendGuardianInvite => 'Resend guardian invite';
+
+  @override
+  String get copyMessage => 'Copy message';
+
+  @override
+  String get messageCopied => 'Message copied';
+
+  @override
+  String get reportMessage => 'Report message';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String interestSentTo(String name) {
+    return 'Interest sent to $name. JazakAllah Khair 🌙';
+  }
+
+  @override
+  String interestSentToShort(String name) {
+    return 'Interest sent to $name';
+  }
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get pleaseRestartApp =>
+      'Please restart the app.\nWe apologise for the inconvenience.';
+
+  @override
+  String get guardianPortal => 'Guardian Portal';
+
+  @override
+  String get permissionsLabel => 'Permissions';
+
+  @override
+  String get profileOverview => 'Profile overview';
+
+  @override
+  String get ourJourney => 'Our Journey';
+
+  @override
+  String get writePersonalisedMessage => 'Write a personalised message...';
+
+  @override
+  String profileCompletionAdd(String fields) {
+    return 'Add: $fields';
+  }
+
+  @override
+  String revertSinceYear(String year) {
+    return 'Since $year';
+  }
+
+  @override
+  String get revertYes => 'Yes';
+
+  @override
+  String wantsChildrenCount(String count) {
+    return '👶 Wants $count children';
+  }
+
+  @override
+  String get wantsChildren => '👶 Wants children';
+
+  @override
+  String get noChildren => '👶 No children';
+
+  @override
+  String selfIndicator(String name) {
+    return 'You — $name';
+  }
 }

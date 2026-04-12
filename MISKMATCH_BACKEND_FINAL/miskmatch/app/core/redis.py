@@ -110,6 +110,36 @@ async def check_rate_limit(key: str, max_requests: int, window_seconds: int) -> 
 _CACHE_PREFIX = "miskmatch:cache:"
 
 
+# ─────────────────────────────────────────────
+# OTP Storage (server-side)
+# ─────────────────────────────────────────────
+_OTP_PREFIX = "miskmatch:otp:"
+
+
+async def store_otp(phone: str, otp: str, ttl_seconds: int = 600) -> None:
+    """Store OTP server-side keyed by phone. Expires in 10 minutes."""
+    r = await get_redis()
+    await r.setex(f"{_OTP_PREFIX}{phone}", ttl_seconds, otp)
+
+
+async def get_stored_otp(phone: str) -> Optional[str]:
+    """Retrieve stored OTP for a phone number. Returns None if expired/missing."""
+    r = await get_redis()
+    return await r.get(f"{_OTP_PREFIX}{phone}")
+
+
+async def delete_otp(phone: str) -> None:
+    """Delete OTP after successful verification (one-time use)."""
+    r = await get_redis()
+    await r.delete(f"{_OTP_PREFIX}{phone}")
+
+
+# ─────────────────────────────────────────────
+# Caching Layer
+# ─────────────────────────────────────────────
+_CACHE_PREFIX = "miskmatch:cache:"
+
+
 async def cache_get(key: str) -> Optional[str]:
     """Get a cached value by key. Returns None on miss or Redis failure."""
     try:

@@ -8,6 +8,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/extensions/app_extensions.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 
 /// Bottom sheet — start or schedule a chaperoned call.
@@ -160,7 +161,7 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Chaperoned call — guardian will be notified',
+                      S.of(context)!.chaperonesCall,
                       style: AppTypography.bodySmall.copyWith(
                         color: context.mutedText),
                     ),
@@ -187,8 +188,7 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Your guardian will be invited to join as an observer. '
-                      'This is the blessed way — open communication with family.',
+                      S.of(context)!.guardianObserver,
                       style: AppTypography.bodySmall.copyWith(
                         color:  AppColors.goldDark,
                         height: 1.5,
@@ -204,22 +204,22 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
             // ── Toggle rows with rose switches ────────
             _ToggleTile(
               icon:     Icons.volume_up_rounded,
-              label:    'Audio only',
-              subtitle: 'No camera — audio call instead',
+              label:    S.of(context)!.audioOnly,
+              subtitle: S.of(context)!.audioOnlyDesc,
               value:    _audioOnly,
               onChange: (v) => setState(() => _audioOnly = v),
             ),
             _ToggleTile(
               icon:     Icons.shield_rounded,
-              label:    'Invite guardian',
-              subtitle: 'Your wali will receive a call invite',
+              label:    S.of(context)!.inviteGuardian,
+              subtitle: S.of(context)!.inviteGuardianDesc,
               value:    _inviteWali,
               onChange: (v) => setState(() => _inviteWali = v),
             ),
             _ToggleTile(
               icon:     Icons.schedule_rounded,
-              label:    'Schedule for later',
-              subtitle: 'Pick a time instead of calling now',
+              label:    S.of(context)!.scheduleLater,
+              subtitle: S.of(context)!.scheduleLaterDesc,
               value:    _scheduleForLater,
               onChange: (v) => setState(() => _scheduleForLater = v),
             ),
@@ -249,8 +249,8 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
             // ── CTA button ────────────────────────────
             MiskButton(
               label:     _scheduleForLater
-                  ? 'Schedule call'
-                  : 'Start call now',
+                  ? S.of(context)!.scheduleCall
+                  : S.of(context)!.startCallNow,
               onPressed: _isLoading ? null : _startCall,
               loading:   _isLoading,
               icon:      _scheduleForLater
@@ -264,7 +264,7 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
 
             // ── Cancel — ghost button ─────────────────
             MiskButton(
-              label:     'Cancel',
+              label:     S.of(context)!.cancel,
               onPressed: () => Navigator.pop(context),
               variant:   MiskButtonVariant.ghost,
             ),

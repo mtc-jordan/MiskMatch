@@ -144,6 +144,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthUnauthenticated();
   }
 
+  // ── Update niyyah ──────────────────────────────────────────────────────────
+  Future<void> updateNiyyah(String niyyah) async {
+    await _repo.updateNiyyah(niyyah);
+  }
+
   // ── Complete onboarding ────────────────────────────────────────────────────
   void completeOnboarding() {
     final current = state;

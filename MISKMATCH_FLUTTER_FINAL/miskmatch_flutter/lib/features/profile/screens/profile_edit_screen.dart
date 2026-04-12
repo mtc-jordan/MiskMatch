@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:record/record.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +53,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   String?   _financeStance;
   String?   _wifeWorking;
   String?   _educationLevel;
+  String?   _voicePath;
   bool      _isSaving = false;
 
   List<String> _stepTitles(BuildContext context) {
@@ -160,6 +165,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final success = existing == null
         ? await ref.read(profileProvider.notifier).createProfile(profile)
         : await ref.read(profileProvider.notifier).updateProfile(profile);
+
+    // Upload voice intro if recorded
+    if (success && _voicePath != null) {
+      await ref.read(profileProvider.notifier).uploadVoiceIntro(File(_voicePath!));
+    }
 
     setState(() => _isSaving = false);
 
@@ -279,7 +289,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                   occCtrl:        _occCtrl,
                   onEducation:    (v) => setState(() => _educationLevel = v),
                 ),
-                _StepBio(bioCtrl: _bioCtrl),
+                _StepBio(
+                  bioCtrl: _bioCtrl,
+                  onVoiceRecorded: (path) => _voicePath = path,
+                ),
               ],
             ),
           ),
@@ -671,8 +684,9 @@ class _StepCareer extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════
 
 class _StepBio extends StatefulWidget {
-  const _StepBio({required this.bioCtrl});
+  const _StepBio({required this.bioCtrl, this.onVoiceRecorded});
   final TextEditingController bioCtrl;
+  final void Function(String path)? onVoiceRecorded;
 
   @override
   State<_StepBio> createState() => _StepBioState();
@@ -699,7 +713,7 @@ class _StepBioState extends State<_StepBio> {
       ),
 
       // ── Voice intro section ─────────────────────────────────
-      _VoiceRecordSection(),
+      _VoiceRecordSection(onRecorded: widget.onVoiceRecorded),
 
       const SizedBox(height: 24),
 
@@ -803,30 +817,75 @@ class _StepScroll extends StatelessWidget {
 
 // ─────────────────────────────────────────────
 // VOICE RECORD SECTION — idle / recording / recorded states
+// Uses `record` package for audio capture, `audioplayers` for playback
 // ─────────────────────────────────────────────
 
-enum _VoiceState { idle, recording, recorded }
+enum _VoiceState { idle, recording, recorded, playing }
 
 class _VoiceRecordSection extends StatefulWidget {
+  const _VoiceRecordSection({this.onRecorded});
+  final void Function(String path)? onRecorded;
+
   @override
   State<_VoiceRecordSection> createState() => _VoiceRecordSectionState();
 }
 
 class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
+  final _recorder = AudioRecorder();
+  final _player = AudioPlayer();
   _VoiceState _state = _VoiceState.idle;
   int _elapsed = 0;
+  String? _recordedPath;
 
-  void _toggleRecording() {
+  @override
+  void dispose() {
+    _recorder.dispose();
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _startRecording() async {
+    // Check and request microphone permission
+    if (!await _recorder.hasPermission()) return;
+
+    final dir = await getTemporaryDirectory();
+    final path = '${dir.path}/voice_intro_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    await _recorder.start(
+      const RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        sampleRate: 44100,
+      ),
+      path: path,
+    );
+
     HapticFeedback.mediumImpact();
     setState(() {
-      if (_state == _VoiceState.idle) {
-        _state = _VoiceState.recording;
-        _elapsed = 0;
-        _startTimer();
-      } else if (_state == _VoiceState.recording) {
-        _state = _VoiceState.recorded;
-      }
+      _state = _VoiceState.recording;
+      _elapsed = 0;
     });
+    _startTimer();
+  }
+
+  Future<void> _stopRecording() async {
+    final path = await _recorder.stop();
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _state = _VoiceState.recorded;
+      _recordedPath = path;
+    });
+    if (path != null) {
+      widget.onRecorded?.call(path);
+    }
+  }
+
+  void _toggleRecording() {
+    if (_state == _VoiceState.idle) {
+      _startRecording();
+    } else if (_state == _VoiceState.recording) {
+      _stopRecording();
+    }
   }
 
   void _startTimer() {
@@ -835,18 +894,37 @@ class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
       if (!mounted || _state != _VoiceState.recording) return false;
       setState(() => _elapsed++);
       if (_elapsed >= 60) {
-        setState(() => _state = _VoiceState.recorded);
+        _stopRecording();
         return false;
       }
       return true;
     });
   }
 
+  Future<void> _playRecording() async {
+    if (_recordedPath == null) return;
+    setState(() => _state = _VoiceState.playing);
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _state = _VoiceState.recorded);
+    });
+    await _player.play(DeviceFileSource(_recordedPath!));
+  }
+
+  Future<void> _stopPlayback() async {
+    await _player.stop();
+    setState(() => _state = _VoiceState.recorded);
+  }
+
   void _deleteRecording() {
     HapticFeedback.lightImpact();
+    _player.stop();
+    if (_recordedPath != null) {
+      File(_recordedPath!).deleteSync(recursive: false);
+    }
     setState(() {
       _state = _VoiceState.idle;
       _elapsed = 0;
+      _recordedPath = null;
     });
   }
 
@@ -872,13 +950,16 @@ class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
       child: Column(
         children: [
           Icon(
-            _state == _VoiceState.recorded ? Icons.check_circle_rounded : Icons.mic_rounded,
+            (_state == _VoiceState.recorded || _state == _VoiceState.playing)
+                ? Icons.check_circle_rounded : Icons.mic_rounded,
             size: 36,
-            color: _state == _VoiceState.recorded ? AppColors.success : AppColors.roseDeep,
+            color: (_state == _VoiceState.recorded || _state == _VoiceState.playing)
+                ? AppColors.success : AppColors.roseDeep,
           ),
           const SizedBox(height: 12),
           Text(
-            _state == _VoiceState.recorded ? l.voiceRecorded : l.recordVoiceIntro,
+            (_state == _VoiceState.recorded || _state == _VoiceState.playing)
+                ? l.voiceRecorded : l.recordVoiceIntro,
             textAlign: TextAlign.center,
             style: AppTypography.titleSmall.copyWith(
               color: context.onSurface,
@@ -901,7 +982,7 @@ class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
             ),
           const SizedBox(height: 20),
           // Record / Stop button
-          if (_state != _VoiceState.recorded)
+          if (_state == _VoiceState.idle || _state == _VoiceState.recording)
             GestureDetector(
               onTap: _toggleRecording,
               child: AnimatedContainer(
@@ -927,7 +1008,7 @@ class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
                 ),
               ),
             ),
-          if (_state != _VoiceState.recorded)
+          if (_state == _VoiceState.idle || _state == _VoiceState.recording)
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Text(
@@ -935,15 +1016,17 @@ class _VoiceRecordSectionState extends State<_VoiceRecordSection> {
                 style: AppTypography.bodySmall.copyWith(color: context.mutedText),
               ),
             ),
-          // Recorded — play & delete row
-          if (_state == _VoiceState.recorded)
+          // Recorded/Playing — play & delete row
+          if (_state == _VoiceState.recorded || _state == _VoiceState.playing)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton.icon(
-                  onPressed: () { /* TODO: playback */ },
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(l.playRecording),
+                  onPressed: _state == _VoiceState.playing ? _stopPlayback : _playRecording,
+                  icon: Icon(_state == _VoiceState.playing
+                      ? Icons.stop_rounded
+                      : Icons.play_arrow_rounded),
+                  label: Text(_state == _VoiceState.playing ? l.tapToStop : l.playRecording),
                 ),
                 const SizedBox(width: 16),
                 TextButton.icon(

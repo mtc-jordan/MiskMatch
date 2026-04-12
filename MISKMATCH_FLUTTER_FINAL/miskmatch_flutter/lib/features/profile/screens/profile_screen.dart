@@ -403,7 +403,8 @@ class _ProfileStrengthBar extends StatelessWidget {
               if (c.missingFields.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Text(
-                  'Add: ${c.missingFields.take(3).join(', ')}',
+                  S.of(context)!.profileCompletionAdd(
+                      c.missingFields.take(3).join(', ')),
                   style: AppTypography.caption.copyWith(
                     color:    context.mutedText,
                     fontSize: 9,
@@ -478,8 +479,8 @@ class _IslamicPracticeGrid extends StatelessWidget {
     }
     if (profile.isRevert) {
       items.add((l.revert, '🌙', profile.revertYear != null
-          ? 'Since ${profile.revertYear}'
-          : 'Yes'));
+          ? l.revertSinceYear(profile.revertYear.toString())
+          : l.revertYes));
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
@@ -559,11 +560,14 @@ class _LifeGoalsChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final goals = <String>[];
     if (profile.wantsChildren == true) {
-      goals.add('👶 Wants ${profile.numChildrenDesired ?? ''} children'.trim());
+      goals.add(profile.numChildrenDesired != null
+          ? l.wantsChildrenCount(profile.numChildrenDesired.toString())
+          : l.wantsChildren);
     } else if (profile.wantsChildren == false) {
-      goals.add('👶 No children');
+      goals.add(l.noChildren);
     }
     if (profile.hajjTimeline != null) {
       final hajjLabels = {
@@ -681,9 +685,92 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Show if profile has any stats data
-    // Placeholder — will populate when game history is available
-    return const SizedBox.shrink();
+    final l = S.of(context)!;
+    final hasBadges = profile.mosqueVerified || profile.scholarEndorsed || profile.idVerified;
+    if (profile.trustScore <= 0 && !hasBadges) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.cardSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.subtleText.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          // Trust score
+          if (profile.trustScore > 0) ...[
+            _StatItem(
+              icon: Icons.verified_user_rounded,
+              iconColor: AppColors.roseDeep,
+              label: l.trustScore,
+              value: '${profile.trustScore}',
+            ),
+          ],
+          // Verification badges
+          if (profile.mosqueVerified) ...[
+            if (profile.trustScore > 0) const SizedBox(width: 20),
+            _StatItem(
+              icon: Icons.mosque_rounded,
+              iconColor: AppColors.success,
+              label: l.mosqueVerified,
+              value: l.verified,
+            ),
+          ],
+          if (profile.scholarEndorsed) ...[
+            if (profile.trustScore > 0 || profile.mosqueVerified)
+              const SizedBox(width: 20),
+            _StatItem(
+              icon: Icons.auto_stories_rounded,
+              iconColor: AppColors.goldPrimary,
+              label: l.scholarEndorsed,
+              value: l.verified,
+            ),
+          ],
+        ],
+      ),
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.03, end: 0, duration: 400.ms);
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppTypography.labelMedium.copyWith(
+              color: context.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: context.subtleText,
+              fontSize: 10,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 }
 

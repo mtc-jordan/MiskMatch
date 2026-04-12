@@ -152,9 +152,12 @@ async def setup_wali(
         existing.invitation_accepted = False
         await db.flush()
 
-    # Check if wali phone matches an existing platform user
+    # Check if wali phone matches an existing active platform user
     wali_user_result = await db.execute(
-        select(User).where(User.phone == data.wali_phone)
+        select(User).where(
+            User.phone == data.wali_phone,
+            User.deleted_at.is_(None),
+        )
     )
     wali_user = wali_user_result.scalar_one_or_none()
 

@@ -1,6 +1,8 @@
 /// MiskMatch — Profile Domain Models
 /// Maps 1:1 with the FastAPI /profiles endpoints.
 
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
+
 // ─────────────────────────────────────────────
 // ENUMS  (mirror backend enum values)
 // ─────────────────────────────────────────────
@@ -25,6 +27,13 @@ extension MadhabX on Madhab {
     Madhab.hanbali => 'Hanbali',
     Madhab.other   => 'Other',
   };
+  String localizedLabel(S l) => switch (this) {
+    Madhab.hanafi  => l.madhabHanafi,
+    Madhab.maliki  => l.madhabMaliki,
+    Madhab.shafii  => l.madhabShafii,
+    Madhab.hanbali => l.madhabHanbali,
+    Madhab.other   => l.madhabOther,
+  };
   static Madhab? fromValue(String? v) =>
       Madhab.values.where((e) => e.value == v).firstOrNull;
 }
@@ -43,6 +52,13 @@ extension PrayerFrequencyX on PrayerFrequency {
     PrayerFrequency.sometimes  => 'Sometimes',
     PrayerFrequency.fridayOnly => 'Friday only',
     PrayerFrequency.workingOn  => 'Working on it',
+  };
+  String localizedLabel(S l) => switch (this) {
+    PrayerFrequency.allFive    => l.prayerAllFive,
+    PrayerFrequency.most       => l.prayerMost,
+    PrayerFrequency.sometimes  => l.prayerSometimes,
+    PrayerFrequency.fridayOnly => l.prayerFridayOnly,
+    PrayerFrequency.workingOn  => l.prayerWorkingOn,
   };
   String get emoji => switch (this) {
     PrayerFrequency.allFive    => '🕌',
@@ -70,9 +86,28 @@ extension HijabStanceX on HijabStance {
     HijabStance.preference    => 'Preference',
     HijabStance.na            => 'N/A',
   };
+  String localizedLabel(S l) => switch (this) {
+    HijabStance.wears         => l.hijabWears,
+    HijabStance.openTo        => l.hijabOpenTo,
+    HijabStance.familyDecides => l.hijabFamilyDecides,
+    HijabStance.preference    => l.hijabPreference,
+    HijabStance.na            => l.hijabNA,
+  };
   static HijabStance? fromValue(String? v) =>
       HijabStance.values.where((e) => e.value == v).firstOrNull;
 }
+
+/// Localized Quran level label (quranLevel is stored as raw String)
+String localizedQuranLevel(S l, String value) => switch (value) {
+  'hafiz'           => l.quranHafiz,
+  'hafiz_partial'   => l.quranPartialHafiz,
+  'memorising'      => l.quranMemorising,
+  'recites_tajweed' => l.quranTajweed,
+  'strong'          => l.quranStrong,
+  'learning'        => l.quranLearning,
+  'beginner'        => l.quranBeginner,
+  _                 => value,
+};
 
 // ─────────────────────────────────────────────
 // PROFILE MODEL

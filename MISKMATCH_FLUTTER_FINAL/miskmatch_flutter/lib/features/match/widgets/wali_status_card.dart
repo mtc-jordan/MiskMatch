@@ -5,6 +5,7 @@ import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 // ═══════════════════════════════════════════════════════════
 // WALI STATUS CARD
@@ -196,7 +197,7 @@ class MatchTimelineCard extends StatelessWidget {
           Row(children: [
             const Text('📜', style: TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
-            Text('Our Journey',
+            Text(S.of(context)!.ourJourney,
               style: TextStyle(
                 fontFamily:  'Georgia',
                 fontSize:    16,

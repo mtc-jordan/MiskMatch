@@ -242,9 +242,7 @@ class _NotStarted extends StatelessWidget {
           const SizedBox(height: 12),
 
           Text(
-            'This game will help you and your match discover '
-            'each other through meaningful questions. Answer '
-            'honestly — your wali can see all responses.',
+            S.of(context)!.gameDescriptionIntro,
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
               color:  context.mutedText,
@@ -307,7 +305,7 @@ class _WaitingTurnBody extends StatelessWidget {
 
           Text(
             '${S.of(context)!.matchNotified} '
-            "You'll receive a notification when it's your turn.",
+            '${S.of(context)!.notificationOnYourTurn}',
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(
               color:  context.mutedText,
@@ -334,7 +332,7 @@ class _WaitingTurnBody extends StatelessWidget {
                   color: AppColors.roseDeep, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  'Turn ${gameState.turnNumber} of ${gameState.totalTurns}',
+                  S.of(context)!.turnOf('${gameState.turnNumber}', '${gameState.totalTurns}'),
                   style: AppTypography.labelMedium.copyWith(
                     color:      AppColors.roseDeep,
                     fontWeight: FontWeight.w600,

@@ -73,8 +73,13 @@ class LoginRequest(BaseModel):
 
 
 class OTPVerifyRequest(BaseModel):
-    otp_token: str
+    phone: str
     otp: str
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: str) -> str:
+        return _validate_phone_e164(v)
 
 
 class RefreshTokenRequest(BaseModel):

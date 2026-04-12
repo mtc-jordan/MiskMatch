@@ -9,6 +9,7 @@ import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
 import 'package:miskmatch/shared/widgets/common_widgets.dart';
 import 'voice_player.dart';
+import 'package:miskmatch/l10n/generated/app_localizations.dart';
 
 /// Trendy Hinge-style discovery card.
 /// Full-bleed hero photo, frosted-glass name overlay,
@@ -465,33 +466,25 @@ class _IslamicPracticeGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = <(String, String, String)>[]; // emoji, label, value
 
+    final l = S.of(context)!;
     if (profile.prayerFrequency != null) {
       items.add((
         profile.prayerFrequency!.emoji,
-        'Prayer',
-        profile.prayerFrequency!.label,
+        l.prayer,
+        profile.prayerFrequency!.localizedLabel(l),
       ));
     }
     if (profile.madhab != null) {
-      items.add(('📚', 'Madhab', profile.madhab!.label));
+      items.add(('📚', l.madhab, profile.madhab!.localizedLabel(l)));
     }
     if (profile.quranLevel != null && profile.quranLevel!.isNotEmpty) {
-      final quranLabels = {
-        'hafiz':           'Hafiz',
-        'hafiz_partial':   'Partial Hafiz',
-        'memorising':      'Memorising',
-        'recites_tajweed': 'Tajweed',
-        'strong':          'Strong',
-        'learning':        'Learning',
-        'beginner':        'Beginner',
-      };
-      items.add(('📖', 'Quran',
-          quranLabels[profile.quranLevel] ?? profile.quranLevel!));
+      items.add(('📖', l.quran,
+          localizedQuranLevel(l, profile.quranLevel!)));
     }
     if (profile.isRevert) {
-      items.add(('🌙', 'Journey', profile.revertYear != null
-          ? 'Revert ${profile.revertYear}'
-          : 'Revert'));
+      items.add(('🌙', l.journey, profile.revertYear != null
+          ? l.revertYear('${profile.revertYear}')
+          : l.revertLabel));
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
@@ -573,12 +566,13 @@ class _LifeGoalsPills extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final chips = <String>[];
 
     if (profile.wantsChildren == true) {
       chips.add(profile.numChildrenDesired != null
-          ? '👶 Wants ${profile.numChildrenDesired}'
-          : '👶 Wants children');
+          ? l.wantsChildrenCount(profile.numChildrenDesired.toString())
+          : l.wantsChildren);
     }
 
     if (profile.hajjTimeline != null) {
@@ -669,7 +663,7 @@ class _BioSection extends StatelessWidget {
                 style: TextStyle(fontSize: 13,
                   color: context.mutedText)),
               const SizedBox(width: 6),
-              Text('About',
+              Text(S.of(context)!.about,
                 style: AppTypography.labelSmall.copyWith(
                   color:         context.mutedText,
                   fontSize:      10,
