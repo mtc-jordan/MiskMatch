@@ -136,6 +136,24 @@ class ProfileRepository {
     }
   }
 
+  // ── Submit Sifr assessment ────────────────────────────────────────────────
+  Future<ApiResult<Map<String, dynamic>>> submitSifr(
+    Map<String, int> answers,
+  ) async {
+    try {
+      final res = await _dio.post(
+        ApiEndpoints.profileSifr,
+        data: {'answers': answers},
+      );
+      if (res.statusCode == 200) {
+        return ApiSuccess(res.data as Map<String, dynamic>);
+      }
+      return ApiError(AppError.fromResponse(res.statusCode, res.data));
+    } on DioException catch (e) {
+      return ApiError(AppError.fromDio(e));
+    }
+  }
+
   // ── Trigger AI re-embedding ───────────────────────────────────────────────
   Future<void> triggerReembed() async {
     try {

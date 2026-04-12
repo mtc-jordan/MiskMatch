@@ -107,10 +107,84 @@ class _ProfileContent extends StatelessWidget {
         if (profile.hasVoiceIntro) _VoiceIntroCard(profile: profile),
         _IslamicPracticeGrid(profile: profile),
         _LifeGoalsChips(profile: profile),
+        _SifrCtaCard(profile: profile),
         _BioSection(profile: profile),
         _StatsRow(profile: profile),
         const SizedBox(height: AppSpacing.bottomNavHeight + 24),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// SIFR CTA CARD — take or retake the Sifr assessment
+// ─────────────────────────────────────────────
+
+class _SifrCtaCard extends StatelessWidget {
+  const _SifrCtaCard({required this.profile});
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasScores = (profile.sifrScores ?? const {}).isNotEmpty;
+    final l = S.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: GestureDetector(
+        onTap: () => context.push(AppRoutes.profileSifr),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.roseDeep.withOpacity(0.08),
+                AppColors.goldPrimary.withOpacity(0.06),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.roseDeep.withOpacity(0.25)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width:  44, height: 44,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.roseGradient,
+                  shape:    BoxShape.circle,
+                ),
+                child: const Icon(Icons.auto_awesome_rounded,
+                    color: AppColors.white, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasScores ? l.sifrRetake : l.sifrTakeIt,
+                      style: AppTypography.titleSmall.copyWith(
+                        color: AppColors.roseDeep,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l.sifrIntroBody,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: context.mutedText),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded,
+                  color: AppColors.roseDeep),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

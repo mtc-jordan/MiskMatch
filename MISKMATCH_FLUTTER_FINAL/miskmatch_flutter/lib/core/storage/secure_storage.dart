@@ -35,6 +35,13 @@ class SecureStorage {
   Future<String?> getGender() =>
       _storage.read(key: AppConfig.genderKey);
 
+  // ── Locale preference ─────────────────────────────────────────────────────
+  Future<void> saveLocale(String localeTag) =>
+      _storage.write(key: AppConfig.localeKey, value: localeTag);
+
+  Future<String?> getLocale() =>
+      _storage.read(key: AppConfig.localeKey);
+
   // ── Token pair ────────────────────────────────────────────────────────────
   Future<void> saveTokens({
     required String accessToken,

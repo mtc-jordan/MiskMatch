@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../data/call_models.dart';
 import '../providers/call_provider.dart';
-import '../screens/in_call_screen.dart';
+import 'package:miskmatch/core/router/app_router.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
@@ -84,14 +85,14 @@ class _CallScheduleSheetState extends ConsumerState<_CallScheduleSheet> {
       Navigator.of(context).pop(); // close sheet
 
       if (!_scheduleForLater) {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => InCallScreen(
-            callType:  _callType,
-            myName:    widget.myName,
-            otherName: widget.otherName,
-            matchId:   widget.matchId,
-          ),
-        ));
+        context.push(
+          AppRoutes.callActivePath(widget.matchId),
+          extra: <String, dynamic>{
+            'callType':  _callType,
+            'myName':    widget.myName,
+            'otherName': widget.otherName,
+          },
+        );
       } else {
         context.showSuccessSnack(
           'Call scheduled for ${_scheduledAt.shortDate} '

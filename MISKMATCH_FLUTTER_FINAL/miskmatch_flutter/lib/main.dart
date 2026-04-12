@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/api/api_client.dart';
+import 'core/providers/locale_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/notifications/notification_service.dart';
@@ -70,6 +71,7 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeProvider);
     return MaterialApp.router(
       title:                      'MiskMatch',
       debugShowCheckedModeBanner: false,
@@ -78,7 +80,7 @@ class _MiskMatchAppState extends ConsumerState<MiskMatchApp>
       darkTheme:                  AppTheme.muskNightTheme,
       themeMode:                  ThemeMode.system,
       scrollBehavior:             const _MiskScrollBehavior(),
-      locale:                     const Locale('en', 'US'),
+      locale:                     locale, // null = follow system
       builder: (context, child) => child!,
       localizationsDelegates: S.localizationsDelegates,
       supportedLocales: const [

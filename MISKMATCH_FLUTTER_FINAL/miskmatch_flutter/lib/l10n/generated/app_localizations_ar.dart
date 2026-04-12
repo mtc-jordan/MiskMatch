@@ -1285,4 +1285,118 @@ class SAr extends S {
   String selfIndicator(String name) {
     return 'أنت — $name';
   }
+
+  @override
+  String get sifrAssessmentTitle => 'تقييم الصِّفر';
+
+  @override
+  String get sifrIntroHeadline => 'اعرف نفسك — قبل أن تعرفها.';
+
+  @override
+  String get sifrIntroBody =>
+      'يقيس تقييم الصِّفر خمس فضائل إسلامية: الكرم، والصبر، والصدق، والالتزام الأسري، وروح المجتمع. إجاباتك تحسّن مطابقة التوافق إن شاء الله.';
+
+  @override
+  String get sifrBegin => 'ابدأ التقييم';
+
+  @override
+  String sifrQuestionProgress(int current, int total) {
+    return 'السؤال $current من $total';
+  }
+
+  @override
+  String get sifrScaleStronglyDisagree => 'أعارض بشدة';
+
+  @override
+  String get sifrScaleDisagree => 'أعارض';
+
+  @override
+  String get sifrScaleNeutral => 'محايد';
+
+  @override
+  String get sifrScaleAgree => 'أوافق';
+
+  @override
+  String get sifrScaleStronglyAgree => 'أوافق بشدة';
+
+  @override
+  String get sifrBack => 'رجوع';
+
+  @override
+  String get sifrNext => 'التالي';
+
+  @override
+  String get sifrSubmit => 'إرسال التقييم';
+
+  @override
+  String get sifrSaved => 'تم حفظ التقييم. بارك الله فيك!';
+
+  @override
+  String get sifrSaveFailed => 'تعذر حفظ التقييم. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get sifrRetake => 'إعادة تقييم الصِّفر';
+
+  @override
+  String get sifrTakeIt => 'ابدأ تقييم الصِّفر';
+
+  @override
+  String get sifrQ1 => 'أعطي بانتظام مما أملك — للأهل والأصدقاء والمحتاجين.';
+
+  @override
+  String get sifrQ2 => 'عندما أُبتلى، أبقى هادئاً واثقاً بتدبير الله.';
+
+  @override
+  String get sifrQ3 => 'أقول الحق حتى عندما يكون الأمر صعباً.';
+
+  @override
+  String get sifrQ4 => 'بناء أسرة قوية ومحبة من أهم أولوياتي.';
+
+  @override
+  String get sifrQ5 => 'أشارك بنشاط في مجتمعي المسلم.';
+
+  @override
+  String get sifrQ6 => 'أستمتع باستضافة الضيوف ومشاركة الطعام مع الآخرين.';
+
+  @override
+  String get sifrQ7 => 'الناس الصعبون يعلمونني الصبر بدلاً من الغضب.';
+
+  @override
+  String get sifrQ8 => 'أحفظ وعودي حتى عندما لا يراقبني أحد.';
+
+  @override
+  String get sifrQ9 => 'أخصص وقتاً لوالديّ وإخوتي بانتظام.';
+
+  @override
+  String get sifrQ10 => 'أتطوع بوقتي أو مهاراتي لمساعدة الآخرين.';
+
+  @override
+  String get sifrQ11 => 'المال أمانة من الله — أشاركه بسهولة.';
+
+  @override
+  String get sifrQ12 => 'نادراً ما أفقد أعصابي حتى تحت الضغط.';
+
+  @override
+  String get sifrQ13 => 'الصدق يوجه معاملاتي التجارية والشخصية.';
+
+  @override
+  String get sifrQ14 => 'أحلم بتربية ذرية صالحة إن شاء الله.';
+
+  @override
+  String get sifrQ15 => 'دعم الأمة يعني لي الكثير.';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get languageDescription => 'اختر لغة التطبيق';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageSystem => 'حسب النظام';
 }

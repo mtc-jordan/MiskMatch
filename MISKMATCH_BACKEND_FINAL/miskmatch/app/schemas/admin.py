@@ -172,6 +172,30 @@ class ReportDetailResponse(BaseModel):
     reported: ReportDetailUser
 
 
+class CreateReportRequest(BaseModel):
+    """User-facing request to file a report against another user."""
+    reported_id: UUID = Field(
+        description="UUID of the user being reported",
+    )
+    reason: str = Field(
+        min_length=2,
+        max_length=100,
+        description=(
+            "Short reason code, e.g. 'inappropriate', 'harassment', "
+            "'fake_profile', 'spam', 'other'"
+        ),
+    )
+    description: Optional[str] = Field(
+        default=None,
+        max_length=2000,
+        description="Free-text details (optional)",
+    )
+    is_block: bool = Field(
+        default=False,
+        description="If true, also blocks the reported user.",
+    )
+
+
 class ResolveReportRequest(BaseModel):
     action: str = Field(
         description="One of: warn, ban, dismiss"

@@ -2520,6 +2520,228 @@ abstract class S {
   /// In en, this message translates to:
   /// **'You — {name}'**
   String selfIndicator(String name);
+
+  /// No description provided for @sifrAssessmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sifr Assessment'**
+  String get sifrAssessmentTitle;
+
+  /// No description provided for @sifrIntroHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Know yourself — before she knows you.'**
+  String get sifrIntroHeadline;
+
+  /// No description provided for @sifrIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Sifr assessment measures five Islamic virtues: generosity, patience, honesty, family orientation and community spirit. Your answers refine your compatibility matching — in shāʾ Allāh.'**
+  String get sifrIntroBody;
+
+  /// No description provided for @sifrBegin.
+  ///
+  /// In en, this message translates to:
+  /// **'Begin assessment'**
+  String get sifrBegin;
+
+  /// No description provided for @sifrQuestionProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String sifrQuestionProgress(int current, int total);
+
+  /// No description provided for @sifrScaleStronglyDisagree.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongly disagree'**
+  String get sifrScaleStronglyDisagree;
+
+  /// No description provided for @sifrScaleDisagree.
+  ///
+  /// In en, this message translates to:
+  /// **'Disagree'**
+  String get sifrScaleDisagree;
+
+  /// No description provided for @sifrScaleNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get sifrScaleNeutral;
+
+  /// No description provided for @sifrScaleAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get sifrScaleAgree;
+
+  /// No description provided for @sifrScaleStronglyAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongly agree'**
+  String get sifrScaleStronglyAgree;
+
+  /// No description provided for @sifrBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get sifrBack;
+
+  /// No description provided for @sifrNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get sifrNext;
+
+  /// No description provided for @sifrSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit assessment'**
+  String get sifrSubmit;
+
+  /// No description provided for @sifrSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Assessment saved. Barak Allāhu feek!'**
+  String get sifrSaved;
+
+  /// No description provided for @sifrSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your assessment. Please try again.'**
+  String get sifrSaveFailed;
+
+  /// No description provided for @sifrRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake Sifr assessment'**
+  String get sifrRetake;
+
+  /// No description provided for @sifrTakeIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the Sifr assessment'**
+  String get sifrTakeIt;
+
+  /// No description provided for @sifrQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'I regularly give from what I have — to family, friends and those in need.'**
+  String get sifrQ1;
+
+  /// No description provided for @sifrQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'When I\'m tested, I remain calm and trust Allah\'s plan.'**
+  String get sifrQ2;
+
+  /// No description provided for @sifrQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'I speak the truth even when it\'s uncomfortable.'**
+  String get sifrQ3;
+
+  /// No description provided for @sifrQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'Building a strong, loving family is one of my top priorities.'**
+  String get sifrQ4;
+
+  /// No description provided for @sifrQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'I actively participate in my Muslim community.'**
+  String get sifrQ5;
+
+  /// No description provided for @sifrQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'I enjoy hosting guests and sharing meals with others.'**
+  String get sifrQ6;
+
+  /// No description provided for @sifrQ7.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficult people teach me patience rather than anger.'**
+  String get sifrQ7;
+
+  /// No description provided for @sifrQ8.
+  ///
+  /// In en, this message translates to:
+  /// **'I keep my promises, even when no one is watching.'**
+  String get sifrQ8;
+
+  /// No description provided for @sifrQ9.
+  ///
+  /// In en, this message translates to:
+  /// **'I make time for my parents and siblings regularly.'**
+  String get sifrQ9;
+
+  /// No description provided for @sifrQ10.
+  ///
+  /// In en, this message translates to:
+  /// **'I volunteer my time or skills to help others.'**
+  String get sifrQ10;
+
+  /// No description provided for @sifrQ11.
+  ///
+  /// In en, this message translates to:
+  /// **'Wealth is a trust from Allah — I share it easily.'**
+  String get sifrQ11;
+
+  /// No description provided for @sifrQ12.
+  ///
+  /// In en, this message translates to:
+  /// **'I rarely lose my temper, even under pressure.'**
+  String get sifrQ12;
+
+  /// No description provided for @sifrQ13.
+  ///
+  /// In en, this message translates to:
+  /// **'Honesty guides my business and personal dealings.'**
+  String get sifrQ13;
+
+  /// No description provided for @sifrQ14.
+  ///
+  /// In en, this message translates to:
+  /// **'I dream of raising righteous children insha\'Allah.'**
+  String get sifrQ14;
+
+  /// No description provided for @sifrQ15.
+  ///
+  /// In en, this message translates to:
+  /// **'Supporting the ummah matters deeply to me.'**
+  String get sifrQ15;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your app language'**
+  String get languageDescription;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow system'**
+  String get languageSystem;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

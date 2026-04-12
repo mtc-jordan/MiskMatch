@@ -21,11 +21,11 @@ from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import (
-    APIRouter, Depends, HTTPException, Query,
+    APIRouter, Depends, File, HTTPException, Query, UploadFile,
     WebSocket, WebSocketDisconnect, status,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 
 from app.core.database import get_db, AsyncSessionLocal
 from app.core.security import decode_token
@@ -38,6 +38,7 @@ from app.schemas.messages import (
     WSEventType, WSSendMessage,
 )
 from app.services import messages as msg_svc
+from app.services import storage as storage_svc
 from app.services.profiles import get_profile_by_user_id
 
 logger = logging.getLogger(__name__)
@@ -468,6 +469,83 @@ async def send_message_rest(
         updated_at=msg.updated_at,
         sender_name=sender_name,
     )
+
+
+# ─────────────────────────────────────────────
+# REST — UPLOAD VOICE MESSAGE
+# ─────────────────────────────────────────────
+
+# Voice messages accept m4a/aac/mpeg/wav/ogg/webm. 20 MB cap enforced by
+# storage service; duration cap 60 s. Flutter records to .m4a by default.
+_AUDIO_MAX_BYTES = 20 * 1024 * 1024
+
+
+@router.post(
+    "/{match_id}/audio",
+    summary="Upload a voice message",
+)
+async def upload_voice_message(
+    match_id: UUID,
+    current_user: CurrentUser,
+    db: DB,
+    audio: UploadFile = File(...),
+):
+    """
+    Upload a voice message for a chat. Returns the CDN URL of the uploaded
+    audio. Client follows up with a normal send-message call using
+    `content_type=audio` and `media_url=<returned url>` to actually post it
+    to the conversation.
+
+    Requires the caller to be an active participant in the match.
+    """
+    # ── Verify participant ──
+    match_result = await db.execute(
+        select(Match).where(
+            and_(
+                Match.id == match_id,
+                Match.status == MatchStatus.ACTIVE,
+                or_(
+                    Match.sender_id   == current_user.id,
+                    Match.receiver_id == current_user.id,
+                ),
+            )
+        )
+    )
+    if not match_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found, not active, or you are not a participant.",
+        )
+
+    # ── Read and validate the upload ──
+    file_bytes = await audio.read()
+    if not file_bytes:
+        raise HTTPException(status_code=422, detail="Empty audio upload.")
+    if len(file_bytes) > _AUDIO_MAX_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"Audio too large. Maximum "
+                f"{_AUDIO_MAX_BYTES // (1024 * 1024)}MB."
+            ),
+        )
+
+    content_type = audio.content_type or "audio/mp4"
+
+    # ── Upload to S3 ──
+    try:
+        url = await storage_svc.upload_chat_audio(
+            match_id=str(match_id),
+            user_id=str(current_user.id),
+            file_bytes=file_bytes,
+            content_type=content_type,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+    return {"media_url": url}
 
 
 # ─────────────────────────────────────────────

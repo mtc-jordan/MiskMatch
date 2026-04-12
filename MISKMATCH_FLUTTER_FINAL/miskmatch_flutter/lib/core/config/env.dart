@@ -67,6 +67,7 @@ abstract class AppConfig {
   static const String refreshTokenKey   = 'misk_refresh_token';
   static const String userIdKey         = 'misk_user_id';
   static const String genderKey         = 'misk_gender';
+  static const String localeKey         = 'misk_locale';
 
   // ── OTP ──────────────────────────────────────────────────────────────────
   static const int otpLength        = 6;

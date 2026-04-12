@@ -1296,4 +1296,122 @@ class SEn extends S {
   String selfIndicator(String name) {
     return 'You — $name';
   }
+
+  @override
+  String get sifrAssessmentTitle => 'Sifr Assessment';
+
+  @override
+  String get sifrIntroHeadline => 'Know yourself — before she knows you.';
+
+  @override
+  String get sifrIntroBody =>
+      'The Sifr assessment measures five Islamic virtues: generosity, patience, honesty, family orientation and community spirit. Your answers refine your compatibility matching — in shāʾ Allāh.';
+
+  @override
+  String get sifrBegin => 'Begin assessment';
+
+  @override
+  String sifrQuestionProgress(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get sifrScaleStronglyDisagree => 'Strongly disagree';
+
+  @override
+  String get sifrScaleDisagree => 'Disagree';
+
+  @override
+  String get sifrScaleNeutral => 'Neutral';
+
+  @override
+  String get sifrScaleAgree => 'Agree';
+
+  @override
+  String get sifrScaleStronglyAgree => 'Strongly agree';
+
+  @override
+  String get sifrBack => 'Back';
+
+  @override
+  String get sifrNext => 'Next';
+
+  @override
+  String get sifrSubmit => 'Submit assessment';
+
+  @override
+  String get sifrSaved => 'Assessment saved. Barak Allāhu feek!';
+
+  @override
+  String get sifrSaveFailed =>
+      'Could not save your assessment. Please try again.';
+
+  @override
+  String get sifrRetake => 'Retake Sifr assessment';
+
+  @override
+  String get sifrTakeIt => 'Take the Sifr assessment';
+
+  @override
+  String get sifrQ1 =>
+      'I regularly give from what I have — to family, friends and those in need.';
+
+  @override
+  String get sifrQ2 =>
+      'When I\'m tested, I remain calm and trust Allah\'s plan.';
+
+  @override
+  String get sifrQ3 => 'I speak the truth even when it\'s uncomfortable.';
+
+  @override
+  String get sifrQ4 =>
+      'Building a strong, loving family is one of my top priorities.';
+
+  @override
+  String get sifrQ5 => 'I actively participate in my Muslim community.';
+
+  @override
+  String get sifrQ6 => 'I enjoy hosting guests and sharing meals with others.';
+
+  @override
+  String get sifrQ7 => 'Difficult people teach me patience rather than anger.';
+
+  @override
+  String get sifrQ8 => 'I keep my promises, even when no one is watching.';
+
+  @override
+  String get sifrQ9 => 'I make time for my parents and siblings regularly.';
+
+  @override
+  String get sifrQ10 => 'I volunteer my time or skills to help others.';
+
+  @override
+  String get sifrQ11 => 'Wealth is a trust from Allah — I share it easily.';
+
+  @override
+  String get sifrQ12 => 'I rarely lose my temper, even under pressure.';
+
+  @override
+  String get sifrQ13 => 'Honesty guides my business and personal dealings.';
+
+  @override
+  String get sifrQ14 => 'I dream of raising righteous children insha\'Allah.';
+
+  @override
+  String get sifrQ15 => 'Supporting the ummah matters deeply to me.';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageDescription => 'Choose your app language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageSystem => 'Follow system';
 }

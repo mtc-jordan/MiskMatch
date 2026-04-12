@@ -564,5 +564,51 @@
     "placeholders": {
       "name": { "type": "String" }
     }
-  }
+  },
+
+  "sifrAssessmentTitle": "Sifr Assessment",
+  "sifrIntroHeadline": "Know yourself — before she knows you.",
+  "sifrIntroBody": "The Sifr assessment measures five Islamic virtues: generosity, patience, honesty, family orientation and community spirit. Your answers refine your compatibility matching — in shāʾ Allāh.",
+  "sifrBegin": "Begin assessment",
+  "sifrQuestionProgress": "Question {current} of {total}",
+  "@sifrQuestionProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total":   { "type": "int" }
+    }
+  },
+  "sifrScaleStronglyDisagree": "Strongly disagree",
+  "sifrScaleDisagree":         "Disagree",
+  "sifrScaleNeutral":          "Neutral",
+  "sifrScaleAgree":            "Agree",
+  "sifrScaleStronglyAgree":    "Strongly agree",
+  "sifrBack":     "Back",
+  "sifrNext":     "Next",
+  "sifrSubmit":   "Submit assessment",
+  "sifrSaved":    "Assessment saved. Barak Allāhu feek!",
+  "sifrSaveFailed": "Could not save your assessment. Please try again.",
+  "sifrRetake":   "Retake Sifr assessment",
+  "sifrTakeIt":   "Take the Sifr assessment",
+
+  "sifrQ1":  "I regularly give from what I have — to family, friends and those in need.",
+  "sifrQ2":  "When I'm tested, I remain calm and trust Allah's plan.",
+  "sifrQ3":  "I speak the truth even when it's uncomfortable.",
+  "sifrQ4":  "Building a strong, loving family is one of my top priorities.",
+  "sifrQ5":  "I actively participate in my Muslim community.",
+  "sifrQ6":  "I enjoy hosting guests and sharing meals with others.",
+  "sifrQ7":  "Difficult people teach me patience rather than anger.",
+  "sifrQ8":  "I keep my promises, even when no one is watching.",
+  "sifrQ9":  "I make time for my parents and siblings regularly.",
+  "sifrQ10": "I volunteer my time or skills to help others.",
+  "sifrQ11": "Wealth is a trust from Allah — I share it easily.",
+  "sifrQ12": "I rarely lose my temper, even under pressure.",
+  "sifrQ13": "Honesty guides my business and personal dealings.",
+  "sifrQ14": "I dream of raising righteous children insha'Allah.",
+  "sifrQ15": "Supporting the ummah matters deeply to me.",
+
+  "language":            "Language",
+  "languageDescription": "Choose your app language",
+  "languageEnglish":     "English",
+  "languageArabic":      "العربية",
+  "languageSystem":      "Follow system"
 }

@@ -7,6 +7,7 @@ import 'package:miskmatch/features/auth/providers/auth_provider.dart';
 import 'package:miskmatch/shared/models/api_response.dart';
 import 'package:miskmatch/features/wali/data/wali_repository.dart';
 import 'package:miskmatch/features/wali/providers/wali_provider.dart';
+import 'package:miskmatch/core/providers/locale_provider.dart';
 import 'package:miskmatch/core/theme/app_colors.dart';
 import 'package:miskmatch/core/theme/app_theme.dart';
 import 'package:miskmatch/core/theme/app_typography.dart';
@@ -130,6 +131,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _ThemeSegmentTile(
             themeMode: _themeMode,
             onChanged: (m) => setState(() => _themeMode = m),
+          ),
+
+          _LanguageTile(
+            current: ref.watch(localeProvider),
+            onChanged: (locale) =>
+                ref.read(localeProvider.notifier).setLocale(locale),
           ),
 
           const SizedBox(height: 12),
@@ -566,6 +573,122 @@ class _ThemeSegmentTile extends StatelessWidget {
           ),
         ]),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// LANGUAGE TILE
+// Tappable row that shows the current language
+// and opens a 3-option bottom sheet:
+//   System / English / العربية
+// ─────────────────────────────────────────────
+
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile({
+    required this.current,
+    required this.onChanged,
+  });
+
+  final Locale?                current;
+  final void Function(Locale?) onChanged;
+
+  String _label(BuildContext context) {
+    final l = S.of(context)!;
+    if (current == null) return l.languageSystem;
+    return current!.languageCode == 'ar' ? l.languageArabic : l.languageEnglish;
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final l = S.of(context)!;
+    await showModalBottomSheet<void>(
+      context:         context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => Container(
+        decoration: BoxDecoration(
+          color:        Theme.of(sheetCtx).scaffoldBackgroundColor,
+          borderRadius: AppRadius.bottomSheet,
+        ),
+        padding: EdgeInsets.only(
+          left: 8, right: 8, top: 8,
+          bottom: MediaQuery.of(sheetCtx).padding.bottom + 16,
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40, height: 4,
+            decoration: BoxDecoration(
+              color:        sheetCtx.handleColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          _LanguageOption(
+            label:    l.languageSystem,
+            icon:     Icons.brightness_auto_outlined,
+            selected: current == null,
+            onTap: () { Navigator.pop(sheetCtx); onChanged(null); },
+          ),
+          _LanguageOption(
+            label:    l.languageEnglish,
+            icon:     Icons.language_rounded,
+            selected: current?.languageCode == 'en',
+            onTap: () { Navigator.pop(sheetCtx); onChanged(const Locale('en')); },
+          ),
+          _LanguageOption(
+            label:    l.languageArabic,
+            icon:     Icons.language_rounded,
+            selected: current?.languageCode == 'ar',
+            onTap: () { Navigator.pop(sheetCtx); onChanged(const Locale('ar')); },
+          ),
+          const SizedBox(height: 8),
+        ]),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsTile(
+      icon:     Icons.translate_rounded,
+      label:    S.of(context)!.language,
+      subtitle: S.of(context)!.languageDescription,
+      trailing: Text(
+        _label(context),
+        style: AppTypography.bodySmall.copyWith(color: AppColors.roseDeep),
+      ),
+      onTap: () => _open(context),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  const _LanguageOption({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String       label;
+  final IconData     icon;
+  final bool         selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon,
+          color: selected ? AppColors.roseDeep : context.mutedText),
+      title: Text(label,
+        style: TextStyle(
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? AppColors.roseDeep : context.onSurface,
+        ),
+      ),
+      trailing: selected
+          ? const Icon(Icons.check_circle_rounded, color: AppColors.roseDeep)
+          : null,
+      onTap: onTap,
     );
   }
 }

@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional, List, Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.sanitize import sanitize_text
 from app.models.models import MessageStatus
@@ -19,10 +19,9 @@ from app.models.models import MessageStatus
 
 class SendMessageRequest(BaseModel):
     content: str = Field(
-        ...,
-        min_length=1,
+        default="",
         max_length=2000,
-        description="Message text content",
+        description="Message text content. Optional for audio/image messages.",
     )
     content_type: str = Field(
         default="text",
@@ -37,10 +36,20 @@ class SendMessageRequest(BaseModel):
     @field_validator("content")
     @classmethod
     def clean_content(cls, v: str) -> str:
-        v = sanitize_text(v)
-        if not v.strip():
-            raise ValueError("Message cannot be empty or whitespace only")
-        return v.strip()
+        return sanitize_text(v).strip()
+
+    @model_validator(mode="after")
+    def _enforce_content_for_type(self) -> "SendMessageRequest":
+        if self.content_type == "text":
+            if not self.content:
+                raise ValueError("Text messages must have non-empty content")
+        else:
+            # audio/image require a media_url
+            if not self.media_url:
+                raise ValueError(
+                    f"{self.content_type} messages require a media_url"
+                )
+        return self
 
 
 class MessageResponse(BaseModel):

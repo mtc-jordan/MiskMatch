@@ -80,6 +80,15 @@ def build_gallery_key(user_id: str, index: int) -> str:
     return f"gallery/{user_id}/photo_{index}_{unique}.jpg"
 
 
+def build_chat_audio_key(match_id: str, user_id: str) -> str:
+    """
+    S3 key for a voice message inside a chat.
+    Format: chat_audio/{match_id}/{user_id}/{uuid}.m4a
+    """
+    unique = uuid.uuid4().hex[:12]
+    return f"chat_audio/{match_id}/{user_id}/{unique}.m4a"
+
+
 # ─────────────────────────────────────────────
 # IMAGE PROCESSING
 # ─────────────────────────────────────────────
@@ -279,6 +288,70 @@ async def upload_quran_recitation(
     if settings.CLOUDFRONT_URL:
         return f"{settings.CLOUDFRONT_URL.rstrip('/')}/{key}"
     return f"https://{settings.S3_BUCKET_MEDIA}.s3.{settings.AWS_REGION}.amazonaws.com/{key}"
+
+
+async def upload_chat_audio(
+    match_id: str,
+    user_id: str,
+    file_bytes: bytes,
+    content_type: str,
+) -> str:
+    """
+    Upload a voice message attached to a chat.
+    Returns the CDN (or S3) URL of the uploaded audio.
+
+    Raises ValueError on invalid format/size, RuntimeError on S3 failure.
+    """
+    # .m4a files may arrive as audio/mp4 or audio/x-m4a depending on client
+    allowed = ALLOWED_AUDIO_TYPES | {"audio/x-m4a", "audio/aac"}
+    if content_type not in allowed:
+        raise ValueError(
+            f"Invalid audio format: {content_type}. "
+            f"Allowed: mp3, mp4/m4a, webm, ogg, wav"
+        )
+
+    size_mb = len(file_bytes) / (1024 * 1024)
+    if size_mb > MAX_AUDIO_SIZE_MB:
+        raise ValueError(
+            f"Audio too large: {size_mb:.1f}MB. Maximum {MAX_AUDIO_SIZE_MB}MB."
+        )
+
+    duration = _get_audio_duration(file_bytes)
+    if duration and duration > MAX_VOICE_DURATION:
+        raise ValueError(
+            f"Voice message too long: {duration:.0f}s. "
+            f"Maximum {MAX_VOICE_DURATION}s."
+        )
+
+    key = build_chat_audio_key(match_id, user_id)
+
+    try:
+        s3 = get_s3_client()
+        s3.put_object(
+            Bucket=settings.S3_BUCKET_MEDIA,
+            Key=key,
+            Body=file_bytes,
+            ContentType=content_type,
+            ServerSideEncryption="AES256",
+            Metadata={
+                "match-id":    str(match_id),
+                "user-id":     str(user_id),
+                "upload-type": "chat-audio",
+                "duration":    str(duration or ""),
+            },
+        )
+    except ClientError as e:
+        logger.error(
+            f"S3 chat audio upload failed for match {match_id} user {user_id}: {e}"
+        )
+        raise RuntimeError("Voice message upload failed. Please try again.")
+
+    if settings.CLOUDFRONT_URL:
+        return f"{settings.CLOUDFRONT_URL.rstrip('/')}/{key}"
+    return (
+        f"https://{settings.S3_BUCKET_MEDIA}.s3."
+        f"{settings.AWS_REGION}.amazonaws.com/{key}"
+    )
 
 
 async def delete_media(key: str, bucket: str) -> None:

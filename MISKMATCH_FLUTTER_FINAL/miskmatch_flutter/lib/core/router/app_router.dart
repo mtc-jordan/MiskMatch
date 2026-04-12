@@ -10,12 +10,16 @@ import 'package:miskmatch/features/auth/screens/wali_setup_screen.dart';
 import 'package:miskmatch/features/discovery/screens/discovery_screen.dart';
 import 'package:miskmatch/features/match/screens/matches_list_screen.dart';
 import 'package:miskmatch/features/match/screens/match_screen.dart';
+import 'package:miskmatch/features/calls/data/call_models.dart';
+import 'package:miskmatch/features/calls/screens/in_call_screen.dart';
+import 'package:miskmatch/features/calls/screens/ringing_screen.dart';
 import 'package:miskmatch/features/chat/screens/chat_screen.dart';
 import 'package:miskmatch/features/games/screens/game_hub_screen.dart';
 import 'package:miskmatch/features/games/screens/game_play_screen.dart';
 import 'package:miskmatch/features/wali/screens/wali_dashboard_screen.dart';
 import 'package:miskmatch/features/profile/screens/profile_screen.dart';
 import 'package:miskmatch/features/profile/screens/profile_edit_screen.dart';
+import 'package:miskmatch/features/profile/screens/sifr_screen.dart';
 import 'package:miskmatch/features/settings/screens/settings_screen.dart';
 import 'package:miskmatch/shared/widgets/main_shell.dart';
 
@@ -31,15 +35,20 @@ abstract class AppRoutes {
   static const chat        = '/match/:matchId/chat';
   static const gameHub     = '/match/:matchId/games';
   static const gamePlay    = '/match/:matchId/games/:gameType';
+  static const callActive   = '/call/active/:matchId';
+  static const callRinging  = '/call/ringing/:callId';
   static const wali        = '/wali';
   static const profile     = '/profile';
   static const profileEdit = '/profile/edit';
+  static const profileSifr = '/profile/sifr';
   static const settings    = '/settings';
 
   static String matchPath(String id)   => '/match/$id';
   static String chatPath(String id)    => '/match/$id/chat';
   static String gameHubPath(String id) => '/match/$id/games';
   static String gamePlayPath(String matchId, String type) => '/match/$matchId/games/$type';
+  static String callActivePath(String matchId)  => '/call/active/$matchId';
+  static String callRingingPath(String callId)  => '/call/ringing/$callId';
 }
 
 /// Notifier that GoRouter listens to for redirect re-evaluation.
@@ -218,6 +227,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (_, state) =>
                     _slideRight(const ProfileEditScreen(), state),
               ),
+              GoRoute(
+                path: 'sifr',
+                pageBuilder: (_, state) =>
+                    _slideRight(const SifrScreen(), state),
+              ),
             ],
           ),
         ],
@@ -228,6 +242,43 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.settings,
         pageBuilder: (_, state) =>
             _slideRight(const SettingsScreen(), state),
+      ),
+
+      // ── Calls — slide up (takeover) ─────────────
+      // InCallScreen: `extra` must be a Map<String, dynamic> with keys
+      //   callType, myName, otherName
+      GoRoute(
+        path: AppRoutes.callActive,
+        pageBuilder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? const {};
+          return _slideUp(
+            InCallScreen(
+              matchId:   state.pathParameters['matchId']!,
+              callType:  extra['callType'] as CallType? ?? CallType.videoChaperoned,
+              myName:    extra['myName']    as String?  ?? '',
+              otherName: extra['otherName'] as String?  ?? '',
+            ),
+            state,
+          );
+        },
+      ),
+      // RingingScreen: `extra` must be a Map<String, dynamic> with keys
+      //   callerName, callType, participantType, myName
+      GoRoute(
+        path: AppRoutes.callRinging,
+        pageBuilder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? const {};
+          return _slideUp(
+            RingingScreen(
+              callId:          state.pathParameters['callId']!,
+              callerName:      extra['callerName']      as String?  ?? '',
+              callType:        extra['callType']        as CallType? ?? CallType.videoChaperoned,
+              participantType: extra['participantType'] as String?  ?? 'receiver',
+              myName:          extra['myName']          as String?  ?? '',
+            ),
+            state,
+          );
+        },
       ),
 
       // ── Match detail + sub-routes ───────────────
